@@ -11,7 +11,7 @@ describe("Rln", function () {
     console.log("PoseidonHasher deployed to:", poseidonHasher.address);
   
     const Rln = await ethers.getContractFactory("RLN");
-    const rln = await Rln.deploy(1000000000000000,10,poseidonHasher.address);
+    const rln = await Rln.deploy(1000000000000000,20,poseidonHasher.address);
   
     await rln.deployed();
   

@@ -12,8 +12,8 @@ contract RLN {
 
 	IPoseidonHasher public poseidonHasher;
 
-	event MemberRegistered(uint256 pubkey, uint256 indexed index);
-	event MemberWithdrawn(uint256 pubkey, uint256 indexed index);
+	event MemberRegistered(uint256 pubkey, uint256 index);
+	event MemberWithdrawn(uint256 pubkey, uint256 index);
 
 	constructor(
 		uint256 membershipDeposit,
