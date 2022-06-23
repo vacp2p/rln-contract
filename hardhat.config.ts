@@ -6,6 +6,8 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 
 dotenv.config();
+const {GOERLI_URL,PRIVATE_KEY} = process.env;
+
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -21,7 +23,13 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.7.4"
+  solidity: "0.7.4",
+  networks: {
+    goerli: {
+      url: GOERLI_URL,
+      accounts: [`${PRIVATE_KEY}`]
+    }
+  }
 };
 
 export default config;
