@@ -3,7 +3,7 @@ pragma solidity 0.7.4;
 import { IPoseidonHasher } from "./PoseidonHasher.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract RLN {
+contract RLNERC20 {
 	uint256 public immutable MEMBERSHIP_DEPOSIT;
 	uint256 public immutable DEPTH;
 	uint256 public immutable SET_SIZE;
