@@ -60,7 +60,6 @@ contract RLN {
 		uint256 batchSize = secrets.length;
 		require(batchSize != 0, "RLN, withdrawBatch: batch size zero");
 		require(batchSize == pubkeyIndexes.length, "RLN, withdrawBatch: batch size mismatch pubkey indexes");
-		require(batchSize == receivers.length, "RLN, withdrawBatch: batch size mismatch receivers");
 		for (uint256 i = 0; i < batchSize; i++) {
 			_withdraw(secrets[i], pubkeyIndexes[i], msg.sender);
 		}
