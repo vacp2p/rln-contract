@@ -85,7 +85,8 @@ contract RLN {
 		members[_pubkeyIndex] = 0;
 
 		// refund deposit
-		receiver.transfer(MEMBERSHIP_DEPOSIT);
+		(bool sent, _) = receiver.call{value: MEMBERSHIP_DEPOSIT}("");
+        require(sent, "transfer failed");
 
 		emit MemberWithdrawn(pubkey, _pubkeyIndex);
 	}
