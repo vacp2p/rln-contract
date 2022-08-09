@@ -33,9 +33,10 @@ contract RLN {
 	}
 
 	function registerBatch(uint256[] calldata pubkeys) external payable {
-		require(pubkeyIndex + pubkeys.length <= SET_SIZE, "RLN, registerBatch: set is full");
-		require(msg.value == MEMBERSHIP_DEPOSIT * pubkeys.length, "RLN, registerBatch: membership deposit is not satisfied");
-		for (uint256 i = 0; i < pubkeys.length; i++) {
+		uint256 pubkeylen = pubkeys.length;
+		require(pubkeyIndex + pubkeylen <= SET_SIZE, "RLN, registerBatch: set is full");
+		require(msg.value == MEMBERSHIP_DEPOSIT * pubkeylen, "RLN, registerBatch: membership deposit is not satisfied");
+		for (uint256 i = 0; i < pubkeylen; i++) {
 			_register(pubkeys[i]);
 		}
 	}
