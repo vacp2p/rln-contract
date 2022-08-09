@@ -1,4 +1,4 @@
-pragma solidity 0.7.4;
+pragma solidity 0.8.15;
 
 interface IPoseidonHasher {
 	function hash(uint256[2] memory input) external pure returns (uint256 result);
