@@ -1,6 +1,7 @@
 pragma solidity 0.7.4;
 
 import { IPoseidonHasher } from "./PoseidonHasher.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract RLN {
 	uint256 public immutable MEMBERSHIP_DEPOSIT;
@@ -27,7 +28,7 @@ contract RLN {
 		DEPTH = depth;
 		SET_SIZE = 1 << depth;
 		poseidonHasher = IPoseidonHasher(_poseidonHasher);
-		AcceptedToken = IERC20(_acceptedTokenAddress)
+		AcceptedToken = IERC20(_acceptedTokenAddress);
 	}
 
 	function registerWithAcceptedToken(uint256 deposit, uint256 pubkey) external payable {
@@ -89,7 +90,7 @@ contract RLN {
 		members[_pubkeyIndex] = 0;
 
 		// refund deposit
-		AcceptedToken.transferFrom(address(this),receiver,MEMBERSHIP_DEPOSIT)
+		AcceptedToken.transferFrom(address(this),receiver,MEMBERSHIP_DEPOSIT);
 
 		emit MemberWithdrawn(pubkey, _pubkeyIndex);
 	}
