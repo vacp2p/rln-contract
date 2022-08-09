@@ -19,7 +19,7 @@ contract RLN {
 		uint256 membershipDeposit,
 		uint256 depth,
 		address _poseidonHasher
-	) public {
+	) {
 		MEMBERSHIP_DEPOSIT = membershipDeposit;
 		DEPTH = depth;
 		SET_SIZE = 1 << depth;
