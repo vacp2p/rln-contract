@@ -27,6 +27,19 @@ async function main() {
   await rln.deployed();
 
   console.log("Rln deployed to:", rln.address);
+
+  const Token = await ethers.getContractFactory("TokenRln");
+  const token = await Token.deploy(1000000000);
+
+  await token.deployed();
+
+  console.log("Rln token contract deployed to:", token.address);
+
+  const RlnErc20 = await ethers.getContractFactory("RLNERC20");
+  const rlnErc20 = await RlnErc20.deploy(10,20,poseidonHasher.address,token.address); //10 tokens as membership deposit
+
+  await rlnErc20.deployed();
+  console.log("RlnErc20 deployed to:", rlnErc20.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
