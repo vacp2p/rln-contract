@@ -6,6 +6,8 @@ contract RLN {
 	uint256 public immutable MEMBERSHIP_DEPOSIT;
 	uint256 public immutable DEPTH;
 	uint256 public immutable SET_SIZE;
+	uint256 public immutable WAD = 10 ** 18;
+	uint256 public immutable PROTOCOL_FEES_PERCENTAGE = 2 * 10 ** 17;// 20 Percent fees
 
 	uint256 public pubkeyIndex = 0;
 	mapping(uint256 => uint256) public members;
@@ -86,7 +88,8 @@ contract RLN {
 		members[_pubkeyIndex] = 0;
 
 		// refund deposit
-		(bool sent, _) = receiver.call{value: MEMBERSHIP_DEPOSIT}("");
+		uint256 withdrawableDeposit = MEMBERSHIP_DEPOSIT * (WAD - PROTOCOL_FEES_PERCENTAGE) / WAD
+		(bool sent, _) = receiver.call{value: withdrawableDeposit}("");
         require(sent, "transfer failed");
 
 		emit MemberWithdrawn(pubkey, _pubkeyIndex);
