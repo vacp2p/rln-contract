@@ -1,0 +1,27 @@
+name: Sync labels
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/labels.yml
+      - .github/workflows/sync-labels.yml
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: micnncim/action-label-syncer@v1
+        with:
+          manifest: .github/labels.yml
+          repository: |
+            vacp2p/pm
+            status-im/js-waku
+            status-im/nwaku
+            status-im/go-waku
+            waku-org/js-waku-examples
+            waku-org/waku.org
+            waku-org/waku.guide
+            waku-org/js.waku.guide
+          token: ${{ secrets.SYNC_LABELS }}
+          prune: true
