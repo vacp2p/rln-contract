@@ -23,7 +23,22 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.7.4",
+  solidity: {
+    compilers: [
+      {
+        version: "0.7.4",
+      },
+      {
+        version: "0.4.11"
+      },
+    ],
+    overrides: {
+      "contracts/STT.sol": {
+        version: "0.4.11",
+        settings: { }
+      }
+    }
+  },
   networks: {
     goerli: {
       url: GOERLI_URL,
