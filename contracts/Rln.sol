@@ -79,7 +79,7 @@ contract RLN {
 		require(receiver != address(0), "RLN, _withdraw: empty receiver address");
 
 		// derive public key
-		uint256 pubkey = _hash(secret);
+		uint256 pubkey = hash(secret);
 		require(members[_pubkeyIndex] == pubkey, "RLN, _withdraw: not verified");
 
 		// delete member
@@ -92,13 +92,7 @@ contract RLN {
 		emit MemberWithdrawn(pubkey, _pubkeyIndex);
 	}
 
-	function hash(
-		uint256 value
-	) external returns (uint256) {
-		return poseidonHasher.hash(value);
-	}
-
-	function _hash(uint256 input) internal view returns (uint256) {
+	function hash(uint256 input) internal view returns (uint256) {
 		return poseidonHasher.hash(input);
 	}
 }
