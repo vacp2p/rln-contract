@@ -79,20 +79,26 @@ contract RLN {
 		require(receiver != address(0), "RLN, _withdraw: empty receiver address");
 
 		// derive public key
-		uint256 pubkey = hash([secret, 0]);
+		uint256 pubkey = _hash(secret);
 		require(members[_pubkeyIndex] == pubkey, "RLN, _withdraw: not verified");
 
 		// delete member
 		members[_pubkeyIndex] = 0;
 
 		// refund deposit
-		(bool sent, _) = receiver.call{value: MEMBERSHIP_DEPOSIT}("");
+		(bool sent, bytes memory data) = receiver.call{value: MEMBERSHIP_DEPOSIT}("");
         require(sent, "transfer failed");
 
 		emit MemberWithdrawn(pubkey, _pubkeyIndex);
 	}
 
-	function hash(uint256[2] memory input) internal view returns (uint256) {
+	function hash(
+		uint256 value
+	) external returns (uint256) {
+		return poseidonHasher.hash(value);
+	}
+
+	function _hash(uint256 input) internal view returns (uint256) {
 		return poseidonHasher.hash(input);
 	}
 }
