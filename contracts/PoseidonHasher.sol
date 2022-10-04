@@ -153,7 +153,7 @@ contract PoseidonHasher is IPoseidonHasher {
 			// We load the characteristic
 			let q := Q
 
-			// In zerokit implementation, if we pass inp = [a0,a1,..,an] to Poseidonm what is effectively hashed is [0,a0,a1,..,an]
+			// In zerokit implementation, if we pass inp = [a0,a1,..,an] to Poseidon what is effectively hashed is [0,a0,a1,..,an]
 			// Note that a sequence of MIX-ARK involves 3 Bn254 field additions before the mulmod happens. Worst case we have a value corresponding to 2*(p-1) which is less than 2^256 and hence doesn't overflow
 			//ROUND 0 - FULL
 			let s0 := C0
