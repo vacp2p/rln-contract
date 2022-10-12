@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 import { IPoseidonHasher } from "./PoseidonHasher.sol";
 
 contract RLN {
+	uint256 constant Q = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
 	uint256 public immutable MEMBERSHIP_DEPOSIT;
 	uint256 public immutable DEPTH;
 	uint256 public immutable SET_SIZE;
@@ -42,7 +43,7 @@ contract RLN {
 	}
 
 	function _register(uint256 pubkey) internal {
-		members[pubkeyIndex] = pubkey;
+		members[pubkeyIndex] = mod(pubkey,Q);
 		emit MemberRegistered(pubkey, pubkeyIndex);
 		pubkeyIndex += 1;
 	}
