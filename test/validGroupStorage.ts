@@ -19,15 +19,8 @@ const createGroupId = (provider: string, name: string): bigint => {
 const providers = ['github', 'twitter', 'reddit'];
 const tiers = ['bronze', 'silver', 'gold'];
 
-const scaffoldInterep = async () => {
-    // Deploy interep
-    const InterepTest = await ethers.getContractFactory("InterepTest");
-    const interepTest = await InterepTest.deploy();
-    await interepTest.deployed();
-    const interepAddress = interepTest.address;
-
-    //  add all combinations of providers and tiers into an array
-    const groups = providers.flatMap(provider => tiers.map(tier => {
+const getGroups = () => {
+    return providers.flatMap(provider => tiers.map(tier => {
         return {
             provider: sToBytes32(provider),
             name: sToBytes32(tier),
@@ -35,19 +28,30 @@ const scaffoldInterep = async () => {
             depth: 10,
         }
     }));
+}
+
+const scaffoldInterep = async () => {
+    // Deploy interep
+    const InterepTest = await ethers.getContractFactory("InterepTest");
+    const interepTest = await InterepTest.deploy();
+    await interepTest.deployed();
+
+    //  add all combinations of providers and tiers into an array
+    const groups = getGroups();
     // insert groups into interep membership contract
     const groupInsertionTx = await interepTest.updateGroups(groups);
     await groupInsertionTx.wait();
 
-    return {interepTest, groups}
+    return interepTest
 }
 
 const scaffold = async () => {
-    const {interepTest, groups} = await scaffoldInterep();
+    const interepTest = await scaffoldInterep();
     const interepAddress = interepTest.address;
 
     // create valid group storage contract for rln
     const ValidGroupStorage = await ethers.getContractFactory("ValidGroupStorage");
+    const groups = getGroups();
     const filteredGroups = groups
         .filter(group => group.name !== sToBytes32('bronze'));
     const validGroupStorage = await ValidGroupStorage.deploy(interepAddress, filteredGroups);
@@ -64,7 +68,7 @@ describe("Valid Group Storage", () => {
     })
 
     it('should not deploy if an invalid group is passed in constructor', async () => {
-        const {interepTest} = await scaffoldInterep();
+        const interepTest = await scaffoldInterep();
         const interepAddress = interepTest.address;
         
         const ValidGroupStorage = await ethers.getContractFactory("ValidGroupStorage");
