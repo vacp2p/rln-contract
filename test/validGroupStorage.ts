@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import { Contract } from "ethers";
+import {Contract} from "ethers";
 import {ethers} from "hardhat";
 
 const sToBytes32 = (str: string): string => {
