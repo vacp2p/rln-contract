@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+      - id: dependencies
+        run: yarn install
+
+      - id: test
+        run: yarn test
+
+      - id: coverage
+        run: yarn coverage
+        
+      - id: Upload coverage results
+        uses: zgosalvez/github-actions-report-lcov@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-files: coverage/lcov.info
+          artifact-name: code-coverage-report

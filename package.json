@@ -8,7 +8,8 @@
     "test:localhost": "yarn test --network localhost",
     "deploy": "hardhat run scripts/deploy.ts --network",
     "deploy:goerli": "yarn deploy goerli",
-    "deploy:localhost": "yarn deploy localhost"
+    "deploy:localhost": "yarn deploy localhost",
+    "coverage": "hardhat coverage"
   },
   "devDependencies": {
     "@interep/contracts": "0.6.0",
