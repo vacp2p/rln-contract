@@ -1,14 +1,14 @@
-# Hardhat Project for Rln-membership-contract
+# Hardhat Project for Rln-interep-contract
 
 ## Compilation
 
 ```shell
-npx hardhat compile
+yarn compile
 ```
 
 ## Testing
 ```shell
-npx hardhat test
+yarn test
 ```
 
 ## Deploying
@@ -16,14 +16,14 @@ npx hardhat test
 - To deploy on local node, first start the local node and then run the deploy script
 
 ```shell
-npx hardhat node
-npx hardhat run --network localhost scripts/deploy.ts
+yarn start
+yarn deploy:localhost
 ```
 
 - To deploy to an target network (like Goerli), use the name as mentioned in the Hardhat config file.
 
 ```shell
-npx hardhat run --network <your-network> scripts/deploy.js
+yarn deploy:goerli
 ```
 ## References
 
