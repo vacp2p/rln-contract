@@ -11,7 +11,8 @@
     "deploy:localhost": "yarn deploy localhost",
     "coverage": "hardhat coverage",
     "fmt": "prettier --write \"**/*.{js,ts}\"",
-    "lint": "prettier --check \"**/*.{js,ts}\""
+    "lint": "prettier --check \"**/*.{js,ts}\"",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@interep/contracts": "0.6.0",
@@ -26,6 +27,8 @@
     "hardhat": "^2.9.9",
     "hardhat-deploy": "0.11.20",
     "hardhat-gas-reporter": "^1.0.8",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.0.3",
     "prettier": "^2.8.0",
     "solidity-coverage": "^0.7.21",
     "ts-node": "^10.8.1",
@@ -33,5 +36,10 @@
   },
   "dependencies": {
     "dotenv": "^16.0.1"
+  },
+  "lint-staged": {
+    "**/*": [
+      "prettier --write --ignore-unknown"
+    ]
   }
 }
