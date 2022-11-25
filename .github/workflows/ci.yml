@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - '**.sol'
       - 'scripts/**.ts'
@@ -12,7 +12,7 @@ on:
       - '.github/workflows/ci.yml'
 
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - '**.sol'
       - 'scripts/**.ts'
@@ -40,6 +40,8 @@ jobs:
         run: yarn coverage
         
       - id: Upload coverage results
+        # run only in pull requests
+        if: github.event_name == 'pull_request'
         uses: zgosalvez/github-actions-report-lcov@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
