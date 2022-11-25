@@ -90,12 +90,12 @@ describe("RLN", () => {
     const index2 = txRegisterReceipt2.events[0].args.index;
 
     const pk1 = await rln.members(index1);
-    const pk2 = await rln.members(index2);  
+    const pk2 = await rln.members(index2);
     const samePk = pk1.toHexString() === pk2.toHexString();
-    if(samePk) {
+    if (samePk) {
       assert(false, "same pubkey registered twice");
     }
-  })
+  });
 
   it("[interep] should register new memberships", () => {
     // TODO
