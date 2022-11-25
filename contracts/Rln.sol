@@ -42,9 +42,16 @@ contract RLN {
         _register(pubkey);
     }
 
+    /// @dev Registers a member via a valid Interep Semaphore group.
+    /// @param groupId: Id of the group.
+    /// @param signal: Semaphore signal.
+    /// @param nullifierHash: Nullifier hash.
+    /// @param externalNullifier: External nullifier.
+    /// @param proof: Zero-knowledge proof.
+    /// @param pubkey: Public key of the member.
     function register(
         uint256 groupId,
-        string calldata signal,
+        bytes32 signal,
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof,
@@ -55,7 +62,13 @@ contract RLN {
             "RLN, register: invalid interep group"
         );
         require(pubkeyIndex < SET_SIZE, "RLN, register: set is full");
-        // TODO: verify proof
+        interep.verifyProof(
+            groupId,
+            signal,
+            nullifierHash,
+            externalNullifier,
+            proof
+        );
         _register(pubkey);
     }
 

@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { expect, assert } from "chai";
 import { ethers, deployments } from "hardhat";
 
 describe("RLN", () => {
@@ -65,5 +65,43 @@ describe("RLN", () => {
       withdrawalTreeIndex.toHexString() === treeIndex.toHexString(),
       "withdraw index doesn't match registered index"
     );
+  });
+
+  it("should not allow multiple registrations with same pubkey", async () => {
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+
+    const price = await rln.MEMBERSHIP_DEPOSIT();
+
+    // A valid pair of (id_secret, id_commitment) generated in rust
+    const idCommitment =
+      "0x0c3ac305f6a4fe9bfeb3eba978bc876e2a99208b8b56c80160cfb54ba8f02368";
+
+    const registerTx = await rln["register(uint256)"](idCommitment, {
+      value: price,
+    });
+    const txRegisterReceipt = await registerTx.wait();
+    const index1 = txRegisterReceipt.events[0].args.index;
+
+    // Send the same tx again
+    const registerTx2 = await rln["register(uint256)"](idCommitment, {
+      value: price,
+    });
+    const txRegisterReceipt2 = await registerTx2.wait();
+    const index2 = txRegisterReceipt2.events[0].args.index;
+
+    const pk1 = await rln.members(index1);
+    const pk2 = await rln.members(index2);  
+    const samePk = pk1.toHexString() === pk2.toHexString();
+    if(samePk) {
+      assert(false, "same pubkey registered twice");
+    }
+  })
+
+  it("[interep] should register new memberships", () => {
+    // TODO
+  });
+
+  it("[interep] should withdraw membership", () => {
+    // TODO
   });
 });
