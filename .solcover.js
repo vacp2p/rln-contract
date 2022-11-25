@@ -1,4 +1,4 @@
 module.exports = {
-    istanbulReporter: ['lcov'],
-    istanbulFolder: 'coverage',
-}
+  istanbulReporter: ["lcov"],
+  istanbulFolder: "coverage",
+};

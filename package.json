@@ -9,7 +9,8 @@
     "deploy": "hardhat run scripts/deploy.ts --network",
     "deploy:goerli": "yarn deploy goerli",
     "deploy:localhost": "yarn deploy localhost",
-    "coverage": "hardhat coverage"
+    "coverage": "hardhat coverage",
+    "fmt": "prettier --write \"**/*.{js,ts}\""
   },
   "devDependencies": {
     "@interep/contracts": "0.6.0",
@@ -24,6 +25,7 @@
     "hardhat": "^2.9.9",
     "hardhat-deploy": "0.11.20",
     "hardhat-gas-reporter": "^1.0.8",
+    "prettier": "^2.8.0",
     "solidity-coverage": "^0.7.21",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.4"
