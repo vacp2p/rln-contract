@@ -39,7 +39,7 @@ jobs:
       - id: coverage
         run: yarn coverage
         
-      - id: Upload coverage results
+      - id: upload-coverage
         # run only in pull requests
         if: github.event_name == 'pull_request'
         uses: zgosalvez/github-actions-report-lcov@v1
