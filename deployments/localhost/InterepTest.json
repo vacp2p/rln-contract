@@ -1,0 +1,354 @@
+{
+  "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "groupId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "provider",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "name",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "root",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint8",
+          "name": "depth",
+          "type": "uint8"
+        }
+      ],
+      "name": "GroupUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "nullifierHash",
+          "type": "uint256"
+        }
+      ],
+      "name": "NullifierHashAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "groupId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "signal",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ProofVerified",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "groupId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getDepth",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "groupId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoot",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "groups",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "provider",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "name",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "root",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "depth",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "provider",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "name",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "root",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "depth",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct IInterep.Group[]",
+          "name": "_groups",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "updateGroups",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "groupId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "signal",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nullifierHash",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "externalNullifier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[8]",
+          "name": "proof",
+          "type": "uint256[8]"
+        }
+      ],
+      "name": "verifyProof",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xae96071f4bf0c893a293894326d92c0e0a219aab41a2d659621a0f8e2e5266e3",
+  "receipt": {
+    "to": null,
+    "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "contractAddress": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "transactionIndex": 0,
+    "gasUsed": "595225",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x61bcaf553e2b76f90c68125b05da3035f7d91d3bfeab900c886c6a917b97bc67",
+    "transactionHash": "0xae96071f4bf0c893a293894326d92c0e0a219aab41a2d659621a0f8e2e5266e3",
+    "logs": [],
+    "blockNumber": 2,
+    "cumulativeGasUsed": "595225",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "ead6ef53c3357eb855a45d268525327d",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.4+commit.c7e474f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"groupId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"provider\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"root\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"depth\",\"type\":\"uint8\"}],\"name\":\"GroupUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"nullifierHash\",\"type\":\"uint256\"}],\"name\":\"NullifierHashAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"groupId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"signal\",\"type\":\"bytes32\"}],\"name\":\"ProofVerified\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"groupId\",\"type\":\"uint256\"}],\"name\":\"getDepth\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"groupId\",\"type\":\"uint256\"}],\"name\":\"getRoot\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"groups\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"provider\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"root\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"depth\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"provider\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"root\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"depth\",\"type\":\"uint8\"}],\"internalType\":\"struct IInterep.Group[]\",\"name\":\"_groups\",\"type\":\"tuple[]\"}],\"name\":\"updateGroups\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"groupId\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"signal\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"nullifierHash\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"externalNullifier\",\"type\":\"uint256\"},{\"internalType\":\"uint256[8]\",\"name\":\"proof\",\"type\":\"uint256[8]\"}],\"name\":\"verifyProof\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"mimics https://github.com/interep-project/contracts/blob/main/contracts/Interep.sol but ignores the verification mechanism\"},\"getDepth(uint256)\":{\"details\":\"See {IInterep-getDepth}.\"},\"getRoot(uint256)\":{\"details\":\"See {IInterep-getRoot}.\"},\"updateGroups((bytes32,bytes32,uint256,uint8)[])\":{\"details\":\"See {IInterep-updateGroups}.\"},\"verifyProof(uint256,bytes32,uint256,uint256,uint256[8])\":{\"details\":\"Saves the nullifier hash to avoid double signaling and emits an event if the zero-knowledge proof is valid.\",\"params\":{\"externalNullifier\":\": External nullifier.\",\"groupId\":\": Id of the group.\",\"nullifierHash\":\": Nullifier hash.\",\"proof\":\": Zero-knowledge proof.\",\"signal\":\": Semaphore signal.\"}}},\"version\":1},\"userdoc\":{\"events\":{\"NullifierHashAdded(uint256)\":{\"notice\":\"Emitted when a proof is verified correctly and a new nullifier hash is added.\"}},\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/InterepTest.sol\":\"InterepTest\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@interep/contracts/IInterep.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity ^0.8.4;\\n\\n/// @title Interep interface.\\n/// @dev Interface of a Interep contract.\\ninterface IInterep {\\n    struct Verifier {\\n        address contractAddress;\\n        uint8 merkleTreeDepth;\\n    }\\n\\n    struct Group {\\n        bytes32 provider;\\n        bytes32 name;\\n        uint256 root;\\n        uint8 depth;\\n    }\\n\\n    /// @dev Emitted when a Semaphore proof is verified.\\n    /// @param groupId: Id of the group.\\n    /// @param signal: Semaphore signal.\\n    event ProofVerified(uint256 indexed groupId, bytes32 signal);\\n\\n    /// @dev Emitted when an Interep group is updated.\\n    /// @param groupId: Id of the group.\\n    /// @param provider: Provider of the group.\\n    /// @param name: Name of the group.\\n    /// @param root: Root hash of the tree.\\n    /// @param depth: Depth of the tree.\\n    event GroupUpdated(\\n        uint256 groupId,\\n        bytes32 indexed provider,\\n        bytes32 indexed name,\\n        uint256 root,\\n        uint8 indexed depth\\n    );\\n\\n    /// @dev Updates the Interep groups.\\n    /// @param groups: List of Interep groups.\\n    function updateGroups(Group[] calldata groups) external;\\n\\n    /// @dev Saves the nullifier hash to avoid double signaling and emits an event\\n    /// if the zero-knowledge proof is valid.\\n    /// @param groupId: Id of the group.\\n    /// @param signal: Semaphore signal.\\n    /// @param nullifierHash: Nullifier hash.\\n    /// @param externalNullifier: External nullifier.\\n    /// @param proof: Zero-knowledge proof.\\n    function verifyProof(\\n        uint256 groupId,\\n        bytes32 signal,\\n        uint256 nullifierHash,\\n        uint256 externalNullifier,\\n        uint256[8] calldata proof\\n    ) external;\\n\\n    /// @dev Returns the root hash of an Interep group.\\n    /// @param groupId: Id of the group.\\n    /// @return Root hash of the group.\\n    function getRoot(uint256 groupId) external view returns (uint256);\\n\\n    /// @dev Returns the tree depth of an Interep group.\\n    /// @param groupId: Id of the group.\\n    /// @return Tree depth of the group.\\n    function getDepth(uint256 groupId) external view returns (uint8);\\n}\\n\",\"keccak256\":\"0xd3279ce9fbbb58b7567f66d18735f81df7e8ee61c677e9dd739d3a4823e31c5d\",\"license\":\"MIT\"},\"@semaphore-protocol/contracts/base/SemaphoreConstants.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity 0.8.4;\\n\\nuint256 constant SNARK_SCALAR_FIELD = 21888242871839275222246405745257275088548364400416034343698204186575808495617;\\n\",\"keccak256\":\"0xc39b4ffdba083c6cf3287f62b663b576f7b4bd7ae2cecf1fc5cb498b56a288d2\",\"license\":\"MIT\"},\"@semaphore-protocol/contracts/base/SemaphoreCore.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity 0.8.4;\\n\\nimport \\\"../interfaces/ISemaphoreCore.sol\\\";\\nimport \\\"../interfaces/IVerifier.sol\\\";\\n\\n/// @title Semaphore core contract.\\n/// @notice Minimal code to allow users to signal their endorsement of an arbitrary string.\\n/// @dev The following code verifies that the proof is correct and saves the hash of the\\n/// nullifier to prevent double-signaling. External nullifier and Merkle trees (i.e. groups) must be\\n/// managed externally.\\ncontract SemaphoreCore is ISemaphoreCore {\\n    /// @dev Asserts that no nullifier already exists and if the zero-knowledge proof is valid.\\n    /// Otherwise it reverts.\\n    /// @param signal: Semaphore signal.\\n    /// @param root: Root of the Merkle tree.\\n    /// @param nullifierHash: Nullifier hash.\\n    /// @param externalNullifier: External nullifier.\\n    /// @param proof: Zero-knowledge proof.\\n    /// @param verifier: Verifier address.\\n    function _verifyProof(\\n        bytes32 signal,\\n        uint256 root,\\n        uint256 nullifierHash,\\n        uint256 externalNullifier,\\n        uint256[8] calldata proof,\\n        IVerifier verifier\\n    ) internal view {\\n        uint256 signalHash = _hashSignal(signal);\\n\\n        verifier.verifyProof(\\n            [proof[0], proof[1]],\\n            [[proof[2], proof[3]], [proof[4], proof[5]]],\\n            [proof[6], proof[7]],\\n            [root, nullifierHash, signalHash, externalNullifier]\\n        );\\n    }\\n\\n    /// @dev Creates a keccak256 hash of the signal.\\n    /// @param signal: Semaphore signal.\\n    /// @return Hash of the signal.\\n    function _hashSignal(bytes32 signal) private pure returns (uint256) {\\n        return uint256(keccak256(abi.encodePacked(signal))) >> 8;\\n    }\\n}\\n\",\"keccak256\":\"0x223ddad2fcd7613cbeadb62b93ddabc77e5cbee35ab8b84eb46866453ad9c27a\",\"license\":\"MIT\"},\"@semaphore-protocol/contracts/interfaces/ISemaphoreCore.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity 0.8.4;\\n\\n/// @title SemaphoreCore interface.\\n/// @dev Interface of SemaphoreCore contract.\\ninterface ISemaphoreCore {\\n    /// @notice Emitted when a proof is verified correctly and a new nullifier hash is added.\\n    /// @param nullifierHash: Hash of external and identity nullifiers.\\n    event NullifierHashAdded(uint256 nullifierHash);\\n}\\n\",\"keccak256\":\"0xe2bb5ef4b7bde6bf303cd6d0368c6db5e0b14d378a32e061f79eb3169c05e867\",\"license\":\"MIT\"},\"@semaphore-protocol/contracts/interfaces/IVerifier.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity 0.8.4;\\n\\n/// @title Verifier interface.\\n/// @dev Interface of Verifier contract.\\ninterface IVerifier {\\n    function verifyProof(\\n        uint256[2] memory a,\\n        uint256[2][2] memory b,\\n        uint256[2] memory c,\\n        uint256[4] memory input\\n    ) external view;\\n}\\n\",\"keccak256\":\"0x99f67a355d4a91fa3543f3ad4e41902a7c014fc4de5344f2b795a3bffbb7938e\",\"license\":\"MIT\"},\"contracts/InterepTest.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.4;\\n\\nimport \\\"@interep/contracts/IInterep.sol\\\";\\nimport \\\"@semaphore-protocol/contracts/interfaces/IVerifier.sol\\\";\\nimport \\\"@semaphore-protocol/contracts/base/SemaphoreCore.sol\\\";\\nimport \\\"@semaphore-protocol/contracts/base/SemaphoreConstants.sol\\\";\\n\\ncontract InterepTest is IInterep, SemaphoreCore {\\n    mapping(uint256 => Group) public groups;\\n\\n    /// @dev mimics https://github.com/interep-project/contracts/blob/main/contracts/Interep.sol but ignores the verification mechanism\\n    constructor() {}\\n\\n    /// @dev See {IInterep-updateGroups}.\\n    function updateGroups(Group[] calldata _groups) external override {\\n        for (uint8 i = 0; i < _groups.length; i++) {\\n            uint256 groupId = uint256(\\n                keccak256(\\n                    abi.encodePacked(_groups[i].provider, _groups[i].name)\\n                )\\n            ) % SNARK_SCALAR_FIELD;\\n\\n            _updateGroup(groupId, _groups[i]);\\n        }\\n    }\\n\\n    /// @dev See {IInterep-getRoot}.\\n    function getRoot(uint256 groupId) public view override returns (uint256) {\\n        return groups[groupId].root;\\n    }\\n\\n    /// @dev See {IInterep-getDepth}.\\n    function getDepth(uint256 groupId) public view override returns (uint8) {\\n        return groups[groupId].depth;\\n    }\\n\\n    /// @dev Updates an Interep group.\\n    /// @param groupId: Id of the group.\\n    /// @param group: Group data.\\n    function _updateGroup(uint256 groupId, Group calldata group) private {\\n        groups[groupId] = group;\\n\\n        emit GroupUpdated(\\n            groupId,\\n            group.provider,\\n            group.name,\\n            group.root,\\n            group.depth\\n        );\\n    }\\n\\n    function verifyProof(\\n        uint256 groupId,\\n        bytes32 signal,\\n        uint256 nullifierHash,\\n        uint256 externalNullifier,\\n        uint256[8] calldata proof\\n    ) external override {}\\n}\\n\",\"keccak256\":\"0x4fbfe762940f6551b5432f1d811fc829e8cfea41c087107d22df0969ffb652b7\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506109d8806100206000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c806358bdf0f41461005c5780636673e8491461007857806375e618c91461009457806396324bd4146100c45780639b24b3b0146100f7575b600080fd5b6100766004803603810190610071919061043a565b610127565b005b610092600480360381019061008d91906104a8565b610281565b005b6100ae60048036038101906100a9919061047f565b610288565b6040516100bb9190610642565b60405180910390f35b6100de60048036038101906100d9919061047f565b6102b4565b6040516100ee94939291906105b9565b60405180910390f35b610111600480360381019061010c919061047f565b6102f1565b60405161011e91906105fe565b60405180910390f35b60005b828290508160ff16101561027c5760007f30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f000000184848460ff16818110610197577f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b9050608002016000013585858560ff168181106101dd577f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b905060800201602001356040516020016101f892919061058d565b6040516020818303038152906040528051906020012060001c61021b9190610770565b90506102688185858560ff1681811061025d577f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b905060800201610310565b5080806102749061073c565b91505061012a565b505050565b5050505050565b600080600083815260200190815260200160002060030160009054906101000a900460ff169050919050565b60006020528060005260406000206000915090508060000154908060010154908060020154908060030160009054906101000a900460ff16905084565b6000806000838152602001908152602001600020600201549050919050565b80600080848152602001908152602001600020818161032f9190610909565b9050508060600160208101906103459190610520565b60ff16816020013582600001357f3c0faca11540ab6635a2fc029595f2f4ffdd340883eea6c374bf74a68eef5c7d858560400135604051610387929190610619565b60405180910390a45050565b60008083601f8401126103a557600080fd5b8235905067ffffffffffffffff8111156103be57600080fd5b6020830191508360808202830111156103d657600080fd5b9250929050565b6000819050826020600802820111156103f557600080fd5b92915050565b60008135905061040a8161095d565b92915050565b60008135905061041f81610974565b92915050565b6000813590506104348161098b565b92915050565b6000806020838503121561044d57600080fd5b600083013567ffffffffffffffff81111561046757600080fd5b61047385828601610393565b92509250509250929050565b60006020828403121561049157600080fd5b600061049f84828501610410565b91505092915050565b600080600080600061018086880312156104c157600080fd5b60006104cf88828901610410565b95505060206104e0888289016103fb565b94505060406104f188828901610410565b935050606061050288828901610410565b9250506080610513888289016103dd565b9150509295509295909350565b60006020828403121561053257600080fd5b600061054084828501610425565b91505092915050565b6105528161065d565b82525050565b6105696105648261065d565b610766565b82525050565b61057881610667565b82525050565b61058781610671565b82525050565b60006105998285610558565b6020820191506105a98284610558565b6020820191508190509392505050565b60006080820190506105ce6000830187610549565b6105db6020830186610549565b6105e8604083018561056f565b6105f5606083018461057e565b95945050505050565b6000602082019050610613600083018461056f565b92915050565b600060408201905061062e600083018561056f565b61063b602083018461056f565b9392505050565b6000602082019050610657600083018461057e565b92915050565b6000819050919050565b6000819050919050565b600060ff82169050919050565b60006106898261065d565b9050919050565b600061069b82610667565b9050919050565b60006106ad82610671565b9050919050565b6000810160008301806106c681610825565b90506106d281846108e6565b5050506001810160208301806106e781610825565b90506106f381846108e6565b5050506002810160408301806107088161083b565b90506107148184610917565b50505060038101606083018061072981610851565b9050610735818461093a565b5050505050565b600061074782610671565b915060ff82141561075b5761075a6107a1565b5b600182019050919050565b6000819050919050565b600061077b82610667565b915061078683610667565b925082610796576107956107d0565b5b828206905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b600061080a82610874565b9050919050565b6000819050919050565b6000819050919050565b600081356108328161095d565b80915050919050565b6000813561084881610974565b80915050919050565b6000813561085e8161098b565b80915050919050565b60008160001b9050919050565b60008160001c9050919050565b600060ff61088e84610867565b9350801983169250808416831791505092915050565b60007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6108d084610867565b9350801983169250808416831791505092915050565b6108ef8261067e565b6109026108fb826107ff565b83546108a4565b8255505050565b61091382826106b4565b5050565b61092082610690565b61093361092c82610811565b83546108a4565b8255505050565b610943826106a2565b61095661094f8261081b565b8354610881565b8255505050565b6109668161065d565b811461097157600080fd5b50565b61097d81610667565b811461098857600080fd5b50565b61099481610671565b811461099f57600080fd5b5056fea26469706673582212206e21e337a655e4cf563a8b749306991621994d8d58a9b80fa9e3918452fdbf5864736f6c63430008040033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c806358bdf0f41461005c5780636673e8491461007857806375e618c91461009457806396324bd4146100c45780639b24b3b0146100f7575b600080fd5b6100766004803603810190610071919061043a565b610127565b005b610092600480360381019061008d91906104a8565b610281565b005b6100ae60048036038101906100a9919061047f565b610288565b6040516100bb9190610642565b60405180910390f35b6100de60048036038101906100d9919061047f565b6102b4565b6040516100ee94939291906105b9565b60405180910390f35b610111600480360381019061010c919061047f565b6102f1565b60405161011e91906105fe565b60405180910390f35b60005b828290508160ff16101561027c5760007f30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f000000184848460ff16818110610197577f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b9050608002016000013585858560ff168181106101dd577f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b905060800201602001356040516020016101f892919061058d565b6040516020818303038152906040528051906020012060001c61021b9190610770565b90506102688185858560ff1681811061025d577f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b905060800201610310565b5080806102749061073c565b91505061012a565b505050565b5050505050565b600080600083815260200190815260200160002060030160009054906101000a900460ff169050919050565b60006020528060005260406000206000915090508060000154908060010154908060020154908060030160009054906101000a900460ff16905084565b6000806000838152602001908152602001600020600201549050919050565b80600080848152602001908152602001600020818161032f9190610909565b9050508060600160208101906103459190610520565b60ff16816020013582600001357f3c0faca11540ab6635a2fc029595f2f4ffdd340883eea6c374bf74a68eef5c7d858560400135604051610387929190610619565b60405180910390a45050565b60008083601f8401126103a557600080fd5b8235905067ffffffffffffffff8111156103be57600080fd5b6020830191508360808202830111156103d657600080fd5b9250929050565b6000819050826020600802820111156103f557600080fd5b92915050565b60008135905061040a8161095d565b92915050565b60008135905061041f81610974565b92915050565b6000813590506104348161098b565b92915050565b6000806020838503121561044d57600080fd5b600083013567ffffffffffffffff81111561046757600080fd5b61047385828601610393565b92509250509250929050565b60006020828403121561049157600080fd5b600061049f84828501610410565b91505092915050565b600080600080600061018086880312156104c157600080fd5b60006104cf88828901610410565b95505060206104e0888289016103fb565b94505060406104f188828901610410565b935050606061050288828901610410565b9250506080610513888289016103dd565b9150509295509295909350565b60006020828403121561053257600080fd5b600061054084828501610425565b91505092915050565b6105528161065d565b82525050565b6105696105648261065d565b610766565b82525050565b61057881610667565b82525050565b61058781610671565b82525050565b60006105998285610558565b6020820191506105a98284610558565b6020820191508190509392505050565b60006080820190506105ce6000830187610549565b6105db6020830186610549565b6105e8604083018561056f565b6105f5606083018461057e565b95945050505050565b6000602082019050610613600083018461056f565b92915050565b600060408201905061062e600083018561056f565b61063b602083018461056f565b9392505050565b6000602082019050610657600083018461057e565b92915050565b6000819050919050565b6000819050919050565b600060ff82169050919050565b60006106898261065d565b9050919050565b600061069b82610667565b9050919050565b60006106ad82610671565b9050919050565b6000810160008301806106c681610825565b90506106d281846108e6565b5050506001810160208301806106e781610825565b90506106f381846108e6565b5050506002810160408301806107088161083b565b90506107148184610917565b50505060038101606083018061072981610851565b9050610735818461093a565b5050505050565b600061074782610671565b915060ff82141561075b5761075a6107a1565b5b600182019050919050565b6000819050919050565b600061077b82610667565b915061078683610667565b925082610796576107956107d0565b5b828206905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b600061080a82610874565b9050919050565b6000819050919050565b6000819050919050565b600081356108328161095d565b80915050919050565b6000813561084881610974565b80915050919050565b6000813561085e8161098b565b80915050919050565b60008160001b9050919050565b60008160001c9050919050565b600060ff61088e84610867565b9350801983169250808416831791505092915050565b60007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6108d084610867565b9350801983169250808416831791505092915050565b6108ef8261067e565b6109026108fb826107ff565b83546108a4565b8255505050565b61091382826106b4565b5050565b61092082610690565b61093361092c82610811565b83546108a4565b8255505050565b610943826106a2565b61095661094f8261081b565b8354610881565b8255505050565b6109668161065d565b811461097157600080fd5b50565b61097d81610667565b811461098857600080fd5b50565b61099481610671565b811461099f57600080fd5b5056fea26469706673582212206e21e337a655e4cf563a8b749306991621994d8d58a9b80fa9e3918452fdbf5864736f6c63430008040033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "details": "mimics https://github.com/interep-project/contracts/blob/main/contracts/Interep.sol but ignores the verification mechanism"
+      },
+      "getDepth(uint256)": {
+        "details": "See {IInterep-getDepth}."
+      },
+      "getRoot(uint256)": {
+        "details": "See {IInterep-getRoot}."
+      },
+      "updateGroups((bytes32,bytes32,uint256,uint8)[])": {
+        "details": "See {IInterep-updateGroups}."
+      },
+      "verifyProof(uint256,bytes32,uint256,uint256,uint256[8])": {
+        "details": "Saves the nullifier hash to avoid double signaling and emits an event if the zero-knowledge proof is valid.",
+        "params": {
+          "externalNullifier": ": External nullifier.",
+          "groupId": ": Id of the group.",
+          "nullifierHash": ": Nullifier hash.",
+          "proof": ": Zero-knowledge proof.",
+          "signal": ": Semaphore signal."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "NullifierHashAdded(uint256)": {
+        "notice": "Emitted when a proof is verified correctly and a new nullifier hash is added."
+      }
+    },
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 225,
+        "contract": "contracts/InterepTest.sol:InterepTest",
+        "label": "groups",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_struct(Group)16_storage)"
+      }
+    ],
+    "types": {
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_uint256,t_struct(Group)16_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct IInterep.Group)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Group)16_storage"
+      },
+      "t_struct(Group)16_storage": {
+        "encoding": "inplace",
+        "label": "struct IInterep.Group",
+        "members": [
+          {
+            "astId": 9,
+            "contract": "contracts/InterepTest.sol:InterepTest",
+            "label": "provider",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 11,
+            "contract": "contracts/InterepTest.sol:InterepTest",
+            "label": "name",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 13,
+            "contract": "contracts/InterepTest.sol:InterepTest",
+            "label": "root",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 15,
+            "contract": "contracts/InterepTest.sol:InterepTest",
+            "label": "depth",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint8"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}

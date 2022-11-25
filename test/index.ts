@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { ethers } from "hardhat";
 
-describe("Rln", function () {
+describe.skip("Rln", function () {
   it("Deploying", async function () {
     const PoseidonHasher = await ethers.getContractFactory("PoseidonHasher");
     const poseidonHasher = await PoseidonHasher.deploy();

@@ -3,6 +3,12 @@ pragma solidity ^0.8.4;
 
 import "@interep/contracts/Interep.sol";
 
+interface IValidGroupStorage {
+    function isValidGroup(uint256 groupId) external view returns (bool);
+
+    function interep() external view returns (address);
+}
+
 contract ValidGroupStorage {
     mapping(uint256 => bool) public validGroups;
 

@@ -1,0 +1,50 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "@interep/contracts/IInterep.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\n/// @title Interep interface.\n/// @dev Interface of a Interep contract.\ninterface IInterep {\n    struct Verifier {\n        address contractAddress;\n        uint8 merkleTreeDepth;\n    }\n\n    struct Group {\n        bytes32 provider;\n        bytes32 name;\n        uint256 root;\n        uint8 depth;\n    }\n\n    /// @dev Emitted when a Semaphore proof is verified.\n    /// @param groupId: Id of the group.\n    /// @param signal: Semaphore signal.\n    event ProofVerified(uint256 indexed groupId, bytes32 signal);\n\n    /// @dev Emitted when an Interep group is updated.\n    /// @param groupId: Id of the group.\n    /// @param provider: Provider of the group.\n    /// @param name: Name of the group.\n    /// @param root: Root hash of the tree.\n    /// @param depth: Depth of the tree.\n    event GroupUpdated(\n        uint256 groupId,\n        bytes32 indexed provider,\n        bytes32 indexed name,\n        uint256 root,\n        uint8 indexed depth\n    );\n\n    /// @dev Updates the Interep groups.\n    /// @param groups: List of Interep groups.\n    function updateGroups(Group[] calldata groups) external;\n\n    /// @dev Saves the nullifier hash to avoid double signaling and emits an event\n    /// if the zero-knowledge proof is valid.\n    /// @param groupId: Id of the group.\n    /// @param signal: Semaphore signal.\n    /// @param nullifierHash: Nullifier hash.\n    /// @param externalNullifier: External nullifier.\n    /// @param proof: Zero-knowledge proof.\n    function verifyProof(\n        uint256 groupId,\n        bytes32 signal,\n        uint256 nullifierHash,\n        uint256 externalNullifier,\n        uint256[8] calldata proof\n    ) external;\n\n    /// @dev Returns the root hash of an Interep group.\n    /// @param groupId: Id of the group.\n    /// @return Root hash of the group.\n    function getRoot(uint256 groupId) external view returns (uint256);\n\n    /// @dev Returns the tree depth of an Interep group.\n    /// @param groupId: Id of the group.\n    /// @return Tree depth of the group.\n    function getDepth(uint256 groupId) external view returns (uint8);\n}\n"
+    },
+    "@semaphore-protocol/contracts/base/SemaphoreConstants.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity 0.8.4;\n\nuint256 constant SNARK_SCALAR_FIELD = 21888242871839275222246405745257275088548364400416034343698204186575808495617;\n"
+    },
+    "@semaphore-protocol/contracts/base/SemaphoreCore.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity 0.8.4;\n\nimport \"../interfaces/ISemaphoreCore.sol\";\nimport \"../interfaces/IVerifier.sol\";\n\n/// @title Semaphore core contract.\n/// @notice Minimal code to allow users to signal their endorsement of an arbitrary string.\n/// @dev The following code verifies that the proof is correct and saves the hash of the\n/// nullifier to prevent double-signaling. External nullifier and Merkle trees (i.e. groups) must be\n/// managed externally.\ncontract SemaphoreCore is ISemaphoreCore {\n    /// @dev Asserts that no nullifier already exists and if the zero-knowledge proof is valid.\n    /// Otherwise it reverts.\n    /// @param signal: Semaphore signal.\n    /// @param root: Root of the Merkle tree.\n    /// @param nullifierHash: Nullifier hash.\n    /// @param externalNullifier: External nullifier.\n    /// @param proof: Zero-knowledge proof.\n    /// @param verifier: Verifier address.\n    function _verifyProof(\n        bytes32 signal,\n        uint256 root,\n        uint256 nullifierHash,\n        uint256 externalNullifier,\n        uint256[8] calldata proof,\n        IVerifier verifier\n    ) internal view {\n        uint256 signalHash = _hashSignal(signal);\n\n        verifier.verifyProof(\n            [proof[0], proof[1]],\n            [[proof[2], proof[3]], [proof[4], proof[5]]],\n            [proof[6], proof[7]],\n            [root, nullifierHash, signalHash, externalNullifier]\n        );\n    }\n\n    /// @dev Creates a keccak256 hash of the signal.\n    /// @param signal: Semaphore signal.\n    /// @return Hash of the signal.\n    function _hashSignal(bytes32 signal) private pure returns (uint256) {\n        return uint256(keccak256(abi.encodePacked(signal))) >> 8;\n    }\n}\n"
+    },
+    "@semaphore-protocol/contracts/interfaces/ISemaphoreCore.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity 0.8.4;\n\n/// @title SemaphoreCore interface.\n/// @dev Interface of SemaphoreCore contract.\ninterface ISemaphoreCore {\n    /// @notice Emitted when a proof is verified correctly and a new nullifier hash is added.\n    /// @param nullifierHash: Hash of external and identity nullifiers.\n    event NullifierHashAdded(uint256 nullifierHash);\n}\n"
+    },
+    "@semaphore-protocol/contracts/interfaces/IVerifier.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity 0.8.4;\n\n/// @title Verifier interface.\n/// @dev Interface of Verifier contract.\ninterface IVerifier {\n    function verifyProof(\n        uint256[2] memory a,\n        uint256[2][2] memory b,\n        uint256[2] memory c,\n        uint256[4] memory input\n    ) external view;\n}\n"
+    },
+    "contracts/InterepTest.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\nimport \"@interep/contracts/IInterep.sol\";\nimport \"@semaphore-protocol/contracts/interfaces/IVerifier.sol\";\nimport \"@semaphore-protocol/contracts/base/SemaphoreCore.sol\";\nimport \"@semaphore-protocol/contracts/base/SemaphoreConstants.sol\";\n\ncontract InterepTest is IInterep, SemaphoreCore {\n    mapping(uint256 => Group) public groups;\n\n    /// @dev mimics https://github.com/interep-project/contracts/blob/main/contracts/Interep.sol but ignores the verification mechanism\n    constructor() {}\n\n    /// @dev See {IInterep-updateGroups}.\n    function updateGroups(Group[] calldata _groups) external override {\n        for (uint8 i = 0; i < _groups.length; i++) {\n            uint256 groupId = uint256(\n                keccak256(\n                    abi.encodePacked(_groups[i].provider, _groups[i].name)\n                )\n            ) % SNARK_SCALAR_FIELD;\n\n            _updateGroup(groupId, _groups[i]);\n        }\n    }\n\n    /// @dev See {IInterep-getRoot}.\n    function getRoot(uint256 groupId) public view override returns (uint256) {\n        return groups[groupId].root;\n    }\n\n    /// @dev See {IInterep-getDepth}.\n    function getDepth(uint256 groupId) public view override returns (uint8) {\n        return groups[groupId].depth;\n    }\n\n    /// @dev Updates an Interep group.\n    /// @param groupId: Id of the group.\n    /// @param group: Group data.\n    function _updateGroup(uint256 groupId, Group calldata group) private {\n        groups[groupId] = group;\n\n        emit GroupUpdated(\n            groupId,\n            group.provider,\n            group.name,\n            group.root,\n            group.depth\n        );\n    }\n\n    function verifyProof(\n        uint256 groupId,\n        bytes32 signal,\n        uint256 nullifierHash,\n        uint256 externalNullifier,\n        uint256[8] calldata proof\n    ) external override {}\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

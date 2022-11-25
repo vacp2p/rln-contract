@@ -1,10 +1,13 @@
 import * as dotenv from "dotenv";
 
 import { HardhatUserConfig, task } from "hardhat/config";
+import { NetworksUserConfig } from "hardhat/types";
+
+import "hardhat-deploy";
+import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-import { NetworksUserConfig } from "hardhat/types";
 
 dotenv.config();
 const {GOERLI_URL,PRIVATE_KEY} = process.env;
