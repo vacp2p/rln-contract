@@ -1,6 +1,18 @@
 {
-  "name": "hardhat-project",
+  "name": "rln-interep-contracts",
+  "license": "MIT",
+  "scripts": {
+    "start": "hardhat node",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "test:localhost": "yarn test --network localhost",
+    "deploy": "hardhat run scripts/deploy.ts --network",
+    "deploy:goerli": "yarn deploy goerli",
+    "deploy:localhost": "yarn deploy localhost"
+  },
   "devDependencies": {
+    "@interep/contracts": "0.6.0",
+    "@semaphore-protocol/contracts": "2.6.1",
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
