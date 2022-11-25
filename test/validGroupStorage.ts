@@ -5,7 +5,7 @@ import {sToBytes32, createGroupId} from '../common';
 
 describe("Valid Group Storage", () => {
     beforeEach(async () => {
-        await deployments.fixture(['InterepTest', 'ValidGroupStorage']);
+        await deployments.fixture(['ValidGroupStorage']);
     })
 
     it('should not deploy if an invalid group is passed in constructor', async () => {

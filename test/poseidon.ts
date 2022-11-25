@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers, deployments } from "hardhat";
 
-describe("PoseidonHash", () => {
+describe("PoseidonHasher", () => {
   beforeEach(async () => {
     await deployments.fixture(["PoseidonHasher"]);
   });
