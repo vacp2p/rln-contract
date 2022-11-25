@@ -8,12 +8,14 @@ contract RLN {
 	uint256 public immutable SET_SIZE;
 
 	uint256 public pubkeyIndex = 0;
+	// This mapping is used to keep track of the public keys that have been registered
+	// with the stake
 	mapping(uint256 => uint256) public members;
 
 	IPoseidonHasher public poseidonHasher;
 
 	event MemberRegistered(uint256 pubkey, uint256 index);
-	event MemberWithdrawn(uint256 pubkey, uint256 index);
+	event MemberWithdrawn(uint256 pubkey);
 
 	constructor(
 		uint256 membershipDeposit,
@@ -27,6 +29,7 @@ contract RLN {
 	}
 
 	function register(uint256 pubkey) external payable {
+		require(members[pubkey] == 0, "RLN, register: pubkey already registered");
 		require(pubkeyIndex < SET_SIZE, "RLN, register: set is full");
 		require(msg.value == MEMBERSHIP_DEPOSIT, "RLN, register: membership deposit is not satisfied");
 		_register(pubkey);
@@ -42,54 +45,48 @@ contract RLN {
 	}
 
 	function _register(uint256 pubkey) internal {
-		members[pubkeyIndex] = pubkey;
+		// Set the pubkey to the value of the tx
+		members[pubkey] = msg.value;
 		emit MemberRegistered(pubkey, pubkeyIndex);
 		pubkeyIndex += 1;
 	}
 
 	function withdrawBatch(
 		uint256[] calldata secrets,
-		uint256[] calldata pubkeyIndexes,
 		address payable[] calldata receivers
 	) external {
 		uint256 batchSize = secrets.length;
 		require(batchSize != 0, "RLN, withdrawBatch: batch size zero");
-		require(batchSize == pubkeyIndexes.length, "RLN, withdrawBatch: batch size mismatch pubkey indexes");
 		require(batchSize == receivers.length, "RLN, withdrawBatch: batch size mismatch receivers");
 		for (uint256 i = 0; i < batchSize; i++) {
-			_withdraw(secrets[i], pubkeyIndexes[i], receivers[i]);
+			_withdraw(secrets[i], receivers[i]);
 		}
 	}
 
 	function withdraw(
 		uint256 secret,
-		uint256 _pubkeyIndex,
 		address payable receiver
 	) external {
-		_withdraw(secret, _pubkeyIndex, receiver);
+		_withdraw(secret, receiver);
 	}
 
 	function _withdraw(
 		uint256 secret,
-		uint256 _pubkeyIndex,
 		address payable receiver
 	) internal {
-		require(_pubkeyIndex < SET_SIZE, "RLN, _withdraw: invalid pubkey index");
-		require(members[_pubkeyIndex] != 0, "RLN, _withdraw: member doesn't exist");
-		require(receiver != address(0), "RLN, _withdraw: empty receiver address");
-
 		// derive public key
 		uint256 pubkey = hash(secret);
-		require(members[_pubkeyIndex] == pubkey, "RLN, _withdraw: not verified");
-
-		// delete member
-		members[_pubkeyIndex] = 0;
-
+		require(members[pubkey] != 0, "RLN, _withdraw: member doesn't exist");
+		require(receiver != address(0), "RLN, _withdraw: empty receiver address");
+	
 		// refund deposit
-		(bool sent, bytes memory data) = receiver.call{value: MEMBERSHIP_DEPOSIT}("");
+		(bool sent, bytes memory data) = receiver.call{value: members[pubkey]}("");
         require(sent, "transfer failed");
 
-		emit MemberWithdrawn(pubkey, _pubkeyIndex);
+		// delete member only if refund is successful
+		members[pubkey] = 0;
+
+		emit MemberWithdrawn(pubkey);
 	}
 
 	function hash(uint256 input) internal view returns (uint256) {
