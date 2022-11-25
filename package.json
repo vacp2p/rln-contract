@@ -10,7 +10,8 @@
     "deploy:goerli": "yarn deploy goerli",
     "deploy:localhost": "yarn deploy localhost",
     "coverage": "hardhat coverage",
-    "fmt": "prettier --write \"**/*.{js,ts}\""
+    "fmt": "prettier --write \"**/*.{js,ts}\"",
+    "lint": "prettier --check \"**/*.{js,ts}\""
   },
   "devDependencies": {
     "@interep/contracts": "0.6.0",

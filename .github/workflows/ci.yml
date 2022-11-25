@@ -33,6 +33,9 @@ jobs:
       - id: dependencies
         run: yarn install
 
+      - id: lint
+        run: yarn lint
+
       - id: test
         run: yarn test
 
