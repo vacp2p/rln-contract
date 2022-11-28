@@ -5,6 +5,9 @@ import {
   createGroupId,
   createInterepIdentity,
   createInterepProof,
+  getGroups,
+  getValidGroups,
+  merkleTreeDepth,
   sToBytes32,
 } from "../common";
 
@@ -139,7 +142,7 @@ describe("RLN", () => {
     expect(pubkey.toHexString() === dummyPubkey.toHexString());
   });
 
-  it.only("[interep] should generate proof for registration", async () => {
+  it("[interep] should generate proof for registration", async () => {
     const signer = ethers.provider.getSigner(0);
     const identity = await createInterepIdentity(signer, "github");
 
@@ -165,7 +168,94 @@ describe("RLN", () => {
     );
   });
 
-  it("[interep] should withdraw membership", () => {
-    // TODO
+  it("[interep] should register with valid proof", async () => {
+    // need to create new fixtures for this test
+    const { PoseidonHasher } = await deployments.fixture("PoseidonHasher");
+    const verifier20Factory = await ethers.getContractFactory("Verifier20");
+    const verifier20 = await verifier20Factory.deploy();
+    await verifier20.deployed();
+    const interepFactory = await ethers.getContractFactory(
+      "Interep",
+      ethers.provider.getSigner(0)
+    );
+    const interep = await interepFactory.deploy([
+      {
+        contractAddress: verifier20.address,
+        merkleTreeDepth: merkleTreeDepth,
+      },
+    ]);
+    await interep.deployed();
+    const groupTx = await interep.updateGroups(getGroups());
+    await groupTx.wait();
+
+    const validGroupStorageFactory = await ethers.getContractFactory(
+      "ValidGroupStorage"
+    );
+    const validGroupStorage = await validGroupStorageFactory.deploy(
+      interep.address,
+      getValidGroups()
+    );
+    await validGroupStorage.deployed();
+
+    const rlnFactory = await ethers.getContractFactory(
+      "RLN",
+      ethers.provider.getSigner(0)
+    );
+    const rln = await rlnFactory.deploy(
+      1000000000000000,
+      20,
+      PoseidonHasher.address,
+      validGroupStorage.address
+    );
+
+    await rln.deployed();
+
+    const identity = await createInterepIdentity(
+      ethers.provider.getSigner(0),
+      "github"
+    );
+
+    // create a proof to test
+    const proof = await createInterepProof({
+      identity,
+      members: [identity.getCommitment()],
+      groupProvider: "github",
+      groupTier: "silver",
+      signal: sToBytes32("foo"),
+      externalNullifier: 1,
+      snarkArtifacts: {
+        wasmFilePath: "./test/snarkArtifacts/semaphore.wasm",
+        zkeyFilePath: "./test/snarkArtifacts/semaphore.zkey",
+      },
+    });
+
+    // update root of group
+    const groupUpdateTx = await interep.updateGroups([
+      {
+        provider: sToBytes32("github"),
+        name: sToBytes32("silver"),
+        root: proof.publicSignals.merkleRoot,
+        depth: 20,
+      },
+    ]);
+
+    await groupUpdateTx.wait();
+
+    const registerTx = await rln[
+      "register(uint256,bytes32,uint256,uint256,uint256[8],uint256)"
+    ](
+      proof.groupId,
+      proof.signal,
+      proof.publicSignals.nullifierHash,
+      proof.publicSignals.externalNullifier,
+      proof.solidityProof,
+      identity.getCommitment()
+    );
+
+    const txRegisterReceipt = await registerTx.wait();
+
+    expect(txRegisterReceipt.events[1].args.pubkey.toHexString()).to.eql(
+      BigNumber.from(identity.getCommitment()).toHexString()
+    );
   });
 });
