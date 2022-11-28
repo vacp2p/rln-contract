@@ -7,10 +7,30 @@ import "@semaphore-protocol/contracts/base/SemaphoreCore.sol";
 import "@semaphore-protocol/contracts/base/SemaphoreConstants.sol";
 
 contract InterepTest is IInterep, SemaphoreCore {
+    /// @dev Gets a tree depth and returns its verifier address.
+    mapping(uint8 => IVerifier) public verifiers;
+
     mapping(uint256 => Group) public groups;
 
-    /// @dev mimics https://github.com/interep-project/contracts/blob/main/contracts/Interep.sol but ignores the verification mechanism
-    constructor() {}
+    /// @dev Checks if there is a verifier for the given tree depth.
+    /// @param depth: Depth of the tree.
+    modifier onlySupportedDepth(uint8 depth) {
+        require(
+            address(verifiers[depth]) != address(0),
+            "Interep: tree depth is not supported"
+        );
+        _;
+    }
+
+    /// @dev Initializes the Semaphore verifiers used to verify the user's ZK proofs.
+    /// @param _verifiers: List of Semaphore verifiers (address and related Merkle tree depth).
+    constructor(Verifier[] memory _verifiers) {
+        for (uint8 i = 0; i < _verifiers.length; i++) {
+            verifiers[_verifiers[i].merkleTreeDepth] = IVerifier(
+                _verifiers[i].contractAddress
+            );
+        }
+    }
 
     /// @dev See {IInterep-updateGroups}.
     function updateGroups(Group[] calldata _groups) external override {
@@ -50,11 +70,33 @@ contract InterepTest is IInterep, SemaphoreCore {
         );
     }
 
+    /// @dev See {IInterep-verifyProof}.
     function verifyProof(
         uint256 groupId,
         bytes32 signal,
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof
-    ) external override {}
+    ) external override {
+        uint256 root = getRoot(groupId);
+        uint8 depth = getDepth(groupId);
+
+        require(depth != 0, "Interep: group does not exist");
+
+        IVerifier verifier = verifiers[depth];
+
+        _verifyProof(
+            signal,
+            root,
+            nullifierHash,
+            externalNullifier,
+            proof,
+            verifier
+        );
+
+        // TODO: check if the nullifier is not used before
+        // _saveNullifierHash(nullifierHash);
+
+        emit ProofVerified(groupId, signal);
+    }
 }
