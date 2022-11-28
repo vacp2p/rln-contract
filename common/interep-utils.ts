@@ -4,7 +4,8 @@ export const sToBytes32 = (str: string): string => {
   return utils.formatBytes32String(str);
 };
 
-export const merkleTreeDepth = 10;
+// zerokit can only use 15, 19, and 20 depth
+export const merkleTreeDepth = 15;
 
 export const SNARK_SCALAR_FIELD = BigInt(
   "21888242871839275222246405745257275088548364400416034343698204186575808495617"

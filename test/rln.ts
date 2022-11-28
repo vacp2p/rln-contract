@@ -1,7 +1,7 @@
 import { expect, assert } from "chai";
 import { BigNumber } from "ethers";
 import { ethers, deployments } from "hardhat";
-import { createGroupId } from "../common";
+import { createGroupId, sToBytes32 } from "../common";
 
 describe("RLN", () => {
   beforeEach(async () => {
@@ -103,7 +103,7 @@ describe("RLN", () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
     const validGroupId = createGroupId("github", "silver");
-    const dummySignal = ethers.utils.formatBytes32String("foo");
+    const dummySignal = sToBytes32("foo");
     const dummyNullifierHash = BigNumber.from(0);
     const dummyExternalNullifier = BigNumber.from(0);
     const dummyProof = Array(8).fill(BigNumber.from(0));
