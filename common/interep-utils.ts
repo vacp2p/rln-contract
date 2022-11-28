@@ -4,6 +4,8 @@ export const sToBytes32 = (str: string): string => {
   return utils.formatBytes32String(str);
 };
 
+export const merkleTreeDepth = 10;
+
 export const SNARK_SCALAR_FIELD = BigInt(
   "21888242871839275222246405745257275088548364400416034343698204186575808495617"
 );
@@ -31,7 +33,7 @@ export const getGroups = () => {
         provider: sToBytes32(provider),
         name: sToBytes32(tier),
         root: 1,
-        depth: 10,
+        depth: merkleTreeDepth,
       };
     })
   );
