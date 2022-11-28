@@ -94,8 +94,11 @@ contract InterepTest is IInterep, SemaphoreCore {
             verifier
         );
 
-        // TODO: check if the nullifier is not used before
-        // _saveNullifierHash(nullifierHash);
+        // NOTE: After @interep/contracts is updated to use @semaphore-protocol/contracts v2,6.1, the logic to saveNullifierHash will change
+        // ref: https://github.com/semaphore-protocol/semaphore/blob/68779e90a0db120d9c36143c5f48ca6fd1a2a159/packages/contracts/contracts/interfaces/ISemaphore.sol#L23
+        // https://github.com/semaphore-protocol/semaphore/blob/68779e90a0db120d9c36143c5f48ca6fd1a2a159/packages/contracts/contracts/Semaphore.sol#L162-L171
+        // Till then, downgrading semaphore-protocol/contracts to v2.0.0
+        _saveNullifierHash(nullifierHash);
 
         emit ProofVerified(groupId, signal);
     }
