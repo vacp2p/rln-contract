@@ -1,7 +1,12 @@
 import { expect, assert } from "chai";
 import { BigNumber } from "ethers";
 import { ethers, deployments } from "hardhat";
-import { createGroupId, sToBytes32 } from "../common";
+import {
+  createGroupId,
+  createInterepIdentity,
+  createInterepProof,
+  sToBytes32,
+} from "../common";
 
 describe("RLN", () => {
   beforeEach(async () => {
@@ -132,6 +137,32 @@ describe("RLN", () => {
 
     const pubkey = txRegisterReceipt.events[1].args.pubkey;
     expect(pubkey.toHexString() === dummyPubkey.toHexString());
+  });
+
+  it.only("[interep] should generate proof for registration", async () => {
+    const signer = ethers.provider.getSigner(0);
+    const identity = await createInterepIdentity(signer, "github");
+
+    // create a proof to test
+    const proof = await createInterepProof({
+      identity,
+      members: [identity.getCommitment()],
+      groupProvider: "github",
+      groupTier: "silver",
+      signal: "foo",
+      externalNullifier: 1,
+      snarkArtifacts: {
+        wasmFilePath: "./test/snarkArtifacts/semaphore.wasm",
+        zkeyFilePath: "./test/snarkArtifacts/semaphore.zkey",
+      },
+    });
+
+    expect(proof.groupId).to.eql(
+      "19580063316323634959827976785370507245708993886389832860880129572471638471998"
+    );
+    expect(proof.publicSignals.merkleRoot).to.eql(
+      "10738127364751233254031334835017982823925916365031589705155005906674724477907"
+    );
   });
 
   it("[interep] should withdraw membership", () => {

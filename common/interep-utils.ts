@@ -1,11 +1,17 @@
-import { utils } from "ethers";
+import { Signer, utils } from "ethers";
+import createIdentity from "@interep/identity";
+import { Group, Member } from "@semaphore-protocol/group";
+import { generateProof, packToSolidityProof } from "@semaphore-protocol/proof";
+import type { Identity } from "@semaphore-protocol/identity";
+// import createProof from '@interep/proof'
+import type { SnarkArtifacts } from "@interep/proof/dist/types/types";
 
 export const sToBytes32 = (str: string): string => {
   return utils.formatBytes32String(str);
 };
 
 // zerokit can only use 15, 19, and 20 depth
-export const merkleTreeDepth = 15;
+export const merkleTreeDepth = 20;
 
 export const SNARK_SCALAR_FIELD = BigInt(
   "21888242871839275222246405745257275088548364400416034343698204186575808495617"
@@ -42,4 +48,60 @@ export const getGroups = () => {
 
 export const getValidGroups = () => {
   return getGroups().filter((group) => group.name !== sToBytes32("bronze"));
+};
+
+export const createInterepIdentity = (signer: Signer, provider: string) => {
+  if (!providers.includes(provider))
+    throw new Error(`Invalid provider: ${provider}`);
+
+  const sign = (message: string) => signer.signMessage(message);
+  return createIdentity(sign, provider);
+};
+
+interface ProofCreationArgs {
+  identity: Identity;
+  members: Member[];
+  groupProvider: typeof providers[0];
+  groupTier: typeof tiers[0];
+  externalNullifier: number;
+  signal: string;
+  snarkArtifacts: SnarkArtifacts;
+}
+
+// Similar to https://github.com/interep-project/interep.js/blob/ae7d19f560a63fef08b71ecba7a926729538011c/packages/proof/src/createProof.ts#L21,
+// but without the api interactions
+// Note: An aribitrary set of members is passed in, without validation
+// when this function is called, ensure that the membership set passed in is a valid representation of onchain membership
+export const createInterepProof = async (args: ProofCreationArgs) => {
+  const group = new Group(merkleTreeDepth);
+
+  const idCommitment = args.identity.getCommitment();
+
+  group.addMembers(args.members);
+
+  const memberIndex = group.indexOf(idCommitment);
+  if (memberIndex === -1) {
+    throw new Error("The semaphore identity is not yet verifiable onchain");
+  }
+
+  const merkleProof = group.generateProofOfMembership(memberIndex);
+
+  const { publicSignals, proof } = await generateProof(
+    args.identity,
+    merkleProof,
+    BigInt(args.externalNullifier),
+    args.signal,
+    args.snarkArtifacts
+  );
+
+  const solidityProof = packToSolidityProof(proof);
+  const groupId = createGroupId(args.groupProvider, args.groupTier).toString();
+
+  return {
+    groupId,
+    signal: args.signal,
+    publicSignals,
+    proof,
+    solidityProof,
+  };
 };
