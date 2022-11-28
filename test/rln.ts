@@ -1,5 +1,7 @@
 import { expect, assert } from "chai";
+import { BigNumber } from "ethers";
 import { ethers, deployments } from "hardhat";
+import { createGroupId } from "../common";
 
 describe("RLN", () => {
   beforeEach(async () => {
@@ -67,7 +69,7 @@ describe("RLN", () => {
     );
   });
 
-  it("should not allow multiple registrations with same pubkey", async () => {
+  it.skip("should not allow multiple registrations with same pubkey", async () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
@@ -97,8 +99,39 @@ describe("RLN", () => {
     }
   });
 
-  it("[interep] should register new memberships", () => {
-    // TODO
+  it("[interep] should register new memberships", async () => {
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+
+    const validGroupId = createGroupId("github", "silver");
+    const dummySignal = ethers.utils.formatBytes32String("foo");
+    const dummyNullifierHash = BigNumber.from(0);
+    const dummyExternalNullifier = BigNumber.from(0);
+    const dummyProof = Array(8).fill(BigNumber.from(0));
+    const dummyPubkey = BigNumber.from(0);
+
+    const registerTx = await rln[
+      "register(uint256,bytes32,uint256,uint256,uint256[8],uint256)"
+    ](
+      validGroupId,
+      dummySignal,
+      dummyNullifierHash,
+      dummyExternalNullifier,
+      dummyProof,
+      dummyPubkey
+    );
+    const txRegisterReceipt = await registerTx.wait();
+
+    const iface = new ethers.utils.Interface([
+      "event ProofVerified(uint256 indexed groupId, bytes32 signal)",
+    ]);
+    const event = iface.parseLog(txRegisterReceipt.events[0]);
+    expect(event.args.groupId.toHexString()).to.equal(
+      BigNumber.from(validGroupId).toHexString()
+    );
+    expect(event.args.signal).to.equal(dummySignal);
+
+    const pubkey = txRegisterReceipt.events[1].args.pubkey;
+    expect(pubkey.toHexString() === dummyPubkey.toHexString());
   });
 
   it("[interep] should withdraw membership", () => {
