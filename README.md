@@ -1,3 +1,6 @@
+The [RLN](contracts/Rln.sol) and [PoseidonHasher](contracts/PoseidonHasher.sol) smart contracts are initially borrowed from the following repository https://github.com/kilic/rlnapp and some modifications are made on top of them.
+They may undertake further changes in the future as needed.
+
 # Hardhat Project for Rln-membership-contract
 
 ## Compilation
