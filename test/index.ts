@@ -1,4 +1,4 @@
-import { assert } from "chai";
+import { assert, expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("Rln", function () {
@@ -34,16 +34,41 @@ describe("Rln", function () {
 
     // We withdraw our id_commitment
     const receiver_address = "0x000000000000000000000000000000000000dead";
-    const res_withdraw = await rln.withdraw(id_secret, reg_tree_index, receiver_address);
+    const res_withdraw = await rln.withdraw(id_secret, receiver_address);
     
     const txWithdrawReceipt = await res_withdraw.wait();
 
     const wit_pubkey =  txWithdrawReceipt.events[0].args.pubkey;
-    const wit_tree_index =  txWithdrawReceipt.events[0].args.index;
 
     // We ensure the registered id_commitment is the one we passed and that the index is the same
-    assert(wit_pubkey.toHexString() === id_commitment, "withdraw commitment doesn't match registered commitmet");
-    assert(wit_tree_index.toHexString() === reg_tree_index.toHexString(), "withdraw index doesn't match registered index");
+    assert(wit_pubkey.toHexString() === id_commitment, "withdraw commitment doesn't match registered commitment");
+    const pubkeyIndex = (await rln.pubkeyIndex()).toNumber();
+    assert(pubkeyIndex === 1, "pubkeyIndex should be 1");
+  });
 
+  it("should not allow dupe registrations", async () => {
+    const PoseidonHasher = await ethers.getContractFactory("PoseidonHasher");
+    const poseidonHasher = await PoseidonHasher.deploy();
+  
+    await poseidonHasher.deployed();
+  
+    console.log("PoseidonHasher deployed to:", poseidonHasher.address);
+
+    const Rln = await ethers.getContractFactory("RLN");
+    const rln = await Rln.deploy(1000000000000000, 20, poseidonHasher.address);
+  
+    await rln.deployed();
+
+    console.log("Rln deployed to:", rln.address);
+    
+    const price = await rln.MEMBERSHIP_DEPOSIT();
+
+    // A valid id_commitment generated in rust
+    const id_commitment = "0x0c3ac305f6a4fe9bfeb3eba978bc876e2a99208b8b56c80160cfb54ba8f02368"
+
+    await rln.register(id_commitment, {value: price});
+
+    expect(rln.register(id_commitment, {value: price})).to.be.revertedWith("RLN, register: pubkey already registered");
+    
   });
 });
