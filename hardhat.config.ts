@@ -18,6 +18,9 @@ const getNetworkConfig = (): NetworksUserConfig | undefined => {
       goerli: {
         url: GOERLI_URL,
         accounts: [PRIVATE_KEY],
+        forking: {
+          url: GOERLI_URL,
+        },
       },
     };
   }
