@@ -31,7 +31,15 @@ export const createGroupId = (provider: string, name: string): bigint => {
 };
 
 const providers = ["github", "twitter", "reddit"];
-const tiers = ["bronze", "silver", "gold"];
+const tiers = ["bronze", "silver", "gold", "unrated"];
+
+// from goerli.interep.link
+const validGroups: {
+  [key: string]: string[];
+} = {
+  github: ["gold", "bronze", "unrated"],
+  reddit: ["unrated"],
+};
 
 export const getGroups = () => {
   return providers.flatMap((provider) =>
@@ -47,7 +55,18 @@ export const getGroups = () => {
 };
 
 export const getValidGroups = () => {
-  return getGroups().filter((group) => group.name !== sToBytes32("bronze"));
+  const returnArr = [];
+  for (const provider of Object.keys(validGroups)) {
+    for (const tier of validGroups[provider]) {
+      returnArr.push({
+        provider: sToBytes32(provider),
+        name: sToBytes32(tier),
+        root: 1,
+        depth: merkleTreeDepth,
+      });
+    }
+  }
+  return returnArr;
 };
 
 export const createInterepIdentity = (signer: Signer, provider: string) => {

@@ -27,7 +27,7 @@ describe("Valid Group Storage", () => {
   it("should return true for valid group", async () => {
     const validGroupStorage = await ethers.getContract("ValidGroupStorage");
     const valid = await validGroupStorage.isValidGroup(
-      createGroupId("github", "silver")
+      createGroupId("github", "bronze")
     );
     expect(valid).to.be.true;
   });
@@ -35,7 +35,7 @@ describe("Valid Group Storage", () => {
   it("should return false for invalid group", async () => {
     const validGroupStorage = await ethers.getContract("ValidGroupStorage");
     const valid = await validGroupStorage.isValidGroup(
-      createGroupId("github", "bronze")
+      createGroupId("github", "silver")
     );
     expect(valid).to.be.false;
   });

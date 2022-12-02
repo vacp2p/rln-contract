@@ -98,7 +98,7 @@ describe("RLN", () => {
   it("should not withdraw withdraw stake if no stake exists", async () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
-    const validGroupId = createGroupId("github", "silver");
+    const validGroupId = createGroupId("github", "bronze");
     const dummySignal = sToBytes32("foo");
     const dummyNullifierHash = BigNumber.from(0);
     const dummyExternalNullifier = BigNumber.from(0);
@@ -158,7 +158,7 @@ describe("RLN", () => {
   it("[interep] should register new memberships", async () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
-    const validGroupId = createGroupId("github", "silver");
+    const validGroupId = createGroupId("github", "bronze");
     const dummySignal = sToBytes32("foo");
     const dummyNullifierHash = BigNumber.from(0);
     const dummyExternalNullifier = BigNumber.from(0);
@@ -268,7 +268,7 @@ describe("RLN", () => {
       identity,
       members: [identity.getCommitment()],
       groupProvider: "github",
-      groupTier: "silver",
+      groupTier: "bronze",
       signal: sToBytes32("foo"),
       externalNullifier: 1,
       snarkArtifacts: {
@@ -281,7 +281,7 @@ describe("RLN", () => {
     const groupUpdateTx = await interep.updateGroups([
       {
         provider: sToBytes32("github"),
-        name: sToBytes32("silver"),
+        name: sToBytes32("bronze"),
         root: proof.publicSignals.merkleRoot,
         depth: 20,
       },
@@ -359,7 +359,7 @@ describe("RLN", () => {
       identity,
       members: [identity.getCommitment()],
       groupProvider: "github",
-      groupTier: "silver",
+      groupTier: "bronze",
       signal: sToBytes32("foo"),
       externalNullifier: 1,
       snarkArtifacts: {
@@ -387,7 +387,7 @@ describe("RLN", () => {
   it("[interep] should withdraw a registration", async () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
-    const validGroupId = createGroupId("github", "silver");
+    const validGroupId = createGroupId("github", "bronze");
     const dummySignal = sToBytes32("foo");
     const dummyNullifierHash = BigNumber.from(0);
     const dummyExternalNullifier = BigNumber.from(0);

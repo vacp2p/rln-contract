@@ -6,7 +6,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "test:localhost": "yarn test --network localhost",
-    "deploy": "hardhat run scripts/deploy.ts --network",
+    "deploy": "hardhat deploy --network",
     "deploy:goerli": "yarn deploy goerli",
     "deploy:localhost": "yarn deploy localhost",
     "coverage": "hardhat coverage",
