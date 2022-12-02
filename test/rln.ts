@@ -30,7 +30,7 @@ describe("RLN", () => {
     });
     const txRegisterReceipt = await registerTx.wait();
 
-    const pubkey = txRegisterReceipt.events[0].args.pubkey;
+    const pubkey = txRegisterReceipt.events[0].args.idCommitment;
 
     // We ensure the registered id_commitment is the one we passed
     expect(
@@ -53,31 +53,85 @@ describe("RLN", () => {
     const registerTx = await rln["register(uint256)"](idCommitment, {
       value: price,
     });
-    const txRegisterReceipt = await registerTx.wait();
-
-    const treeIndex = txRegisterReceipt.events[0].args.index;
+    await registerTx.wait();
 
     // We withdraw our id_commitment
     const receiverAddress = "0x000000000000000000000000000000000000dead";
-    const withdrawTx = await rln.withdraw(idSecret, treeIndex, receiverAddress);
+    const withdrawTx = await rln["withdraw(uint256,address)"](
+      idSecret,
+      receiverAddress
+    );
 
     const txWithdrawReceipt = await withdrawTx.wait();
 
-    const withdrawalPk = txWithdrawReceipt.events[0].args.pubkey;
-    const withdrawalTreeIndex = txWithdrawReceipt.events[0].args.index;
+    const withdrawalPk = txWithdrawReceipt.events[0].args.idCommitment;
 
     // We ensure the registered id_commitment is the one we passed and that the index is the same
     expect(
       withdrawalPk.toHexString() === idCommitment,
       "withdraw commitment doesn't match registered commitment"
     );
-    expect(
-      withdrawalTreeIndex.toHexString() === treeIndex.toHexString(),
-      "withdraw index doesn't match registered index"
+  });
+
+  it("should not withdraw stake without address", async () => {
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+
+    const price = await rln.MEMBERSHIP_DEPOSIT();
+
+    // A valid pair of (id_secret, id_commitment) generated in rust
+    const idSecret =
+      "0x2a09a9fd93c590c26b91effbb2499f07e8f7aa12e2b4940a3aed2411cb65e11c";
+    const idCommitment =
+      "0x0c3ac305f6a4fe9bfeb3eba978bc876e2a99208b8b56c80160cfb54ba8f02368";
+
+    const registerTx = await rln["register(uint256)"](idCommitment, {
+      value: price,
+    });
+    await registerTx.wait();
+
+    // We withdraw our id_commitment
+    const withdrawTx = rln["withdraw(uint256)"](idSecret);
+
+    await expect(withdrawTx).to.be.revertedWith("RLN, _withdraw: staked");
+  });
+
+  it("should not withdraw withdraw stake if no stake exists", async () => {
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+
+    const validGroupId = createGroupId("github", "silver");
+    const dummySignal = sToBytes32("foo");
+    const dummyNullifierHash = BigNumber.from(0);
+    const dummyExternalNullifier = BigNumber.from(0);
+    const dummyProof = Array(8).fill(BigNumber.from(0));
+
+    const idCommitment = BigNumber.from(
+      "0x0c3ac305f6a4fe9bfeb3eba978bc876e2a99208b8b56c80160cfb54ba8f02368"
+    );
+    const secret =
+      "0x2a09a9fd93c590c26b91effbb2499f07e8f7aa12e2b4940a3aed2411cb65e11c";
+
+    const registerTx = await rln[
+      "register(uint256,bytes32,uint256,uint256,uint256[8],uint256)"
+    ](
+      validGroupId,
+      dummySignal,
+      dummyNullifierHash,
+      dummyExternalNullifier,
+      dummyProof,
+      idCommitment
+    );
+
+    await registerTx.wait();
+
+    const address = "0x000000000000000000000000000000000000dead";
+    const withdrawTx = rln["withdraw(uint256,address)"](secret, address);
+
+    await expect(withdrawTx).to.be.revertedWith(
+      "RLN, _withdraw: member has no stake"
     );
   });
 
-  it.skip("should not allow multiple registrations with same pubkey", async () => {
+  it("should not allow multiple registrations with same pubkey", async () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
@@ -89,22 +143,16 @@ describe("RLN", () => {
     const registerTx = await rln["register(uint256)"](idCommitment, {
       value: price,
     });
-    const txRegisterReceipt = await registerTx.wait();
-    const index1 = txRegisterReceipt.events[0].args.index;
+    await registerTx.wait();
 
     // Send the same tx again
-    const registerTx2 = await rln["register(uint256)"](idCommitment, {
+    const registerTx2 = rln["register(uint256)"](idCommitment, {
       value: price,
     });
-    const txRegisterReceipt2 = await registerTx2.wait();
-    const index2 = txRegisterReceipt2.events[0].args.index;
 
-    const pk1 = await rln.members(index1);
-    const pk2 = await rln.members(index2);
-    const samePk = pk1.toHexString() === pk2.toHexString();
-    if (samePk) {
-      assert(false, "same pubkey registered twice");
-    }
+    await expect(registerTx2).to.be.revertedWith(
+      "RLN, _register: member already registered"
+    );
   });
 
   it("[interep] should register new memberships", async () => {
@@ -138,7 +186,7 @@ describe("RLN", () => {
     );
     expect(event.args.signal).to.equal(dummySignal);
 
-    const pubkey = txRegisterReceipt.events[1].args.pubkey;
+    const pubkey = txRegisterReceipt.events[1].args.idCommitment;
     expect(pubkey.toHexString() === dummyPubkey.toHexString());
   });
 
@@ -254,8 +302,120 @@ describe("RLN", () => {
 
     const txRegisterReceipt = await registerTx.wait();
 
-    expect(txRegisterReceipt.events[1].args.pubkey.toHexString()).to.eql(
+    expect(txRegisterReceipt.events[1].args.idCommitment.toHexString()).to.eql(
       BigNumber.from(identity.getCommitment()).toHexString()
     );
+  });
+
+  it("[interep] should revert with invalid proof", async () => {
+    // need to create new fixtures for this test
+    const { PoseidonHasher } = await deployments.fixture("PoseidonHasher");
+    const verifier20Factory = await ethers.getContractFactory("Verifier20");
+    const verifier20 = await verifier20Factory.deploy();
+    await verifier20.deployed();
+    const interepFactory = await ethers.getContractFactory(
+      "Interep",
+      ethers.provider.getSigner(0)
+    );
+    const interep = await interepFactory.deploy([
+      {
+        contractAddress: verifier20.address,
+        merkleTreeDepth: merkleTreeDepth,
+      },
+    ]);
+    await interep.deployed();
+    const groupTx = await interep.updateGroups(getGroups());
+    await groupTx.wait();
+
+    const validGroupStorageFactory = await ethers.getContractFactory(
+      "ValidGroupStorage"
+    );
+    const validGroupStorage = await validGroupStorageFactory.deploy(
+      interep.address,
+      getValidGroups()
+    );
+    await validGroupStorage.deployed();
+
+    const rlnFactory = await ethers.getContractFactory(
+      "RLN",
+      ethers.provider.getSigner(0)
+    );
+    const rln = await rlnFactory.deploy(
+      1000000000000000,
+      20,
+      PoseidonHasher.address,
+      validGroupStorage.address
+    );
+
+    await rln.deployed();
+
+    const identity = await createInterepIdentity(
+      ethers.provider.getSigner(0),
+      "github"
+    );
+
+    // create a proof to test
+    const proof = await createInterepProof({
+      identity,
+      members: [identity.getCommitment()],
+      groupProvider: "github",
+      groupTier: "silver",
+      signal: sToBytes32("foo"),
+      externalNullifier: 1,
+      snarkArtifacts: {
+        wasmFilePath: "./test/snarkArtifacts/semaphore.wasm",
+        zkeyFilePath: "./test/snarkArtifacts/semaphore.zkey",
+      },
+    });
+
+    // do not update root of group
+
+    const registerTx = rln[
+      "register(uint256,bytes32,uint256,uint256,uint256[8],uint256)"
+    ](
+      proof.groupId,
+      proof.signal,
+      proof.publicSignals.nullifierHash,
+      proof.publicSignals.externalNullifier,
+      proof.solidityProof,
+      identity.getCommitment()
+    );
+
+    await expect(registerTx).to.be.revertedWith("InvalidProof()");
+  });
+
+  it("[interep] should withdraw a registration", async () => {
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+
+    const validGroupId = createGroupId("github", "silver");
+    const dummySignal = sToBytes32("foo");
+    const dummyNullifierHash = BigNumber.from(0);
+    const dummyExternalNullifier = BigNumber.from(0);
+    const dummyProof = Array(8).fill(BigNumber.from(0));
+
+    const idCommitment = BigNumber.from(
+      "0x0c3ac305f6a4fe9bfeb3eba978bc876e2a99208b8b56c80160cfb54ba8f02368"
+    );
+    const secret =
+      "0x2a09a9fd93c590c26b91effbb2499f07e8f7aa12e2b4940a3aed2411cb65e11c";
+
+    const registerTx = await rln[
+      "register(uint256,bytes32,uint256,uint256,uint256[8],uint256)"
+    ](
+      validGroupId,
+      dummySignal,
+      dummyNullifierHash,
+      dummyExternalNullifier,
+      dummyProof,
+      idCommitment
+    );
+
+    await registerTx.wait();
+
+    const withdrawTx = await rln["withdraw(uint256)"](secret);
+
+    const txWithdrawReceipt = await withdrawTx.wait();
+
+    expect(txWithdrawReceipt.events[0].args.idCommitment).to.eql(idCommitment);
   });
 });

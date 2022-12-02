@@ -10,15 +10,16 @@ contract RLN {
     uint256 public immutable DEPTH;
     uint256 public immutable SET_SIZE;
 
-    uint256 public pubkeyIndex = 0;
-    mapping(uint256 => uint256) public members;
+    uint256 public idCommitmentIndex;
+    mapping(uint256 => uint256) public stakedAmounts;
+    mapping(uint256 => bool) public members;
 
     IPoseidonHasher public poseidonHasher;
     IValidGroupStorage public validGroupStorage;
     IInterep public interep;
 
-    event MemberRegistered(uint256 pubkey, uint256 index);
-    event MemberWithdrawn(uint256 pubkey, uint256 index);
+    event MemberRegistered(uint256 idCommitment, uint256 index);
+    event MemberWithdrawn(uint256 idCommitment);
 
     constructor(
         uint256 membershipDeposit,
@@ -34,13 +35,12 @@ contract RLN {
         interep = IInterep(validGroupStorage.interep());
     }
 
-    function register(uint256 pubkey) external payable {
-        require(pubkeyIndex < SET_SIZE, "RLN, register: set is full");
+    function register(uint256 idCommitment) external payable {
         require(
             msg.value == MEMBERSHIP_DEPOSIT,
             "RLN, register: membership deposit is not satisfied"
         );
-        _register(pubkey);
+        _register(idCommitment, msg.value);
     }
 
     /// @dev Registers a member via a valid Interep Semaphore group.
@@ -49,20 +49,19 @@ contract RLN {
     /// @param nullifierHash: Nullifier hash.
     /// @param externalNullifier: External nullifier.
     /// @param proof: Zero-knowledge proof.
-    /// @param pubkey: Public key of the member.
+    /// @param idCommitment: ID Commitment of the member.
     function register(
         uint256 groupId,
         bytes32 signal,
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof,
-        uint256 pubkey
+        uint256 idCommitment
     ) external {
         require(
             validGroupStorage.isValidGroup(groupId),
             "RLN, register: invalid interep group"
         );
-        require(pubkeyIndex < SET_SIZE, "RLN, register: set is full");
         interep.verifyProof(
             groupId,
             signal,
@@ -70,93 +69,110 @@ contract RLN {
             externalNullifier,
             proof
         );
-        _register(pubkey);
+        _register(idCommitment, 0);
     }
 
-    function registerBatch(uint256[] calldata pubkeys) external payable {
-        uint256 pubkeylen = pubkeys.length;
+    function registerBatch(uint256[] calldata idCommitments) external payable {
+        uint256 idCommitmentlen = idCommitments.length;
         require(
-            pubkeyIndex + pubkeylen <= SET_SIZE,
+            idCommitmentIndex + idCommitmentlen <= SET_SIZE,
             "RLN, registerBatch: set is full"
         );
         require(
-            msg.value == MEMBERSHIP_DEPOSIT * pubkeylen,
+            msg.value == MEMBERSHIP_DEPOSIT * idCommitmentlen,
             "RLN, registerBatch: membership deposit is not satisfied"
         );
-        for (uint256 i = 0; i < pubkeylen; i++) {
-            _register(pubkeys[i]);
+        for (uint256 i = 0; i < idCommitmentlen; i++) {
+            _register(idCommitments[i], msg.value / idCommitmentlen);
         }
     }
 
-    function _register(uint256 pubkey) internal {
-        members[pubkeyIndex] = pubkey;
-        emit MemberRegistered(pubkey, pubkeyIndex);
-        pubkeyIndex += 1;
+    function _register(uint256 idCommitment, uint256 stake) internal {
+        require(
+            !members[idCommitment],
+            "RLN, _register: member already registered"
+        );
+        require(idCommitmentIndex < SET_SIZE, "RLN, register: set is full");
+        if (stake != 0) {
+            members[idCommitment] = true;
+            stakedAmounts[idCommitment] = stake;
+        } else {
+            members[idCommitment] = true;
+            stakedAmounts[idCommitment] = 0;
+        }
+        emit MemberRegistered(idCommitment, idCommitmentIndex);
+        idCommitmentIndex += 1;
     }
 
     function withdrawBatch(
         uint256[] calldata secrets,
-        uint256[] calldata pubkeyIndexes,
         address payable[] calldata receivers
     ) external {
         uint256 batchSize = secrets.length;
         require(batchSize != 0, "RLN, withdrawBatch: batch size zero");
         require(
-            batchSize == pubkeyIndexes.length,
-            "RLN, withdrawBatch: batch size mismatch pubkey indexes"
+            batchSize == secrets.length,
+            "RLN, withdrawBatch: batch size mismatch secrets"
         );
         require(
             batchSize == receivers.length,
             "RLN, withdrawBatch: batch size mismatch receivers"
         );
         for (uint256 i = 0; i < batchSize; i++) {
-            _withdraw(secrets[i], pubkeyIndexes[i], receivers[i]);
+            _withdraw(secrets[i], receivers[i]);
         }
     }
 
-    function withdraw(
-        uint256 secret,
-        uint256 _pubkeyIndex,
-        address payable receiver
-    ) external {
-        _withdraw(secret, _pubkeyIndex, receiver);
+    function withdraw(uint256 secret, address payable receiver) external {
+        _withdraw(secret, receiver);
     }
 
-    function _withdraw(
-        uint256 secret,
-        uint256 _pubkeyIndex,
-        address payable receiver
-    ) internal {
+    function withdraw(uint256 secret) external {
+        _withdraw(secret);
+    }
+
+    function _withdraw(uint256 secret, address payable receiver) internal {
+        // derive idCommitment
+        uint256 idCommitment = hash(secret);
+
+        // check if member is registered
+        require(members[idCommitment], "RLN, _withdraw: member not registered");
+
+        // check if member has stake
         require(
-            _pubkeyIndex < SET_SIZE,
-            "RLN, _withdraw: invalid pubkey index"
+            stakedAmounts[idCommitment] != 0,
+            "RLN, _withdraw: member has no stake"
         );
-        require(
-            members[_pubkeyIndex] != 0,
-            "RLN, _withdraw: member doesn't exist"
-        );
+
         require(
             receiver != address(0),
             "RLN, _withdraw: empty receiver address"
         );
 
-        // derive public key
-        uint256 pubkey = hash(secret);
-        require(
-            members[_pubkeyIndex] == pubkey,
-            "RLN, _withdraw: not verified"
-        );
-
-        // delete member
-        members[_pubkeyIndex] = 0;
-
         // refund deposit
-        (bool sent, bytes memory data) = receiver.call{
-            value: MEMBERSHIP_DEPOSIT
-        }("");
+        (bool sent, ) = receiver.call{value: stakedAmounts[idCommitment]}("");
         require(sent, "transfer failed");
 
-        emit MemberWithdrawn(pubkey, _pubkeyIndex);
+        // delete member
+        members[idCommitment] = false;
+        stakedAmounts[idCommitment] = 0;
+
+        emit MemberWithdrawn(idCommitment);
+    }
+
+    function _withdraw(uint256 secret) internal {
+        // derive idCommitment
+        uint256 idCommitment = hash(secret);
+
+        // check if member is registered
+        require(members[idCommitment], "RLN, _withdraw: member not registered");
+
+        require(stakedAmounts[idCommitment] == 0, "RLN, _withdraw: staked");
+
+        // delete member
+        members[idCommitment] = false;
+
+        emit MemberWithdrawn(idCommitment);
     }
 
     function hash(uint256 input) internal view returns (uint256) {
