@@ -12,7 +12,8 @@
     "coverage": "hardhat coverage",
     "fmt": "prettier --write \"**/*.{js,ts}\"",
     "lint": "prettier --check \"**/*.{js,ts}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "ui": "yarn --cwd ui start"
   },
   "devDependencies": {
     "@interep/contracts": "0.6.0",
