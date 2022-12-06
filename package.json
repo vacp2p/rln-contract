@@ -2,7 +2,7 @@
   "name": "rln-interep-contracts",
   "license": "MIT",
   "scripts": {
-    "start": "ganache --chain.chainId 31337",
+    "start": "ganache --chain.chainId 31337 --wallet.accounts=0x3c914dff62bd200e1e1b1af9d40eace4bc70875d1007b8cad4a950d3c7b3e442,1000000000000000000",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "test:localhost": "yarn test --network localhost",
