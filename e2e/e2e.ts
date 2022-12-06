@@ -51,15 +51,7 @@ async function main() {
     abi,
     new ethers.Wallet(process.env.PRIVATE_KEY, provider)
   );
-  console.log(
-    proof.groupId,
-    proof.signal,
-    proof.publicSignals.nullifierHash,
-    proof.publicSignals.externalNullifier,
-    proof.solidityProof,
-    identity.getCommitment(),
-    proof.publicSignals.signalHash
-  );
+
   const tx = await rlnContract[
     "register(uint256,bytes32,uint256,uint256,uint256[8],uint256)"
   ](
