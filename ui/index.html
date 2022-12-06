@@ -331,14 +331,14 @@
 
         generateCredsButton.disabled = !rlnInstance;
 
+        importExternalButton.disabled = !(
+          externalIdKeyInput.value && externalCommitmentKeyInput.value
+        );
+
         registerButton.disabled = !(
           membershipKey &&
           retrievedRLNEvents &&
           !membershipId
-        );
-
-        importExternalButton.disabled = !(
-          externalIdKeyInput.value && externalCommitmentKeyInput.value
         );
 
         importButton.disabled = !(
@@ -386,13 +386,13 @@
       const checkChain = async (chainId) => {
         retrieveRLNDetailsButton.disabled = retrievedRLNEvents || chainId !== 5;
         registerButton.disabled = !(chainId === 5 && retrievedRLNEvents);
-        if (chainId !== 5) {
-          alert("Switch to Goerli");
+        if (chainId !== 31337) {
+          alert("Switch to Localhost");
         }
       };
 
-      const rlnDeployBlk = 8059744;
-      const rlnAddress = "0xCd41a0aC28c5c025779eAC3208D0bF23baa3a5b6";
+      const rlnDeployBlk = 0;
+      const rlnAddress = "0x962a95edCDdcEBbB5A703f1357494009F1A10244";
       const rlnAbi = [
         {
           inputs: [

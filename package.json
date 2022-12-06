@@ -9,6 +9,8 @@
     "deploy": "hardhat deploy --network",
     "deploy:goerli": "yarn deploy goerli",
     "deploy:localhost": "yarn deploy localhost",
+    "deploy:localhost_integration": "yarn deploy localhost_integration --reset",
+    "e2e": "yarn ts-node ./e2e/e2e",
     "coverage": "hardhat coverage",
     "fmt": "prettier --write \"**/*.{js,ts}\"",
     "lint": "prettier --check \"**/*.{js,ts}\"",
