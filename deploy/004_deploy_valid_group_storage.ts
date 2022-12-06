@@ -1,6 +1,11 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { getInterepAddress, getValidGroups, isDevNet } from "../common";
+import {
+  getInterepAddress,
+  getValidGroups,
+  isDevNet,
+  useRealVerifier,
+} from "../common";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getUnnamedAccounts } = hre;
@@ -8,9 +13,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const [deployer] = await getUnnamedAccounts();
 
-  const interepAddress = isDevNet(hre.network.name)
-    ? (await deployments.get("InterepTest")).address
-    : getInterepAddress(hre.network.name);
+  const interepAddress =
+    isDevNet(hre.network.name) || useRealVerifier(hre.network.name)
+      ? (await deployments.get("InterepTest")).address
+      : getInterepAddress(hre.network.name);
 
   await deploy("ValidGroupStorage", {
     from: deployer,

@@ -22,6 +22,9 @@ const getNetworkConfig = (): NetworksUserConfig | undefined => {
           url: GOERLI_URL,
         },
       },
+      localhost_integration: {
+        url: "http://localhost:8545",
+      },
     };
   }
   return undefined;

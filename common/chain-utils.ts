@@ -1,6 +1,6 @@
 export const devNets = ["hardhat", "localhost"];
 
-export const testNets = ["goerli"];
+export const testNets = ["goerli", "localhost_integration"];
 
 export const prodNets = ["mainnet"];
 
@@ -11,6 +11,9 @@ export const isTestNet = (networkName: string) =>
 
 export const isProdNet = (networkName: string) =>
   prodNets.includes(networkName);
+
+export const useRealVerifier = (networkName: string) =>
+  networkName === "localhost_integration";
 
 export const getInterepAddress = (networkName: string) => {
   switch (networkName) {

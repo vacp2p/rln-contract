@@ -1,6 +1,11 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { getGroups, isDevNet, merkleTreeDepth } from "../common";
+import {
+  getGroups,
+  isDevNet,
+  merkleTreeDepth,
+  useRealVerifier,
+} from "../common";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getUnnamedAccounts } = hre;
@@ -8,7 +13,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const [deployer] = await getUnnamedAccounts();
 
-  const verifierAddress = (await deployments.get("VerifierTest")).address;
+  let verifierAddress: string;
+  if (useRealVerifier(hre.network.name)) {
+    verifierAddress = (await deployments.get("Verifier20")).address;
+  } else {
+    verifierAddress = (await deployments.get("VerifierTest")).address;
+  }
 
   const interepTest = await deploy("InterepTest", {
     from: deployer,
@@ -33,10 +43,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 func.tags = ["InterepTest"];
-func.dependencies = ["VerifierTest"];
+func.dependencies = ["VerifierTest", "Verifier20"];
 // skip when running on mainnet
 func.skip = async (hre: HardhatRuntimeEnvironment) => {
-  if (isDevNet(hre.network.name)) {
+  if (isDevNet(hre.network.name) || useRealVerifier(hre.network.name)) {
     return false;
   }
   return true;
