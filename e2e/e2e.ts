@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 import { createInterepProof, sToBytes32 } from "../common";
 // @ts-ignore circom
 import { poseidon } from "circomlibjs";
-import fs from "fs";
 
 import { address, abi } from "../deployments/localhost_integration/RLN.json";
 
