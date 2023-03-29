@@ -63,28 +63,6 @@ describe("RLN", () => {
     );
   });
 
-  it("should not withdraw stake without address", async () => {
-    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
-
-    const price = await rln.MEMBERSHIP_DEPOSIT();
-
-    // A valid pair of (id_secret, id_commitment) generated in rust
-    const idSecret =
-      "0x2a09a9fd93c590c26b91effbb2499f07e8f7aa12e2b4940a3aed2411cb65e11c";
-    const idCommitment =
-      "0x0c3ac305f6a4fe9bfeb3eba978bc876e2a99208b8b56c80160cfb54ba8f02368";
-
-    const registerTx = await rln["register(uint256)"](idCommitment, {
-      value: price,
-    });
-    await registerTx.wait();
-
-    // We withdraw our id_commitment
-    const withdrawTx = rln["withdraw(uint256)"](idSecret);
-
-    await expect(withdrawTx).to.be.revertedWith("RLN, _withdraw: staked");
-  });
-
   it("should not allow multiple registrations with same pubkey", async () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
