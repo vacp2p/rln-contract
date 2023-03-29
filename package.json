@@ -5,6 +5,7 @@
     "start": "hardhat node --export-all deployments/allDeployments.json",
     "compile": "hardhat compile",
     "test": "yarn test:foundry && yarn test:hardhat",
+    "test:verbose": "yarn test:foundry -vvv && yarn test:hardhat --verbose",
     "test:hardhat": "hardhat test",
     "test:hardhat:localhost": "yarn test:hardhat --network localhost",
     "test:hardhat:sepolia": "yarn test:hardhat --network sepolia",

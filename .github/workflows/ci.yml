@@ -45,7 +45,7 @@ jobs:
         run: yarn lint
 
       - id: test
-        run: yarn test
+        run: yarn test:verbose
 
       - id: coverage
         run: yarn coverage

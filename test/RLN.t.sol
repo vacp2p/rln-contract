@@ -16,6 +16,9 @@ contract ArrayUnique {
             seen[arr[i]] = true;
         }
     }
+
+    // contract in construction goes around the assumePayable() check
+    receive() external payable {}
 }
 
 function repeatElementIntoArray(
@@ -160,7 +163,9 @@ contract RLNTest is Test {
         address payable to
     ) public {
         // avoid precompiles, etc
+        // TODO: wrap both of these in a single function
         assumePayable(to);
+        assumeNoPrecompiles(to);
         vm.assume(to != address(0));
         uint256 idCommitment = poseidon.hash(idSecretHash);
 
@@ -206,6 +211,7 @@ contract RLNTest is Test {
     ) public {
         // avoid precompiles, etc
         assumePayable(to);
+        assumeNoPrecompiles(to);
         vm.assume(to != address(0));
         uint256 idCommitment = poseidon.hash(idSecretHash);
 
@@ -234,6 +240,7 @@ contract RLNTest is Test {
     ) public {
         // avoid precompiles, etc
         assumePayable(to);
+        assumeNoPrecompiles(to);
         vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
         vm.assume(to != address(0));
         uint256 idCommitmentlen = idSecretHashes.length;
@@ -276,6 +283,7 @@ contract RLNTest is Test {
         address payable to
     ) public {
         assumePayable(to);
+        assumeNoPrecompiles(to);
         vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
         vm.assume(to != address(0));
 
