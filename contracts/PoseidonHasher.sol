@@ -6,8 +6,6 @@ pragma solidity 0.8.15;
 
 interface IPoseidonHasher {
     function hash(uint256 input) external pure returns (uint256 result);
-
-    function identity() external pure returns (uint256);
 }
 
 contract PoseidonHasher is IPoseidonHasher {
@@ -1013,15 +1011,5 @@ contract PoseidonHasher is IPoseidonHasher {
 
             result := s0
         }
-    }
-
-    function identity() external pure override returns (uint256) {
-        return _identity();
-    }
-
-    // The hash of 0
-    function _identity() internal pure returns (uint256) {
-        return
-            0x2a09a9fd93c590c26b91effbb2499f07e8f7aa12e2b4940a3aed2411cb65e11c;
     }
 }
