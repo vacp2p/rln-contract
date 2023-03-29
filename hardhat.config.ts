@@ -26,6 +26,7 @@ const getNetworkConfig = (): NetworksUserConfig | undefined => {
         verify: {
           etherscan: {
             apiKey: ETHERSCAN_API_KEY,
+            apiUrl: "https://api-sepolia.etherscan.io",
           },
         },
       },
