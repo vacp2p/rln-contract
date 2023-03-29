@@ -1,35 +1,54 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
+import { NetworksUserConfig } from "hardhat/types";
+
+import "@nomicfoundation/hardhat-foundry";
+import "hardhat-deploy";
+import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
-import "solidity-coverage";
 
 dotenv.config();
-const {GOERLI_URL,PRIVATE_KEY} = process.env;
+const { SEPOLIA_URL, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 
-
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
-
-  for (const account of accounts) {
-    console.log(account.address);
+const getNetworkConfig = (): NetworksUserConfig | undefined => {
+  if (SEPOLIA_URL && PRIVATE_KEY) {
+    return {
+      sepolia: {
+        url: SEPOLIA_URL,
+        accounts: [PRIVATE_KEY],
+        forking: {
+          url: SEPOLIA_URL,
+        },
+        verify: {
+          etherscan: {
+            apiKey: ETHERSCAN_API_KEY,
+            apiUrl: "https://api-sepolia.etherscan.io",
+          },
+        },
+      },
+      localhost_integration: {
+        url: "http://localhost:8545",
+      },
+    };
   }
-});
+  return undefined;
+};
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.15",
-  networks: {
-    goerli: {
-      url: GOERLI_URL,
-      accounts: [`${PRIVATE_KEY}`]
-    }
-  }
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.15",
+      },
+    ],
+  },
+  networks: getNetworkConfig(),
 };
 
 export default config;
