@@ -26,8 +26,8 @@ const getNetworkConfig = (): NetworksUserConfig | undefined => {
         verify: {
           etherscan: {
             apiKey: ETHERSCAN_API_KEY,
-          }
-        }
+          },
+        },
       },
       localhost_integration: {
         url: "http://localhost:8545",
