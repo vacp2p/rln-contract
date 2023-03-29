@@ -11,3 +11,4 @@ artifacts
 #Foundry files
 cache_forge
 out
+lcov.info

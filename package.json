@@ -13,7 +13,7 @@
     "deploy:sepolia": "yarn deploy sepolia",
     "deploy:localhost": "yarn deploy localhost",
     "verify:sepolia": "hardhat --network sepolia etherscan-verify",
-    "coverage": "hardhat coverage",
+    "coverage": "forge coverage --report lcov",
     "fmt": "prettier --write \"**/*.{js,ts}\"",
     "lint": "prettier --check \"**/*.{js,ts}\"",
     "prepare": "husky install"
@@ -34,7 +34,6 @@
     "hardhat-gas-reporter": "^1.0.8",
     "husky": "^8.0.2",
     "lint-staged": "^13.0.3",
-    "solidity-coverage": "^0.7.21",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.4"
   },
