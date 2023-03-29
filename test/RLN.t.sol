@@ -160,8 +160,8 @@ contract RLNTest is Test {
         address payable to
     ) public {
         // avoid precompiles, etc
-        vm.assume(to != address(0));
         assumePayable(to);
+        vm.assume(to != address(0));
         uint256 idCommitment = poseidon.hash(idSecretHash);
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
@@ -205,8 +205,8 @@ contract RLNTest is Test {
         address payable to
     ) public {
         // avoid precompiles, etc
-        vm.assume(to != address(0));
         assumePayable(to);
+        vm.assume(to != address(0));
         uint256 idCommitment = poseidon.hash(idSecretHash);
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
@@ -233,9 +233,9 @@ contract RLNTest is Test {
         address payable to
     ) public {
         // avoid precompiles, etc
-        vm.assume(to != address(0));
-        vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
         assumePayable(to);
+        vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
+        vm.assume(to != address(0));
         uint256 idCommitmentlen = idSecretHashes.length;
         uint256[] memory idCommitments = new uint256[](idCommitmentlen);
         for (uint256 i = 0; i < idCommitmentlen; i++) {
@@ -275,10 +275,9 @@ contract RLNTest is Test {
         uint256[] calldata idSecretHashes,
         address payable to
     ) public {
-        vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
-
-        vm.assume(to != address(0));
         assumePayable(to);
+        vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
+        vm.assume(to != address(0));
 
         vm.expectRevert(
             bytes("RLN, withdrawBatch: batch size mismatch receivers")
