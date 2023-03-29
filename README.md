@@ -1,17 +1,32 @@
-The [RLN](contracts/Rln.sol) and [PoseidonHasher](contracts/PoseidonHasher.sol) smart contracts are initially borrowed from the following repository https://github.com/kilic/rlnapp and some modifications are made on top of them.
-They may undertake further changes in the future as needed.
+# Hardhat Project for rln-contract
 
-# Hardhat Project for Rln-membership-contract
+## Requirements
+
+The following will need to be installed in order to use this repo. Please follow the links and instructions.
+
+-   [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)  
+    -   You'll know you've done it right if you can run `git --version`
+-   [Foundry / Foundryup](https://github.com/gakonst/foundry)
+    -   This will install `forge`, `cast`, and `anvil`
+    -   You can test you've installed them right by running `forge --version` and get an output like: `forge 0.2.0 (92f8951 2022-08-06T00:09:32.96582Z)`
+    -   To get the latest of each, just run `foundryup`
+-   [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+
 
 ## Compilation
 
 ```shell
-npx hardhat compile
+yarn compile
 ```
 
-## Testing
+## Testing with Hardhat
 ```shell
-npx hardhat test
+yarn test:hardhat
+```
+
+## Testing with Foundry
+```shell
+yarn test:foundry
 ```
 
 ## Deploying
@@ -19,15 +34,19 @@ npx hardhat test
 - To deploy on local node, first start the local node and then run the deploy script
 
 ```shell
-npx hardhat node
-npx hardhat run --network localhost scripts/deploy.ts
+yarn node
+npx deploy:localhost
 ```
 
-- To deploy to an target network (like Goerli), use the name as mentioned in the Hardhat config file.
+- To deploy to an target network (like Sepolia), use the name as mentioned in the Hardhat config file.
 
 ```shell
-npx hardhat run --network <your-network> scripts/deploy.js
+yarn deploy:sepolia
 ```
 ## References
 
 For more information, see https://hardhat.org/hardhat-runner/docs/guides/project-setup
+
+## License
+
+Dual-licensed under MIT or Apache 2.0, refer to [LICENSE-MIT](LICENSE-MIT) or [LICENSE-APACHE](LICENSE-APACHE) for more information.

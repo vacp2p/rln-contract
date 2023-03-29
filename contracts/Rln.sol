@@ -1,95 +1,146 @@
+// SPDX-License-Identifier: (MIT OR Apache-2.0)
+
 pragma solidity 0.8.15;
 
-import { IPoseidonHasher } from "./PoseidonHasher.sol";
+import {IPoseidonHasher} from "./PoseidonHasher.sol";
 
 contract RLN {
-	uint256 public immutable MEMBERSHIP_DEPOSIT;
-	uint256 public immutable DEPTH;
-	uint256 public immutable SET_SIZE;
+    uint256 public immutable MEMBERSHIP_DEPOSIT;
+    uint256 public immutable DEPTH;
+    uint256 public immutable SET_SIZE;
 
-	uint256 public pubkeyIndex = 0;
-	// This mapping is used to keep track of the public keys that have been registered
-	// with the stake
-	mapping(uint256 => uint256) public members;
+    uint256 public idCommitmentIndex;
+    mapping(uint256 => uint256) public stakedAmounts;
+    mapping(uint256 => bool) public members;
 
-	IPoseidonHasher public poseidonHasher;
+    IPoseidonHasher public poseidonHasher;
 
-	event MemberRegistered(uint256 pubkey, uint256 index);
-	event MemberWithdrawn(uint256 pubkey);
+    event MemberRegistered(uint256 idCommitment, uint256 index);
+    event MemberWithdrawn(uint256 idCommitment);
 
-	constructor(
-		uint256 membershipDeposit,
-		uint256 depth,
-		address _poseidonHasher
-	) {
-		MEMBERSHIP_DEPOSIT = membershipDeposit;
-		DEPTH = depth;
-		SET_SIZE = 1 << depth;
-		poseidonHasher = IPoseidonHasher(_poseidonHasher);
-	}
+    constructor(
+        uint256 membershipDeposit,
+        uint256 depth,
+        address _poseidonHasher
+    ) {
+        MEMBERSHIP_DEPOSIT = membershipDeposit;
+        DEPTH = depth;
+        SET_SIZE = 1 << depth;
+        poseidonHasher = IPoseidonHasher(_poseidonHasher);
+    }
 
-	function register(uint256 pubkey) external payable {
-		require(members[pubkey] == 0, "RLN, register: pubkey already registered");
-		require(pubkeyIndex < SET_SIZE, "RLN, register: set is full");
-		require(msg.value == MEMBERSHIP_DEPOSIT, "RLN, register: membership deposit is not satisfied");
-		_register(pubkey);
-	}
+    function register(uint256 idCommitment) external payable {
+        require(
+            msg.value == MEMBERSHIP_DEPOSIT,
+            "RLN, register: membership deposit is not satisfied"
+        );
+        _register(idCommitment, msg.value);
+    }
 
-	function registerBatch(uint256[] calldata pubkeys) external payable {
-		uint256 pubkeylen = pubkeys.length;
-		require(pubkeyIndex + pubkeylen <= SET_SIZE, "RLN, registerBatch: set is full");
-		require(msg.value == MEMBERSHIP_DEPOSIT * pubkeylen, "RLN, registerBatch: membership deposit is not satisfied");
-		for (uint256 i = 0; i < pubkeylen; i++) {
-			_register(pubkeys[i]);
-		}
-	}
+    function registerBatch(uint256[] calldata idCommitments) external payable {
+        uint256 idCommitmentlen = idCommitments.length;
+        require(
+            idCommitmentIndex + idCommitmentlen <= SET_SIZE,
+            "RLN, registerBatch: set is full"
+        );
+        require(
+            msg.value == MEMBERSHIP_DEPOSIT * idCommitmentlen,
+            "RLN, registerBatch: membership deposit is not satisfied"
+        );
+        for (uint256 i = 0; i < idCommitmentlen; i++) {
+            _register(idCommitments[i], msg.value / idCommitmentlen);
+        }
+    }
 
-	function _register(uint256 pubkey) internal {
-		// Set the pubkey to the value of the tx
-		members[pubkey] = msg.value;
-		emit MemberRegistered(pubkey, pubkeyIndex);
-		pubkeyIndex += 1;
-	}
+    function _register(uint256 idCommitment, uint256 stake) internal {
+        require(
+            !members[idCommitment],
+            "RLN, _register: member already registered"
+        );
+        require(idCommitmentIndex < SET_SIZE, "RLN, register: set is full");
+        if (stake != 0) {
+            members[idCommitment] = true;
+            stakedAmounts[idCommitment] = stake;
+        } else {
+            members[idCommitment] = true;
+            stakedAmounts[idCommitment] = 0;
+        }
+        emit MemberRegistered(idCommitment, idCommitmentIndex);
+        idCommitmentIndex += 1;
+    }
 
-	function withdrawBatch(
-		uint256[] calldata secrets,
-		address payable[] calldata receivers
-	) external {
-		uint256 batchSize = secrets.length;
-		require(batchSize != 0, "RLN, withdrawBatch: batch size zero");
-		require(batchSize == receivers.length, "RLN, withdrawBatch: batch size mismatch receivers");
-		for (uint256 i = 0; i < batchSize; i++) {
-			_withdraw(secrets[i], receivers[i]);
-		}
-	}
+    function withdrawBatch(
+        uint256[] calldata secrets,
+        address payable[] calldata receivers
+    ) external {
+        uint256 batchSize = secrets.length;
+        require(batchSize != 0, "RLN, withdrawBatch: batch size zero");
+        require(
+            batchSize == secrets.length,
+            "RLN, withdrawBatch: batch size mismatch secrets"
+        );
+        require(
+            batchSize == receivers.length,
+            "RLN, withdrawBatch: batch size mismatch receivers"
+        );
+        for (uint256 i = 0; i < batchSize; i++) {
+            _withdraw(secrets[i], receivers[i]);
+        }
+    }
 
-	function withdraw(
-		uint256 secret,
-		address payable receiver
-	) external {
-		_withdraw(secret, receiver);
-	}
+    function withdraw(uint256 secret, address payable receiver) external {
+        _withdraw(secret, receiver);
+    }
 
-	function _withdraw(
-		uint256 secret,
-		address payable receiver
-	) internal {
-		// derive public key
-		uint256 pubkey = hash(secret);
-		require(members[pubkey] != 0, "RLN, _withdraw: member doesn't exist");
-		require(receiver != address(0), "RLN, _withdraw: empty receiver address");
-	
-		// refund deposit
-		(bool sent, bytes memory data) = receiver.call{value: members[pubkey]}("");
+    function withdraw(uint256 secret) external {
+        _withdraw(secret);
+    }
+
+    function _withdraw(uint256 secret, address payable receiver) internal {
+        // derive idCommitment
+        uint256 idCommitment = hash(secret);
+
+        // check if member is registered
+        require(members[idCommitment], "RLN, _withdraw: member not registered");
+
+        // check if member has stake
+        require(
+            stakedAmounts[idCommitment] != 0,
+            "RLN, _withdraw: member has no stake"
+        );
+
+        require(
+            receiver != address(0),
+            "RLN, _withdraw: empty receiver address"
+        );
+
+        // delete member
+        members[idCommitment] = false;
+        stakedAmounts[idCommitment] = 0;
+
+        // refund deposit
+        (bool sent, ) = receiver.call{value: stakedAmounts[idCommitment]}("");
         require(sent, "transfer failed");
 
-		// delete member only if refund is successful
-		members[pubkey] = 0;
+        emit MemberWithdrawn(idCommitment);
+    }
 
-		emit MemberWithdrawn(pubkey);
-	}
+    function _withdraw(uint256 secret) internal {
+        // derive idCommitment
+        uint256 idCommitment = hash(secret);
 
-	function hash(uint256 input) internal view returns (uint256) {
-		return poseidonHasher.hash(input);
-	}
+        // check if member is registered
+        require(members[idCommitment], "RLN, _withdraw: member not registered");
+
+        require(stakedAmounts[idCommitment] == 0, "RLN, _withdraw: staked");
+
+        // delete member
+        members[idCommitment] = false;
+
+        emit MemberWithdrawn(idCommitment);
+    }
+
+    function hash(uint256 input) internal view returns (uint256) {
+        return poseidonHasher.hash(input);
+    }
 }
