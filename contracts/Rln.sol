@@ -39,6 +39,7 @@ contract RLN {
 
     function registerBatch(uint256[] calldata idCommitments) external payable {
         uint256 idCommitmentlen = idCommitments.length;
+        require(idCommitmentlen > 0, "RLN, registerBatch: batch size zero");
         require(
             idCommitmentIndex + idCommitmentlen <= SET_SIZE,
             "RLN, registerBatch: set is full"
@@ -58,13 +59,10 @@ contract RLN {
             "RLN, _register: member already registered"
         );
         require(idCommitmentIndex < SET_SIZE, "RLN, register: set is full");
-        if (stake != 0) {
-            members[idCommitment] = true;
-            stakedAmounts[idCommitment] = stake;
-        } else {
-            members[idCommitment] = true;
-            stakedAmounts[idCommitment] = 0;
-        }
+
+        members[idCommitment] = true;
+        stakedAmounts[idCommitment] = stake;
+
         emit MemberRegistered(idCommitment, idCommitmentIndex);
         idCommitmentIndex += 1;
     }
@@ -75,10 +73,6 @@ contract RLN {
     ) external {
         uint256 batchSize = secrets.length;
         require(batchSize != 0, "RLN, withdrawBatch: batch size zero");
-        require(
-            batchSize == secrets.length,
-            "RLN, withdrawBatch: batch size mismatch secrets"
-        );
         require(
             batchSize == receivers.length,
             "RLN, withdrawBatch: batch size mismatch receivers"
@@ -92,14 +86,19 @@ contract RLN {
         _withdraw(secret, receiver);
     }
 
-    function withdraw(uint256 secret) external {
-        _withdraw(secret);
-    }
-
     function _withdraw(uint256 secret, address payable receiver) internal {
+        require(
+            receiver != address(0),
+            "RLN, _withdraw: empty receiver address"
+        );
+
+        require(
+            receiver != address(this),
+            "RLN, _withdraw: cannot withdraw to RLN"
+        );
+
         // derive idCommitment
         uint256 idCommitment = hash(secret);
-
         // check if member is registered
         require(members[idCommitment], "RLN, _withdraw: member not registered");
 
@@ -109,33 +108,14 @@ contract RLN {
             "RLN, _withdraw: member has no stake"
         );
 
-        require(
-            receiver != address(0),
-            "RLN, _withdraw: empty receiver address"
-        );
+        uint256 amountToTransfer = stakedAmounts[idCommitment];
 
         // delete member
         members[idCommitment] = false;
         stakedAmounts[idCommitment] = 0;
 
         // refund deposit
-        (bool sent, ) = receiver.call{value: stakedAmounts[idCommitment]}("");
-        require(sent, "transfer failed");
-
-        emit MemberWithdrawn(idCommitment);
-    }
-
-    function _withdraw(uint256 secret) internal {
-        // derive idCommitment
-        uint256 idCommitment = hash(secret);
-
-        // check if member is registered
-        require(members[idCommitment], "RLN, _withdraw: member not registered");
-
-        require(stakedAmounts[idCommitment] == 0, "RLN, _withdraw: staked");
-
-        // delete member
-        members[idCommitment] = false;
+        receiver.transfer(amountToTransfer);
 
         emit MemberWithdrawn(idCommitment);
     }
