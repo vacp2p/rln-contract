@@ -659,6 +659,13 @@
     mcl-wasm "^0.7.1"
     rustbn.js "~0.2.0"
 
+"@nomicfoundation/hardhat-foundry@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-foundry/-/hardhat-foundry-1.0.0.tgz#14eba643138b09e4a8f2fed2a99bc9c96c487b0a"
+  integrity sha512-/2cmtIZPnsQj/SRIu9idbBan5j19RD35MECAGmZCcuXX4AO6Wn0nOnpUwpcvGomKW403h4+rXh8AHMWC4Vvw0Q==
+  dependencies:
+    chalk "^2.4.2"
+
 "@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-darwin-arm64/-/solidity-analyzer-darwin-arm64-0.1.1.tgz#4c858096b1c17fe58a474fe81b46815f93645c15"
@@ -730,7 +737,7 @@
   resolved "https://registry.yarnpkg.com/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.13.tgz#b96086ff768ddf69928984d5eb0a8d78cfca9366"
   integrity sha512-PdWVcKB9coqWV1L7JTpfXRCI91Cgwsm7KLmBcwZ8f0COSm1xtABHZTyz3fvF6p42cTnz1VM0QnfDvMFlIRkSNw==
 
-"@nomiclabs/hardhat-etherscan@^3.1.0":
+"@nomiclabs/hardhat-etherscan@^3.1.7":
   version "3.1.7"
   resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-etherscan/-/hardhat-etherscan-3.1.7.tgz#72e3d5bd5d0ceb695e097a7f6f5ff6fcbf062b9a"
   integrity sha512-tZ3TvSgpvsQ6B6OGmo1/Au6u8BrAkvs1mIC/eURA3xgIfznUZBhmpne8hv7BXUzw9xNL3fXdpOYgOQlVMTcoHQ==
@@ -996,6 +1003,11 @@
     "@types/node" "*"
     "@types/responselike" "^1.0.0"
 
+"@types/chai@^4.3.6":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.3.4.tgz#e913e8175db8307d78b4e8fa690408ba6b65dee4"
+  integrity sha512-KnRanxnpfpjUTqTCXslZSEdLfXExwgNxYPdiO2WGUj8+HDjFi8R3k5RVKPeSCzLjCcshCAtVO2QBbVuAV4kTnw==
+
 "@types/concat-stream@^1.6.0":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@types/concat-stream/-/concat-stream-1.6.1.tgz#24bcfc101ecf68e886aaedce60dfd74b632a1b74"
@@ -1074,6 +1086,11 @@
   version "12.20.55"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.55.tgz#c329cbd434c42164f846b909bd6f85b5537f6240"
   integrity sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==
+
+"@types/node@^16.11.6":
+  version "16.18.22"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.22.tgz#a6505a5da1387aae03fddfb93591118f27b4c0ea"
+  integrity sha512-LJSIirgASa1LicFGTUFwDY7BfKDtLIbijqDLkH47LxEo/jtdrtiZ4/kLPD99bEQhTcPcuh6KhDllHqRxygJD2w==
 
 "@types/node@^8.0.0":
   version "8.10.66"

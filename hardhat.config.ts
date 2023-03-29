@@ -3,24 +3,31 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import { NetworksUserConfig } from "hardhat/types";
 
+import "@nomicfoundation/hardhat-foundry";
 import "hardhat-deploy";
+import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
 dotenv.config();
-const { SEPOLIA_URL, PRIVATE_KEY } = process.env;
+const { SEPOLIA_URL, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 
 const getNetworkConfig = (): NetworksUserConfig | undefined => {
   if (SEPOLIA_URL && PRIVATE_KEY) {
     return {
-      goerli: {
+      sepolia: {
         url: SEPOLIA_URL,
         accounts: [PRIVATE_KEY],
         forking: {
           url: SEPOLIA_URL,
         },
+        verify: {
+          etherscan: {
+            apiKey: ETHERSCAN_API_KEY,
+          }
+        }
       },
       localhost_integration: {
         url: "http://localhost:8545",
