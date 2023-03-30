@@ -5,6 +5,8 @@
 pragma solidity 0.8.15;
 
 interface IPoseidonHasher {
+    /// @notice Hashes the input using the Poseidon hash function, n = 2, second input is the constant 0
+    /// @param input The input to hash
     function hash(uint256 input) external pure returns (uint256 result);
 }
 
