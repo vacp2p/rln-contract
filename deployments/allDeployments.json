@@ -5,7 +5,7 @@
       "chainId": "11155111",
       "contracts": {
         "PoseidonHasher": {
-          "address": "0xfa72Ce89D60d085B8FdB445fF6edC47475D58d1E",
+          "address": "0xa1554EAF0DF18C05956249aac375e212edeD2CcF",
           "abi": [
             {
               "inputs": [
@@ -25,24 +25,11 @@
               ],
               "stateMutability": "pure",
               "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "identity",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "pure",
-              "type": "function"
             }
           ]
         },
         "RLN": {
-          "address": "0x4B11778822690DefA80934B3203C170ed6B5d317",
+          "address": "0x9C09146844C1326c2dBC41c451766C7138F88155",
           "abi": [
             {
               "inputs": [
@@ -64,6 +51,86 @@
               ],
               "stateMutability": "nonpayable",
               "type": "constructor"
+            },
+            {
+              "inputs": [],
+              "name": "DuplicateIdCommitment",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "EmptyBatch",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "FullBatch",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "required",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "provided",
+                  "type": "uint256"
+                }
+              ],
+              "name": "InsufficientDeposit",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                }
+              ],
+              "name": "InvalidWithdrawalAddress",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "idCommitment",
+                  "type": "uint256"
+                }
+              ],
+              "name": "MemberHasNoStake",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "idCommitment",
+                  "type": "uint256"
+                }
+              ],
+              "name": "MemberNotRegistered",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "givenSecretsLen",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "givenReceiversLen",
+                  "type": "uint256"
+                }
+              ],
+              "name": "MismatchedBatchSize",
+              "type": "error"
             },
             {
               "anonymous": false,
@@ -237,19 +304,6 @@
                   "internalType": "address payable",
                   "name": "receiver",
                   "type": "address"
-                }
-              ],
-              "name": "withdraw",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "secret",
-                  "type": "uint256"
                 }
               ],
               "name": "withdraw",
