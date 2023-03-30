@@ -890,13 +890,13 @@ Batch size mismatch, when the length of secrets and receivers are not equal
 | givenSecretsLen   | uint256 | The length of the secrets array   |
 | givenReceiversLen | uint256 | The length of the receivers array |
 
-## InvalidWithdrawalAddress
+## InvalidReceiverAddress
 
 ```solidity
-error InvalidWithdrawalAddress(address to)
+error InvalidReceiverAddress(address to)
 ```
 
-Invalid withdrawal address, when the receiver is the contract itself or 0x0
+Invalid receiver address, when the receiver is the contract itself or 0x0
 
 ## MemberNotRegistered
 
@@ -913,6 +913,22 @@ error MemberHasNoStake(uint256 idCommitment)
 ```
 
 Member has no stake
+
+## InsufficientWithdrawalBalance
+
+```solidity
+error InsufficientWithdrawalBalance()
+```
+
+User has insufficient balance to withdraw
+
+## InsufficientContractBalance
+
+```solidity
+error InsufficientContractBalance()
+```
+
+Contract has insufficient balance to return
 
 ## RLN
 
@@ -963,6 +979,14 @@ mapping(uint256 => bool) members
 ```
 
 The membership status of each member
+
+### withdrawalBalance
+
+```solidity
+mapping(address => uint256) withdrawalBalance
+```
+
+The balance of each user that can be withdrawn
 
 ### poseidonHasher
 
@@ -1050,10 +1074,10 @@ Registers a member
 | idCommitment | uint256 | The idCommitment of the member         |
 | stake        | uint256 | The amount of eth staked by the member |
 
-### withdrawBatch
+### slashBatch
 
 ```solidity
-function withdrawBatch(uint256[] secrets, address payable[] receivers) external
+function slashBatch(uint256[] secrets, address payable[] receivers) external
 ```
 
 Allows a user to slash a batch of members
@@ -1065,10 +1089,10 @@ Allows a user to slash a batch of members
 | secrets   | uint256[]         | array of idSecretHashes                 |
 | receivers | address payable[] | array of addresses to receive the funds |
 
-### withdraw
+### slash
 
 ```solidity
-function withdraw(uint256 secret, address payable receiver) external
+function slash(uint256 secret, address payable receiver) external
 ```
 
 Allows a user to slash a member
@@ -1080,10 +1104,10 @@ Allows a user to slash a member
 | secret   | uint256         | The idSecretHash of the member |
 | receiver | address payable |                                |
 
-### \_withdraw
+### \_slash
 
 ```solidity
-function _withdraw(uint256 secret, address payable receiver) internal
+function _slash(uint256 secret, address payable receiver) internal
 ```
 
 Slashes a member by removing them from the set, and transferring their
@@ -1095,6 +1119,14 @@ stake to the receiver
 | -------- | --------------- | -------------------------------- |
 | secret   | uint256         | The idSecretHash of the member   |
 | receiver | address payable | The address to receive the funds |
+
+### withdraw
+
+```solidity
+function withdraw() external
+```
+
+Allows a user to withdraw funds allocated to them upon slashing a member
 
 ### hash
 
