@@ -9,6 +9,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
+import "solidity-docgen";
 
 dotenv.config();
 const { SEPOLIA_URL, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
