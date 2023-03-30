@@ -4,6 +4,34 @@ pragma solidity 0.8.15;
 
 import {IPoseidonHasher} from "./PoseidonHasher.sol";
 
+/// Invalid deposit amount
+/// @param required The required deposit amount
+/// @param provided The provided deposit amount
+error InsufficientDeposit(uint256 required, uint256 provided);
+
+/// Provided Batch is empty
+error EmptyBatch();
+
+/// Batch is full, during batch operations
+error FullBatch();
+
+/// Member is already registered
+error DuplicateIdCommitment();
+
+/// Batch size mismatch, when the length of secrets and receivers are not equal
+/// @param givenSecretsLen The length of the secrets array
+/// @param givenReceiversLen The length of the receivers array
+error MismatchedBatchSize(uint256 givenSecretsLen, uint256 givenReceiversLen);
+
+/// Invalid withdrawal address, when the receiver is the contract itself or 0x0
+error InvalidWithdrawalAddress(address to);
+
+/// Member is not registered
+error MemberNotRegistered(uint256 idCommitment);
+
+/// Member has no stake
+error MemberHasNoStake(uint256 idCommitment);
+
 contract RLN {
     /// @notice The deposit amount required to register as a member
     uint256 public immutable MEMBERSHIP_DEPOSIT;
@@ -49,10 +77,8 @@ contract RLN {
     /// Allows a user to register as a member
     /// @param idCommitment The idCommitment of the member
     function register(uint256 idCommitment) external payable {
-        require(
-            msg.value == MEMBERSHIP_DEPOSIT,
-            "RLN, register: membership deposit is not satisfied"
-        );
+        if (msg.value != MEMBERSHIP_DEPOSIT)
+            revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
         _register(idCommitment, msg.value);
     }
 
@@ -60,15 +86,11 @@ contract RLN {
     /// @param idCommitments array of idCommitments
     function registerBatch(uint256[] calldata idCommitments) external payable {
         uint256 idCommitmentlen = idCommitments.length;
-        require(idCommitmentlen > 0, "RLN, registerBatch: batch size zero");
-        require(
-            idCommitmentIndex + idCommitmentlen <= SET_SIZE,
-            "RLN, registerBatch: set is full"
-        );
-        require(
-            msg.value == MEMBERSHIP_DEPOSIT * idCommitmentlen,
-            "RLN, registerBatch: membership deposit is not satisfied"
-        );
+        if (idCommitmentlen == 0) revert EmptyBatch();
+        if (idCommitmentIndex + idCommitmentlen >= SET_SIZE) revert FullBatch();
+        uint256 requiredDeposit = MEMBERSHIP_DEPOSIT * idCommitmentlen;
+        if (msg.value != requiredDeposit)
+            revert InsufficientDeposit(requiredDeposit, msg.value);
         for (uint256 i = 0; i < idCommitmentlen; i++) {
             _register(idCommitments[i], msg.value / idCommitmentlen);
         }
@@ -78,11 +100,8 @@ contract RLN {
     /// @param idCommitment The idCommitment of the member
     /// @param stake The amount of eth staked by the member
     function _register(uint256 idCommitment, uint256 stake) internal {
-        require(
-            !members[idCommitment],
-            "RLN, _register: member already registered"
-        );
-        require(idCommitmentIndex < SET_SIZE, "RLN, register: set is full");
+        if (members[idCommitment]) revert DuplicateIdCommitment();
+        if (idCommitmentIndex >= SET_SIZE) revert FullBatch();
 
         members[idCommitment] = true;
         stakedAmounts[idCommitment] = stake;
@@ -99,11 +118,9 @@ contract RLN {
         address payable[] calldata receivers
     ) external {
         uint256 batchSize = secrets.length;
-        require(batchSize != 0, "RLN, withdrawBatch: batch size zero");
-        require(
-            batchSize == receivers.length,
-            "RLN, withdrawBatch: batch size mismatch receivers"
-        );
+        if (batchSize == 0) revert EmptyBatch();
+        if (batchSize != receivers.length)
+            revert MismatchedBatchSize(secrets.length, receivers.length);
         for (uint256 i = 0; i < batchSize; i++) {
             _withdraw(secrets[i], receivers[i]);
         }
@@ -120,26 +137,15 @@ contract RLN {
     /// @param secret The idSecretHash of the member
     /// @param receiver The address to receive the funds
     function _withdraw(uint256 secret, address payable receiver) internal {
-        require(
-            receiver != address(0),
-            "RLN, _withdraw: empty receiver address"
-        );
-
-        require(
-            receiver != address(this),
-            "RLN, _withdraw: cannot withdraw to RLN"
-        );
+        if (receiver == address(this) || receiver == address(0))
+            revert InvalidWithdrawalAddress(receiver);
 
         // derive idCommitment
         uint256 idCommitment = hash(secret);
         // check if member is registered
-        require(members[idCommitment], "RLN, _withdraw: member not registered");
-
-        // check if member has stake
-        require(
-            stakedAmounts[idCommitment] != 0,
-            "RLN, _withdraw: member has no stake"
-        );
+        if (!members[idCommitment]) revert MemberNotRegistered(idCommitment);
+        if (stakedAmounts[idCommitment] == 0)
+            revert MemberHasNoStake(idCommitment);
 
         uint256 amountToTransfer = stakedAmounts[idCommitment];
 
