@@ -29,7 +29,7 @@ describe("RLN", () => {
     );
   });
 
-  it("should withdraw membership", async () => {
+  it("should slash membership", async () => {
     const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
@@ -45,21 +45,21 @@ describe("RLN", () => {
     });
     await registerTx.wait();
 
-    // We withdraw our id_commitment
+    // We slash the id_commitment
     const receiverAddress = "0x000000000000000000000000000000000000dead";
-    const withdrawTx = await rln["withdraw(uint256,address)"](
+    const slashTx = await rln["slash(uint256,address)"](
       idSecret,
       receiverAddress
     );
 
-    const txWithdrawReceipt = await withdrawTx.wait();
+    const slashTxReceipt = await slashTx.wait();
 
-    const withdrawalPk = txWithdrawReceipt.events[0].args.idCommitment;
+    const slashedIdCommitment = slashTxReceipt.events[0].args.idCommitment;
 
     // We ensure the registered id_commitment is the one we passed and that the index is the same
     expect(
-      withdrawalPk.toHexString() === idCommitment,
-      "withdraw commitment doesn't match registered commitment"
+      slashedIdCommitment.toHexString() === idCommitment,
+      "slashed commitment doesn't match registered commitment"
     );
   });
 
