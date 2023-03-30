@@ -75,18 +75,22 @@ contract RLNTest is Test {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         assertEq(rln.members(idCommitment), true);
-        // TODO: use custom errors instead of revert strings
-        vm.expectRevert(bytes("RLN, _register: member already registered"));
+        vm.expectRevert(DuplicateIdCommitment.selector);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
     }
 
     function test__InvalidRegistration__InsufficientDeposit(
         uint256 idCommitment
     ) public {
+        uint256 badDepositAmount = MEMBERSHIP_DEPOSIT - 1;
         vm.expectRevert(
-            bytes("RLN, register: membership deposit is not satisfied")
+            abi.encodeWithSelector(
+                InsufficientDeposit.selector,
+                MEMBERSHIP_DEPOSIT,
+                badDepositAmount
+            )
         );
-        rln.register{value: MEMBERSHIP_DEPOSIT - 1}(idCommitment);
+        rln.register{value: badDepositAmount}(idCommitment);
     }
 
     function test__InvalidRegistration__FullSet(
@@ -103,7 +107,7 @@ contract RLNTest is Test {
             tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + i);
         }
         assertEq(tempRln.idCommitmentIndex(), 4);
-        vm.expectRevert(bytes("RLN, register: set is full"));
+        vm.expectRevert(FullBatch.selector);
         tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + setSize);
     }
 
@@ -135,13 +139,13 @@ contract RLNTest is Test {
         assertEq(tempRln.idCommitmentIndex(), 4);
         uint256[] memory idCommitments = new uint256[](1);
         idCommitments[0] = idCommitmentSeed + setSize;
-        vm.expectRevert(bytes("RLN, registerBatch: set is full"));
+        vm.expectRevert(FullBatch.selector);
         tempRln.registerBatch{value: MEMBERSHIP_DEPOSIT}(idCommitments);
     }
 
     function test__InvalidBatchRegistration__EmptyBatch() public {
         uint256[] memory idCommitments = new uint256[](0);
-        vm.expectRevert(bytes("RLN, registerBatch: batch size zero"));
+        vm.expectRevert(EmptyBatch.selector);
         rln.registerBatch{value: MEMBERSHIP_DEPOSIT}(idCommitments);
     }
 
@@ -150,12 +154,17 @@ contract RLNTest is Test {
     ) public {
         vm.assume(isUniqueArray(idCommitments) && idCommitments.length > 0);
         uint256 idCommitmentlen = idCommitments.length;
+        uint256 goodDepositAmount = MEMBERSHIP_DEPOSIT * idCommitmentlen;
+        uint256 badDepositAmount = goodDepositAmount - 1;
+
         vm.expectRevert(
-            bytes("RLN, registerBatch: membership deposit is not satisfied")
+            abi.encodeWithSelector(
+                InsufficientDeposit.selector,
+                goodDepositAmount,
+                badDepositAmount
+            )
         );
-        rln.registerBatch{value: MEMBERSHIP_DEPOSIT * idCommitmentlen - 1}(
-            idCommitments
-        );
+        rln.registerBatch{value: badDepositAmount}(idCommitments);
     }
 
     function test__ValidWithdraw(
@@ -184,7 +193,12 @@ contract RLNTest is Test {
         uint256 idCommitment = poseidon.hash(idSecretHash);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        vm.expectRevert(bytes("RLN, _withdraw: empty receiver address"));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                InvalidWithdrawalAddress.selector,
+                address(0)
+            )
+        );
         rln.withdraw(idSecretHash, payable(address(0)));
     }
 
@@ -193,15 +207,23 @@ contract RLNTest is Test {
         uint256 idCommitment = poseidon.hash(idSecretHash);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        vm.expectRevert(bytes("RLN, _withdraw: cannot withdraw to RLN"));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                InvalidWithdrawalAddress.selector,
+                address(rln)
+            )
+        );
         rln.withdraw(idSecretHash, payable(address(rln)));
     }
 
     function test__InvalidWithdraw__InvalidIdCommitment(
-        uint256 idCommitment
+        uint256 idSecretHash
     ) public {
-        vm.expectRevert(bytes("RLN, _withdraw: member not registered"));
-        rln.withdraw(idCommitment, payable(address(this)));
+        uint256 idCommitment = poseidon.hash(idSecretHash);
+        vm.expectRevert(
+            abi.encodeWithSelector(MemberNotRegistered.selector, idCommitment)
+        );
+        rln.withdraw(idSecretHash, payable(address(this)));
     }
 
     // this shouldn't be possible, but just in case
@@ -230,7 +252,9 @@ contract RLNTest is Test {
             .depth(0)
             .checked_write(true);
 
-        vm.expectRevert(bytes("RLN, _withdraw: member has no stake"));
+        vm.expectRevert(
+            abi.encodeWithSelector(MemberHasNoStake.selector, idCommitment)
+        );
         rln.withdraw(idSecretHash, to);
     }
 
@@ -274,7 +298,7 @@ contract RLNTest is Test {
     function test__InvalidBatchWithdraw__EmptyBatch() public {
         uint256[] memory idSecretHashes = new uint256[](0);
         address payable[] memory to = new address payable[](0);
-        vm.expectRevert(bytes("RLN, withdrawBatch: batch size zero"));
+        vm.expectRevert(EmptyBatch.selector);
         rln.withdrawBatch(idSecretHashes, to);
     }
 
@@ -287,12 +311,17 @@ contract RLNTest is Test {
         vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
         vm.assume(to != address(0));
 
+        uint256 numberOfReceivers = idSecretHashes.length + 1;
         vm.expectRevert(
-            bytes("RLN, withdrawBatch: batch size mismatch receivers")
+            abi.encodeWithSelector(
+                MismatchedBatchSize.selector,
+                idSecretHashes.length,
+                numberOfReceivers
+            )
         );
         rln.withdrawBatch(
             idSecretHashes,
-            repeatElementIntoArray(idSecretHashes.length + 1, to)
+            repeatElementIntoArray(numberOfReceivers, to)
         );
     }
 }

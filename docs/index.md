@@ -836,6 +836,84 @@ Hashes the input using the Poseidon hash function, n = 2, second input is the co
 function _hash(uint256 input) internal pure returns (uint256 result)
 ```
 
+## InsufficientDeposit
+
+```solidity
+error InsufficientDeposit(uint256 required, uint256 provided)
+```
+
+Invalid deposit amount
+
+### Parameters
+
+| Name     | Type    | Description                 |
+| -------- | ------- | --------------------------- |
+| required | uint256 | The required deposit amount |
+| provided | uint256 | The provided deposit amount |
+
+## EmptyBatch
+
+```solidity
+error EmptyBatch()
+```
+
+Provided Batch is empty
+
+## FullBatch
+
+```solidity
+error FullBatch()
+```
+
+Batch is full, during batch operations
+
+## DuplicateIdCommitment
+
+```solidity
+error DuplicateIdCommitment()
+```
+
+Member is already registered
+
+## MismatchedBatchSize
+
+```solidity
+error MismatchedBatchSize(uint256 givenSecretsLen, uint256 givenReceiversLen)
+```
+
+Batch size mismatch, when the length of secrets and receivers are not equal
+
+### Parameters
+
+| Name              | Type    | Description                       |
+| ----------------- | ------- | --------------------------------- |
+| givenSecretsLen   | uint256 | The length of the secrets array   |
+| givenReceiversLen | uint256 | The length of the receivers array |
+
+## InvalidWithdrawalAddress
+
+```solidity
+error InvalidWithdrawalAddress(address to)
+```
+
+Invalid withdrawal address, when the receiver is the contract itself or 0x0
+
+## MemberNotRegistered
+
+```solidity
+error MemberNotRegistered(uint256 idCommitment)
+```
+
+Member is not registered
+
+## MemberHasNoStake
+
+```solidity
+error MemberHasNoStake(uint256 idCommitment)
+```
+
+Member has no stake
+
 ## RLN
 
 ### MEMBERSHIP_DEPOSIT

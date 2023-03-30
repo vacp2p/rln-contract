@@ -82,8 +82,6 @@ describe("RLN", () => {
       value: price,
     });
 
-    await expect(registerTx2).to.be.revertedWith(
-      "RLN, _register: member already registered"
-    );
+    await expect(registerTx2).to.be.revertedWith("DuplicateIdCommitment()");
   });
 });
