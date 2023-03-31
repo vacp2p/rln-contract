@@ -167,10 +167,7 @@ contract RLNTest is Test {
         rln.registerBatch{value: badDepositAmount}(idCommitments);
     }
 
-    function test__ValidWithdraw(
-        uint256 idSecretHash,
-        address payable to
-    ) public {
+    function test__ValidSlash(uint256 idSecretHash, address payable to) public {
         // avoid precompiles, etc
         // TODO: wrap both of these in a single function
         assumePayable(to);
@@ -182,52 +179,51 @@ contract RLNTest is Test {
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
 
         uint256 balanceBefore = to.balance;
-        rln.withdraw(idSecretHash, to);
+        rln.slash(idSecretHash, to);
+        vm.prank(to);
+        rln.withdraw();
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), false);
         assertEq(to.balance, balanceBefore + MEMBERSHIP_DEPOSIT);
     }
 
-    function test__InvalidWithdraw__ToZeroAddress() public {
+    function test__InvalidSlash__ToZeroAddress() public {
         uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
         uint256 idCommitment = poseidon.hash(idSecretHash);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                InvalidWithdrawalAddress.selector,
-                address(0)
-            )
+            abi.encodeWithSelector(InvalidReceiverAddress.selector, address(0))
         );
-        rln.withdraw(idSecretHash, payable(address(0)));
+        rln.slash(idSecretHash, payable(address(0)));
     }
 
-    function test__InvalidWithdraw__ToRlnAddress() public {
+    function test__InvalidSlash__ToRlnAddress() public {
         uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
         uint256 idCommitment = poseidon.hash(idSecretHash);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         vm.expectRevert(
             abi.encodeWithSelector(
-                InvalidWithdrawalAddress.selector,
+                InvalidReceiverAddress.selector,
                 address(rln)
             )
         );
-        rln.withdraw(idSecretHash, payable(address(rln)));
+        rln.slash(idSecretHash, payable(address(rln)));
     }
 
-    function test__InvalidWithdraw__InvalidIdCommitment(
+    function test__InvalidSlash__InvalidIdCommitment(
         uint256 idSecretHash
     ) public {
         uint256 idCommitment = poseidon.hash(idSecretHash);
         vm.expectRevert(
             abi.encodeWithSelector(MemberNotRegistered.selector, idCommitment)
         );
-        rln.withdraw(idSecretHash, payable(address(this)));
+        rln.slash(idSecretHash, payable(address(this)));
     }
 
     // this shouldn't be possible, but just in case
-    function test__InvalidWithdraw__NoStake(
+    function test__InvalidSlash__NoStake(
         uint256 idSecretHash,
         address payable to
     ) public {
@@ -240,7 +236,7 @@ contract RLNTest is Test {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
 
-        rln.withdraw(idSecretHash, to);
+        rln.slash(idSecretHash, to);
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), false);
 
@@ -255,10 +251,10 @@ contract RLNTest is Test {
         vm.expectRevert(
             abi.encodeWithSelector(MemberHasNoStake.selector, idCommitment)
         );
-        rln.withdraw(idSecretHash, to);
+        rln.slash(idSecretHash, to);
     }
 
-    function test__ValidBatchWithdraw(
+    function test__ValidBatchSlash(
         uint256[] calldata idSecretHashes,
         address payable to
     ) public {
@@ -281,7 +277,7 @@ contract RLNTest is Test {
         }
 
         uint256 balanceBefore = to.balance;
-        rln.withdrawBatch(
+        rln.slashBatch(
             idSecretHashes,
             repeatElementIntoArray(idSecretHashes.length, to)
         );
@@ -289,20 +285,22 @@ contract RLNTest is Test {
             assertEq(rln.stakedAmounts(idCommitments[i]), 0);
             assertEq(rln.members(idCommitments[i]), false);
         }
+        vm.prank(to);
+        rln.withdraw();
         assertEq(
             to.balance,
             balanceBefore + MEMBERSHIP_DEPOSIT * idCommitmentlen
         );
     }
 
-    function test__InvalidBatchWithdraw__EmptyBatch() public {
+    function test__InvalidBatchSlash__EmptyBatch() public {
         uint256[] memory idSecretHashes = new uint256[](0);
         address payable[] memory to = new address payable[](0);
         vm.expectRevert(EmptyBatch.selector);
-        rln.withdrawBatch(idSecretHashes, to);
+        rln.slashBatch(idSecretHashes, to);
     }
 
-    function test__InvalidBatchWithdraw__MismatchInputSize(
+    function test__InvalidBatchSlash__MismatchInputSize(
         uint256[] calldata idSecretHashes,
         address payable to
     ) public {
@@ -319,9 +317,46 @@ contract RLNTest is Test {
                 numberOfReceivers
             )
         );
-        rln.withdrawBatch(
+        rln.slashBatch(
             idSecretHashes,
             repeatElementIntoArray(numberOfReceivers, to)
         );
+    }
+
+    function test__InvalidWithdraw__InsufficientWithdrawalBalance() public {
+        vm.expectRevert(InsufficientWithdrawalBalance.selector);
+        rln.withdraw();
+    }
+
+    function test__InvalidWithdraw__InsufficientContractBalance() public {
+        uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
+        uint256 idCommitment = poseidon.hash(idSecretHash);
+        rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
+        assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
+        rln.slash(idSecretHash, payable(address(this)));
+        assertEq(rln.stakedAmounts(idCommitment), 0);
+        assertEq(rln.members(idCommitment), false);
+
+        vm.deal(address(rln), 0);
+        vm.expectRevert(InsufficientContractBalance.selector);
+        rln.withdraw();
+    }
+
+    function test__ValidWithdraw(address payable to) public {
+        assumePayable(to);
+        assumeNoPrecompiles(to);
+
+        uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
+        uint256 idCommitment = poseidon.hash(idSecretHash);
+
+        rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
+        assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
+        rln.slash(idSecretHash, to);
+        assertEq(rln.stakedAmounts(idCommitment), 0);
+        assertEq(rln.members(idCommitment), false);
+
+        vm.prank(to);
+        rln.withdraw();
+        assertEq(rln.withdrawalBalance(to), 0);
     }
 }

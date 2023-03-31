@@ -23,14 +23,20 @@ error DuplicateIdCommitment();
 /// @param givenReceiversLen The length of the receivers array
 error MismatchedBatchSize(uint256 givenSecretsLen, uint256 givenReceiversLen);
 
-/// Invalid withdrawal address, when the receiver is the contract itself or 0x0
-error InvalidWithdrawalAddress(address to);
+/// Invalid receiver address, when the receiver is the contract itself or 0x0
+error InvalidReceiverAddress(address to);
 
 /// Member is not registered
 error MemberNotRegistered(uint256 idCommitment);
 
 /// Member has no stake
 error MemberHasNoStake(uint256 idCommitment);
+
+/// User has insufficient balance to withdraw
+error InsufficientWithdrawalBalance();
+
+/// Contract has insufficient balance to return
+error InsufficientContractBalance();
 
 contract RLN {
     /// @notice The deposit amount required to register as a member
@@ -51,8 +57,11 @@ contract RLN {
     /// @notice The membership status of each member
     mapping(uint256 => bool) public members;
 
+    /// @notice The balance of each user that can be withdrawn
+    mapping(address => uint256) public withdrawalBalance;
+
     /// @notice The Poseidon hasher contract
-    IPoseidonHasher public poseidonHasher;
+    IPoseidonHasher public immutable poseidonHasher;
 
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
@@ -91,8 +100,9 @@ contract RLN {
         uint256 requiredDeposit = MEMBERSHIP_DEPOSIT * idCommitmentlen;
         if (msg.value != requiredDeposit)
             revert InsufficientDeposit(requiredDeposit, msg.value);
+
         for (uint256 i = 0; i < idCommitmentlen; i++) {
-            _register(idCommitments[i], msg.value / idCommitmentlen);
+            _register(idCommitments[i], MEMBERSHIP_DEPOSIT);
         }
     }
 
@@ -113,7 +123,7 @@ contract RLN {
     /// Allows a user to slash a batch of members
     /// @param secrets array of idSecretHashes
     /// @param receivers array of addresses to receive the funds
-    function withdrawBatch(
+    function slashBatch(
         uint256[] calldata secrets,
         address payable[] calldata receivers
     ) external {
@@ -122,23 +132,23 @@ contract RLN {
         if (batchSize != receivers.length)
             revert MismatchedBatchSize(secrets.length, receivers.length);
         for (uint256 i = 0; i < batchSize; i++) {
-            _withdraw(secrets[i], receivers[i]);
+            _slash(secrets[i], receivers[i]);
         }
     }
 
     /// Allows a user to slash a member
     /// @param secret The idSecretHash of the member
-    function withdraw(uint256 secret, address payable receiver) external {
-        _withdraw(secret, receiver);
+    function slash(uint256 secret, address payable receiver) external {
+        _slash(secret, receiver);
     }
 
     /// Slashes a member by removing them from the set, and transferring their
     /// stake to the receiver
     /// @param secret The idSecretHash of the member
     /// @param receiver The address to receive the funds
-    function _withdraw(uint256 secret, address payable receiver) internal {
+    function _slash(uint256 secret, address payable receiver) internal {
         if (receiver == address(this) || receiver == address(0))
-            revert InvalidWithdrawalAddress(receiver);
+            revert InvalidReceiverAddress(receiver);
 
         // derive idCommitment
         uint256 idCommitment = hash(secret);
@@ -154,9 +164,22 @@ contract RLN {
         stakedAmounts[idCommitment] = 0;
 
         // refund deposit
-        receiver.transfer(amountToTransfer);
+        withdrawalBalance[receiver] += amountToTransfer;
 
         emit MemberWithdrawn(idCommitment);
+    }
+
+    /// Allows a user to withdraw funds allocated to them upon slashing a member
+    function withdraw() external {
+        uint256 amount = withdrawalBalance[msg.sender];
+
+        if (amount == 0) revert InsufficientWithdrawalBalance();
+        if (amount > address(this).balance)
+            revert InsufficientContractBalance();
+
+        withdrawalBalance[msg.sender] = 0;
+
+        payable(msg.sender).transfer(amount);
     }
 
     /// Hashes a value using the Poseidon hasher
