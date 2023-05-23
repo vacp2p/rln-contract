@@ -7,31 +7,6 @@ import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
 import "forge-std/console.sol";
 
-contract ArrayUnique {
-    mapping(uint256 => bool) seen;
-
-    constructor(uint256[] memory arr) {
-        for (uint256 i = 0; i < arr.length; i++) {
-            require(!seen[arr[i]], "ArrayUnique: duplicate value");
-            seen[arr[i]] = true;
-        }
-    }
-
-    // contract in construction goes around the assumePayable() check
-    receive() external payable {}
-}
-
-function repeatElementIntoArray(
-    uint256 length,
-    address payable element
-) pure returns (address payable[] memory) {
-    address payable[] memory arr = new address payable[](length);
-    for (uint256 i = 0; i < length; i++) {
-        arr[i] = element;
-    }
-    return arr;
-}
-
 contract RLNTest is Test {
     using stdStorage for StdStorage;
 
@@ -48,14 +23,6 @@ contract RLNTest is Test {
         rln = new RLN(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon));
     }
 
-    function isUniqueArray(uint256[] memory arr) internal returns (bool) {
-        try new ArrayUnique(arr) {
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
     /// @dev Ensure that you can hash a value.
     function test__Constants() public {
         assertEq(rln.MEMBERSHIP_DEPOSIT(), MEMBERSHIP_DEPOSIT);
@@ -66,7 +33,7 @@ contract RLNTest is Test {
     function test__ValidRegistration(uint256 idCommitment) public {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        assertEq(rln.members(idCommitment), true);
+        assertEq(rln.members(idCommitment), 1);
     }
 
     function test__InvalidRegistration__DuplicateCommitment(
@@ -74,7 +41,7 @@ contract RLNTest is Test {
     ) public {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        assertEq(rln.members(idCommitment), true);
+        assertEq(rln.members(idCommitment), 1);
         vm.expectRevert(DuplicateIdCommitment.selector);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
     }
@@ -102,69 +69,13 @@ contract RLNTest is Test {
             2,
             address(rln.poseidonHasher())
         );
-        uint256 setSize = tempRln.SET_SIZE();
+        uint256 setSize = tempRln.SET_SIZE() - 1;
         for (uint256 i = 0; i < setSize; i++) {
             tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + i);
         }
         assertEq(tempRln.idCommitmentIndex(), 4);
-        vm.expectRevert(FullBatch.selector);
+        vm.expectRevert(FullTree.selector);
         tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + setSize);
-    }
-
-    function test__ValidBatchRegistration(
-        uint256[] calldata idCommitments
-    ) public {
-        // assume that the array is unique, otherwise it triggers
-        // a revert that has already been tested
-        vm.assume(isUniqueArray(idCommitments) && idCommitments.length > 0);
-        uint256 idCommitmentlen = idCommitments.length;
-        rln.registerBatch{value: MEMBERSHIP_DEPOSIT * idCommitmentlen}(
-            idCommitments
-        );
-        for (uint256 i = 0; i < idCommitmentlen; i++) {
-            assertEq(rln.stakedAmounts(idCommitments[i]), MEMBERSHIP_DEPOSIT);
-            assertEq(rln.members(idCommitments[i]), true);
-        }
-    }
-
-    function test__InvalidBatchRegistration__FullSet(
-        uint256 idCommitmentSeed
-    ) public {
-        vm.assume(idCommitmentSeed < 2 ** 255 - SET_SIZE);
-        RLN tempRln = new RLN(MEMBERSHIP_DEPOSIT, 2, address(poseidon));
-        uint256 setSize = tempRln.SET_SIZE();
-        for (uint256 i = 0; i < setSize; i++) {
-            tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + i);
-        }
-        assertEq(tempRln.idCommitmentIndex(), 4);
-        uint256[] memory idCommitments = new uint256[](1);
-        idCommitments[0] = idCommitmentSeed + setSize;
-        vm.expectRevert(FullBatch.selector);
-        tempRln.registerBatch{value: MEMBERSHIP_DEPOSIT}(idCommitments);
-    }
-
-    function test__InvalidBatchRegistration__EmptyBatch() public {
-        uint256[] memory idCommitments = new uint256[](0);
-        vm.expectRevert(EmptyBatch.selector);
-        rln.registerBatch{value: MEMBERSHIP_DEPOSIT}(idCommitments);
-    }
-
-    function test__InvalidBatchRegistration__InsufficientDeposit(
-        uint256[] calldata idCommitments
-    ) public {
-        vm.assume(isUniqueArray(idCommitments) && idCommitments.length > 0);
-        uint256 idCommitmentlen = idCommitments.length;
-        uint256 goodDepositAmount = MEMBERSHIP_DEPOSIT * idCommitmentlen;
-        uint256 badDepositAmount = goodDepositAmount - 1;
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                InsufficientDeposit.selector,
-                goodDepositAmount,
-                badDepositAmount
-            )
-        );
-        rln.registerBatch{value: badDepositAmount}(idCommitments);
     }
 
     function test__ValidSlash(uint256 idSecretHash, address payable to) public {
@@ -183,7 +94,7 @@ contract RLNTest is Test {
         vm.prank(to);
         rln.withdraw();
         assertEq(rln.stakedAmounts(idCommitment), 0);
-        assertEq(rln.members(idCommitment), false);
+        assertEq(rln.members(idCommitment), 0);
         assertEq(to.balance, balanceBefore + MEMBERSHIP_DEPOSIT);
     }
 
@@ -238,7 +149,7 @@ contract RLNTest is Test {
 
         rln.slash(idSecretHash, to);
         assertEq(rln.stakedAmounts(idCommitment), 0);
-        assertEq(rln.members(idCommitment), false);
+        assertEq(rln.members(idCommitment), 0);
 
         // manually set members[idCommitment] to true using vm
         stdstore
@@ -254,75 +165,6 @@ contract RLNTest is Test {
         rln.slash(idSecretHash, to);
     }
 
-    function test__ValidBatchSlash(
-        uint256[] calldata idSecretHashes,
-        address payable to
-    ) public {
-        // avoid precompiles, etc
-        assumePayable(to);
-        assumeNoPrecompiles(to);
-        vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
-        vm.assume(to != address(0));
-        uint256 idCommitmentlen = idSecretHashes.length;
-        uint256[] memory idCommitments = new uint256[](idCommitmentlen);
-        for (uint256 i = 0; i < idCommitmentlen; i++) {
-            idCommitments[i] = poseidon.hash(idSecretHashes[i]);
-        }
-
-        rln.registerBatch{value: MEMBERSHIP_DEPOSIT * idCommitmentlen}(
-            idCommitments
-        );
-        for (uint256 i = 0; i < idCommitmentlen; i++) {
-            assertEq(rln.stakedAmounts(idCommitments[i]), MEMBERSHIP_DEPOSIT);
-        }
-
-        uint256 balanceBefore = to.balance;
-        rln.slashBatch(
-            idSecretHashes,
-            repeatElementIntoArray(idSecretHashes.length, to)
-        );
-        for (uint256 i = 0; i < idCommitmentlen; i++) {
-            assertEq(rln.stakedAmounts(idCommitments[i]), 0);
-            assertEq(rln.members(idCommitments[i]), false);
-        }
-        vm.prank(to);
-        rln.withdraw();
-        assertEq(
-            to.balance,
-            balanceBefore + MEMBERSHIP_DEPOSIT * idCommitmentlen
-        );
-    }
-
-    function test__InvalidBatchSlash__EmptyBatch() public {
-        uint256[] memory idSecretHashes = new uint256[](0);
-        address payable[] memory to = new address payable[](0);
-        vm.expectRevert(EmptyBatch.selector);
-        rln.slashBatch(idSecretHashes, to);
-    }
-
-    function test__InvalidBatchSlash__MismatchInputSize(
-        uint256[] calldata idSecretHashes,
-        address payable to
-    ) public {
-        assumePayable(to);
-        assumeNoPrecompiles(to);
-        vm.assume(isUniqueArray(idSecretHashes) && idSecretHashes.length > 0);
-        vm.assume(to != address(0));
-
-        uint256 numberOfReceivers = idSecretHashes.length + 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                MismatchedBatchSize.selector,
-                idSecretHashes.length,
-                numberOfReceivers
-            )
-        );
-        rln.slashBatch(
-            idSecretHashes,
-            repeatElementIntoArray(numberOfReceivers, to)
-        );
-    }
-
     function test__InvalidWithdraw__InsufficientWithdrawalBalance() public {
         vm.expectRevert(InsufficientWithdrawalBalance.selector);
         rln.withdraw();
@@ -335,7 +177,7 @@ contract RLNTest is Test {
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         rln.slash(idSecretHash, payable(address(this)));
         assertEq(rln.stakedAmounts(idCommitment), 0);
-        assertEq(rln.members(idCommitment), false);
+        assertEq(rln.members(idCommitment), 0);
 
         vm.deal(address(rln), 0);
         vm.expectRevert(InsufficientContractBalance.selector);
@@ -353,7 +195,7 @@ contract RLNTest is Test {
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         rln.slash(idSecretHash, to);
         assertEq(rln.stakedAmounts(idCommitment), 0);
-        assertEq(rln.members(idCommitment), false);
+        assertEq(rln.members(idCommitment), 0);
 
         vm.prank(to);
         rln.withdraw();

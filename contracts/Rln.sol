@@ -4,24 +4,16 @@ pragma solidity 0.8.15;
 
 import {IPoseidonHasher} from "./PoseidonHasher.sol";
 
+/// The tree is full
+error FullTree();
+
 /// Invalid deposit amount
 /// @param required The required deposit amount
 /// @param provided The provided deposit amount
 error InsufficientDeposit(uint256 required, uint256 provided);
 
-/// Provided Batch is empty
-error EmptyBatch();
-
-/// Batch is full, during batch operations
-error FullBatch();
-
 /// Member is already registered
 error DuplicateIdCommitment();
-
-/// Batch size mismatch, when the length of secrets and receivers are not equal
-/// @param givenSecretsLen The length of the secrets array
-/// @param givenReceiversLen The length of the receivers array
-error MismatchedBatchSize(uint256 givenSecretsLen, uint256 givenReceiversLen);
 
 /// Invalid receiver address, when the receiver is the contract itself or 0x0
 error InvalidReceiverAddress(address to);
@@ -49,13 +41,15 @@ contract RLN {
     uint256 public immutable SET_SIZE;
 
     /// @notice The index of the next member to be registered
-    uint256 public idCommitmentIndex;
+    uint256 public idCommitmentIndex = 1;
 
     /// @notice The amount of eth staked by each member
+    /// maps from idCommitment to the amount staked
     mapping(uint256 => uint256) public stakedAmounts;
 
     /// @notice The membership status of each member
-    mapping(uint256 => bool) public members;
+    /// maps from idCommitment to their index in the set
+    mapping(uint256 => uint256) public members;
 
     /// @notice The balance of each user that can be withdrawn
     mapping(address => uint256) public withdrawalBalance;
@@ -70,7 +64,8 @@ contract RLN {
 
     /// Emitted when a member is removed from the set
     /// @param idCommitment The idCommitment of the member
-    event MemberWithdrawn(uint256 idCommitment);
+    /// @param index The index of the member in the set
+    event MemberWithdrawn(uint256 idCommitment, uint256 index);
 
     constructor(
         uint256 membershipDeposit,
@@ -91,49 +86,18 @@ contract RLN {
         _register(idCommitment, msg.value);
     }
 
-    /// Allows batch registration of members
-    /// @param idCommitments array of idCommitments
-    function registerBatch(uint256[] calldata idCommitments) external payable {
-        uint256 idCommitmentlen = idCommitments.length;
-        if (idCommitmentlen == 0) revert EmptyBatch();
-        if (idCommitmentIndex + idCommitmentlen >= SET_SIZE) revert FullBatch();
-        uint256 requiredDeposit = MEMBERSHIP_DEPOSIT * idCommitmentlen;
-        if (msg.value != requiredDeposit)
-            revert InsufficientDeposit(requiredDeposit, msg.value);
-
-        for (uint256 i = 0; i < idCommitmentlen; i++) {
-            _register(idCommitments[i], MEMBERSHIP_DEPOSIT);
-        }
-    }
-
     /// Registers a member
     /// @param idCommitment The idCommitment of the member
     /// @param stake The amount of eth staked by the member
     function _register(uint256 idCommitment, uint256 stake) internal {
-        if (members[idCommitment]) revert DuplicateIdCommitment();
-        if (idCommitmentIndex >= SET_SIZE) revert FullBatch();
+        if (members[idCommitment] != 0) revert DuplicateIdCommitment();
+        if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
-        members[idCommitment] = true;
+        members[idCommitment] = idCommitmentIndex;
         stakedAmounts[idCommitment] = stake;
 
         emit MemberRegistered(idCommitment, idCommitmentIndex);
         idCommitmentIndex += 1;
-    }
-
-    /// Allows a user to slash a batch of members
-    /// @param secrets array of idSecretHashes
-    /// @param receivers array of addresses to receive the funds
-    function slashBatch(
-        uint256[] calldata secrets,
-        address payable[] calldata receivers
-    ) external {
-        uint256 batchSize = secrets.length;
-        if (batchSize == 0) revert EmptyBatch();
-        if (batchSize != receivers.length)
-            revert MismatchedBatchSize(secrets.length, receivers.length);
-        for (uint256 i = 0; i < batchSize; i++) {
-            _slash(secrets[i], receivers[i]);
-        }
     }
 
     /// Allows a user to slash a member
@@ -153,20 +117,21 @@ contract RLN {
         // derive idCommitment
         uint256 idCommitment = hash(secret);
         // check if member is registered
-        if (!members[idCommitment]) revert MemberNotRegistered(idCommitment);
+        if (members[idCommitment] == 0) revert MemberNotRegistered(idCommitment);
         if (stakedAmounts[idCommitment] == 0)
             revert MemberHasNoStake(idCommitment);
 
         uint256 amountToTransfer = stakedAmounts[idCommitment];
 
         // delete member
-        members[idCommitment] = false;
+        uint256 index = members[idCommitment];
+        members[idCommitment] = 0;
         stakedAmounts[idCommitment] = 0;
 
         // refund deposit
         withdrawalBalance[receiver] += amountToTransfer;
 
-        emit MemberWithdrawn(idCommitment);
+        emit MemberWithdrawn(idCommitment, index);
     }
 
     /// Allows a user to withdraw funds allocated to them upon slashing a member

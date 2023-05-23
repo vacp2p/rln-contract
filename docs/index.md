@@ -836,6 +836,14 @@ Hashes the input using the Poseidon hash function, n = 2, second input is the co
 function _hash(uint256 input) internal pure returns (uint256 result)
 ```
 
+## FullTree
+
+```solidity
+error FullTree()
+```
+
+The tree is full
+
 ## InsufficientDeposit
 
 ```solidity
@@ -851,22 +859,6 @@ Invalid deposit amount
 | required | uint256 | The required deposit amount |
 | provided | uint256 | The provided deposit amount |
 
-## EmptyBatch
-
-```solidity
-error EmptyBatch()
-```
-
-Provided Batch is empty
-
-## FullBatch
-
-```solidity
-error FullBatch()
-```
-
-Batch is full, during batch operations
-
 ## DuplicateIdCommitment
 
 ```solidity
@@ -874,21 +866,6 @@ error DuplicateIdCommitment()
 ```
 
 Member is already registered
-
-## MismatchedBatchSize
-
-```solidity
-error MismatchedBatchSize(uint256 givenSecretsLen, uint256 givenReceiversLen)
-```
-
-Batch size mismatch, when the length of secrets and receivers are not equal
-
-### Parameters
-
-| Name              | Type    | Description                       |
-| ----------------- | ------- | --------------------------------- |
-| givenSecretsLen   | uint256 | The length of the secrets array   |
-| givenReceiversLen | uint256 | The length of the receivers array |
 
 ## InvalidReceiverAddress
 
@@ -971,14 +948,16 @@ mapping(uint256 => uint256) stakedAmounts
 ```
 
 The amount of eth staked by each member
+maps from idCommitment to the amount staked
 
 ### members
 
 ```solidity
-mapping(uint256 => bool) members
+mapping(uint256 => uint256) members
 ```
 
 The membership status of each member
+maps from idCommitment to their index in the set
 
 ### withdrawalBalance
 
@@ -1014,16 +993,17 @@ Emitted when a new member is added to the set
 ### MemberWithdrawn
 
 ```solidity
-event MemberWithdrawn(uint256 idCommitment)
+event MemberWithdrawn(uint256 idCommitment, uint256 index)
 ```
 
 Emitted when a member is removed from the set
 
 #### Parameters
 
-| Name         | Type    | Description                    |
-| ------------ | ------- | ------------------------------ |
-| idCommitment | uint256 | The idCommitment of the member |
+| Name         | Type    | Description                        |
+| ------------ | ------- | ---------------------------------- |
+| idCommitment | uint256 | The idCommitment of the member     |
+| index        | uint256 | The index of the member in the set |
 
 ### constructor
 
@@ -1045,20 +1025,6 @@ Allows a user to register as a member
 | ------------ | ------- | ------------------------------ |
 | idCommitment | uint256 | The idCommitment of the member |
 
-### registerBatch
-
-```solidity
-function registerBatch(uint256[] idCommitments) external payable
-```
-
-Allows batch registration of members
-
-#### Parameters
-
-| Name          | Type      | Description            |
-| ------------- | --------- | ---------------------- |
-| idCommitments | uint256[] | array of idCommitments |
-
 ### \_register
 
 ```solidity
@@ -1073,21 +1039,6 @@ Registers a member
 | ------------ | ------- | -------------------------------------- |
 | idCommitment | uint256 | The idCommitment of the member         |
 | stake        | uint256 | The amount of eth staked by the member |
-
-### slashBatch
-
-```solidity
-function slashBatch(uint256[] secrets, address payable[] receivers) external
-```
-
-Allows a user to slash a batch of members
-
-#### Parameters
-
-| Name      | Type              | Description                             |
-| --------- | ----------------- | --------------------------------------- |
-| secrets   | uint256[]         | array of idSecretHashes                 |
-| receivers | address payable[] | array of addresses to receive the funds |
 
 ### slash
 
