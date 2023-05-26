@@ -1,5 +1,177 @@
 # Solidity API
 
+## Pairing
+
+### G1Point
+
+```solidity
+struct G1Point {
+  uint256 X;
+  uint256 Y;
+}
+```
+
+### G2Point
+
+```solidity
+struct G2Point {
+  uint256[2] X;
+  uint256[2] Y;
+}
+```
+
+### P1
+
+```solidity
+function P1() internal pure returns (struct Pairing.G1Point)
+```
+
+#### Return Values
+
+| Name | Type                   | Description         |
+| ---- | ---------------------- | ------------------- |
+| [0]  | struct Pairing.G1Point | the generator of G1 |
+
+### P2
+
+```solidity
+function P2() internal pure returns (struct Pairing.G2Point)
+```
+
+#### Return Values
+
+| Name | Type                   | Description         |
+| ---- | ---------------------- | ------------------- |
+| [0]  | struct Pairing.G2Point | the generator of G2 |
+
+### negate
+
+```solidity
+function negate(struct Pairing.G1Point p) internal pure returns (struct Pairing.G1Point r)
+```
+
+#### Return Values
+
+| Name | Type                   | Description                                                    |
+| ---- | ---------------------- | -------------------------------------------------------------- |
+| r    | struct Pairing.G1Point | the negation of p, i.e. p.addition(p.negate()) should be zero. |
+
+### addition
+
+```solidity
+function addition(struct Pairing.G1Point p1, struct Pairing.G1Point p2) internal view returns (struct Pairing.G1Point r)
+```
+
+#### Return Values
+
+| Name | Type                   | Description                 |
+| ---- | ---------------------- | --------------------------- |
+| r    | struct Pairing.G1Point | the sum of two points of G1 |
+
+### scalar_mul
+
+```solidity
+function scalar_mul(struct Pairing.G1Point p, uint256 s) internal view returns (struct Pairing.G1Point r)
+```
+
+#### Return Values
+
+| Name | Type                   | Description                                                                                                                 |
+| ---- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| r    | struct Pairing.G1Point | the product of a point on G1 and a scalar, i.e. p == p.scalar_mul(1) and p.addition(p) == p.scalar_mul(2) for all points p. |
+
+### pairing
+
+```solidity
+function pairing(struct Pairing.G1Point[] p1, struct Pairing.G2Point[] p2) internal view returns (bool)
+```
+
+#### Return Values
+
+| Name | Type | Description                                                                                                                                                          |
+| ---- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [0]  | bool | the result of computing the pairing check e(p1[0], p2[0]) _ .... _ e(p1[n], p2[n]) == 1 For example pairing([P1(), P1().negate()], [P2(), P2()]) should return true. |
+
+### pairingProd2
+
+```solidity
+function pairingProd2(struct Pairing.G1Point a1, struct Pairing.G2Point a2, struct Pairing.G1Point b1, struct Pairing.G2Point b2) internal view returns (bool)
+```
+
+Convenience method for a pairing check for two pairs.
+
+### pairingProd3
+
+```solidity
+function pairingProd3(struct Pairing.G1Point a1, struct Pairing.G2Point a2, struct Pairing.G1Point b1, struct Pairing.G2Point b2, struct Pairing.G1Point c1, struct Pairing.G2Point c2) internal view returns (bool)
+```
+
+Convenience method for a pairing check for three pairs.
+
+### pairingProd4
+
+```solidity
+function pairingProd4(struct Pairing.G1Point a1, struct Pairing.G2Point a2, struct Pairing.G1Point b1, struct Pairing.G2Point b2, struct Pairing.G1Point c1, struct Pairing.G2Point c2, struct Pairing.G1Point d1, struct Pairing.G2Point d2) internal view returns (bool)
+```
+
+Convenience method for a pairing check for four pairs.
+
+## Verifier
+
+### VerifyingKey
+
+```solidity
+struct VerifyingKey {
+  struct Pairing.G1Point alfa1;
+  struct Pairing.G2Point beta2;
+  struct Pairing.G2Point gamma2;
+  struct Pairing.G2Point delta2;
+  struct Pairing.G1Point[] IC;
+}
+```
+
+### Proof
+
+```solidity
+struct Proof {
+  struct Pairing.G1Point A;
+  struct Pairing.G2Point B;
+  struct Pairing.G1Point C;
+}
+```
+
+### verifyingKey
+
+```solidity
+function verifyingKey() internal pure returns (struct Verifier.VerifyingKey vk)
+```
+
+### verify
+
+```solidity
+function verify(uint256[] input, struct Verifier.Proof proof) internal view returns (uint256)
+```
+
+### verifyProof
+
+```solidity
+function verifyProof(uint256[2] a, uint256[2][2] b, uint256[2] c, uint256[2] input) public view returns (bool r)
+```
+
+#### Return Values
+
+| Name | Type | Description                 |
+| ---- | ---- | --------------------------- |
+| r    | bool | bool true if proof is valid |
+
+## IVerifier
+
+### verifyProof
+
+```solidity
+function verifyProof(uint256[2] a, uint256[2][2] b, uint256[2] c, uint256[2] input) external view returns (bool)
+```
+
 ## IPoseidonHasher
 
 ### hash
@@ -907,6 +1079,14 @@ error InsufficientContractBalance()
 
 Contract has insufficient balance to return
 
+## InvalidProof
+
+```solidity
+error InvalidProof()
+```
+
+Invalid proof
+
 ## RLN
 
 ### MEMBERSHIP_DEPOSIT
@@ -975,6 +1155,14 @@ contract IPoseidonHasher poseidonHasher
 
 The Poseidon hasher contract
 
+### verifier
+
+```solidity
+contract IVerifier verifier
+```
+
+The groth16 verifier contract
+
 ### MemberRegistered
 
 ```solidity
@@ -1008,7 +1196,7 @@ Emitted when a member is removed from the set
 ### constructor
 
 ```solidity
-constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher) public
+constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) public
 ```
 
 ### register
@@ -1043,33 +1231,35 @@ Registers a member
 ### slash
 
 ```solidity
-function slash(uint256 secret, address payable receiver) external
+function slash(uint256 idCommitment, address payable receiver, uint256[8] proof) external
 ```
 
-Allows a user to slash a member
+_Allows a user to slash a member_
 
 #### Parameters
 
-| Name     | Type            | Description                    |
-| -------- | --------------- | ------------------------------ |
-| secret   | uint256         | The idSecretHash of the member |
-| receiver | address payable |                                |
+| Name         | Type            | Description                    |
+| ------------ | --------------- | ------------------------------ |
+| idCommitment | uint256         | The idCommitment of the member |
+| receiver     | address payable |                                |
+| proof        | uint256[8]      |                                |
 
 ### \_slash
 
 ```solidity
-function _slash(uint256 secret, address payable receiver) internal
+function _slash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal
 ```
 
-Slashes a member by removing them from the set, and transferring their
-stake to the receiver
+_Slashes a member by removing them from the set, and adding their
+stake to the receiver's available withdrawal balance_
 
 #### Parameters
 
-| Name     | Type            | Description                      |
-| -------- | --------------- | -------------------------------- |
-| secret   | uint256         | The idSecretHash of the member   |
-| receiver | address payable | The address to receive the funds |
+| Name         | Type            | Description                      |
+| ------------ | --------------- | -------------------------------- |
+| idCommitment | uint256         | The idCommitment of the member   |
+| receiver     | address payable | The address to receive the funds |
+| proof        | uint256[8]      |                                  |
 
 ### withdraw
 
@@ -1093,3 +1283,11 @@ NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2, and the s
 | Name  | Type    | Description       |
 | ----- | ------- | ----------------- |
 | input | uint256 | The value to hash |
+
+### \_verifyProof
+
+```solidity
+function _verifyProof(uint256 idCommitment, address receiver, uint256[8] proof) internal view returns (bool)
+```
+
+_Groth16 proof verification_

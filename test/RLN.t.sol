@@ -3,24 +3,32 @@ pragma solidity ^0.8.15;
 
 import "../contracts/PoseidonHasher.sol";
 import "../contracts/Rln.sol";
+import "./Verifier.sol";
 import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
 import "forge-std/console.sol";
+
 
 contract RLNTest is Test {
     using stdStorage for StdStorage;
 
     RLN public rln;
     PoseidonHasher public poseidon;
+    TrueVerifier public trueVerifier;
+    FalseVerifier public falseVerifier;
 
     uint256 public constant MEMBERSHIP_DEPOSIT = 1000000000000000;
     uint256 public constant DEPTH = 20;
     uint256 public constant SET_SIZE = 1048576;
+    uint256[8] public zeroedProof = [0, 0, 0, 0, 0, 0, 0, 0];
+
 
     /// @dev Setup the testing environment.
     function setUp() public {
         poseidon = new PoseidonHasher();
-        rln = new RLN(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon));
+        trueVerifier = new TrueVerifier();
+        falseVerifier = new FalseVerifier();
+        rln = new RLN(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon), address(trueVerifier));
     }
 
     /// @dev Ensure that you can hash a value.
@@ -67,7 +75,8 @@ contract RLNTest is Test {
         RLN tempRln = new RLN(
             MEMBERSHIP_DEPOSIT,
             2,
-            address(rln.poseidonHasher())
+            address(rln.poseidonHasher()),
+            address(rln.verifier())
         );
         uint256 setSize = tempRln.SET_SIZE() - 1;
         for (uint256 i = 0; i < setSize; i++) {
@@ -78,19 +87,18 @@ contract RLNTest is Test {
         tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + setSize);
     }
 
-    function test__ValidSlash(uint256 idSecretHash, address payable to) public {
+    function test__ValidSlash(uint256 idCommitment, address payable to) public {
         // avoid precompiles, etc
         // TODO: wrap both of these in a single function
         assumePayable(to);
         assumeNoPrecompiles(to);
         vm.assume(to != address(0));
-        uint256 idCommitment = poseidon.hash(idSecretHash);
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
 
         uint256 balanceBefore = to.balance;
-        rln.slash(idSecretHash, to);
+        rln.slash(idCommitment, to, zeroedProof);
         vm.prank(to);
         rln.withdraw();
         assertEq(rln.stakedAmounts(idCommitment), 0);
@@ -99,19 +107,18 @@ contract RLNTest is Test {
     }
 
     function test__InvalidSlash__ToZeroAddress() public {
-        uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
-        uint256 idCommitment = poseidon.hash(idSecretHash);
+        uint256 idCommitment = 9014214495641488759237505126948346942972912379615652741039992445865937985820;
+
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         vm.expectRevert(
             abi.encodeWithSelector(InvalidReceiverAddress.selector, address(0))
         );
-        rln.slash(idSecretHash, payable(address(0)));
+        rln.slash(idCommitment, payable(address(0)), zeroedProof);
     }
 
     function test__InvalidSlash__ToRlnAddress() public {
-        uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
-        uint256 idCommitment = poseidon.hash(idSecretHash);
+        uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         vm.expectRevert(
@@ -120,34 +127,32 @@ contract RLNTest is Test {
                 address(rln)
             )
         );
-        rln.slash(idSecretHash, payable(address(rln)));
+        rln.slash(idCommitment, payable(address(rln)), zeroedProof);
     }
 
     function test__InvalidSlash__InvalidIdCommitment(
-        uint256 idSecretHash
+        uint256 idCommitment
     ) public {
-        uint256 idCommitment = poseidon.hash(idSecretHash);
         vm.expectRevert(
             abi.encodeWithSelector(MemberNotRegistered.selector, idCommitment)
         );
-        rln.slash(idSecretHash, payable(address(this)));
+        rln.slash(idCommitment, payable(address(this)), zeroedProof);
     }
 
     // this shouldn't be possible, but just in case
     function test__InvalidSlash__NoStake(
-        uint256 idSecretHash,
+        uint256 idCommitment,
         address payable to
     ) public {
         // avoid precompiles, etc
         assumePayable(to);
         assumeNoPrecompiles(to);
         vm.assume(to != address(0));
-        uint256 idCommitment = poseidon.hash(idSecretHash);
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
 
-        rln.slash(idSecretHash, to);
+        rln.slash(idCommitment, to, zeroedProof);
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), 0);
 
@@ -162,7 +167,23 @@ contract RLNTest is Test {
         vm.expectRevert(
             abi.encodeWithSelector(MemberHasNoStake.selector, idCommitment)
         );
-        rln.slash(idSecretHash, to);
+        rln.slash(idCommitment, to, zeroedProof);
+    }
+
+    function test__InvalidSlash__InvalidProof() public {
+        uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
+
+        RLN tempRln = new RLN(
+            MEMBERSHIP_DEPOSIT,
+            2,
+            address(rln.poseidonHasher()),
+            address(falseVerifier)
+        );
+
+        tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
+
+        vm.expectRevert(InvalidProof.selector);
+        tempRln.slash(idCommitment, payable(address(this)), zeroedProof);
     }
 
     function test__InvalidWithdraw__InsufficientWithdrawalBalance() public {
@@ -171,11 +192,10 @@ contract RLNTest is Test {
     }
 
     function test__InvalidWithdraw__InsufficientContractBalance() public {
-        uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
-        uint256 idCommitment = poseidon.hash(idSecretHash);
+        uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        rln.slash(idSecretHash, payable(address(this)));
+        rln.slash(idCommitment, payable(address(this)), zeroedProof);
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), 0);
 
@@ -188,12 +208,11 @@ contract RLNTest is Test {
         assumePayable(to);
         assumeNoPrecompiles(to);
 
-        uint256 idSecretHash = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
-        uint256 idCommitment = poseidon.hash(idSecretHash);
+        uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        rln.slash(idSecretHash, to);
+        rln.slash(idCommitment, to, zeroedProof);
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), 0);
 

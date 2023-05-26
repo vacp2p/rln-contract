@@ -9,13 +9,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const poseidonHasherAddress = (await deployments.get("PoseidonHasher"))
     .address;
+  const rlnVerifierAddress = (await deployments.get("Verifier")).address;
 
   await deploy("RLN", {
     from: deployer,
     log: true,
-    args: [1000000000000000, 20, poseidonHasherAddress],
+    args: [1000000000000000, 20, poseidonHasherAddress, rlnVerifierAddress],
   });
 };
 export default func;
 func.tags = ["RLN"];
-func.dependencies = ["PoseidonHasher"];
+func.dependencies = ["PoseidonHasher", "RlnVerifier"];

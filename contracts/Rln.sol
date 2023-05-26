@@ -3,6 +3,10 @@
 pragma solidity 0.8.15;
 
 import {IPoseidonHasher} from "./PoseidonHasher.sol";
+import {IVerifier} from "./IVerifier.sol";
+
+import "forge-std/console.sol";
+
 
 /// The tree is full
 error FullTree();
@@ -29,6 +33,9 @@ error InsufficientWithdrawalBalance();
 
 /// Contract has insufficient balance to return
 error InsufficientContractBalance();
+
+/// Invalid proof
+error InvalidProof();
 
 contract RLN {
     /// @notice The deposit amount required to register as a member
@@ -57,6 +64,9 @@ contract RLN {
     /// @notice The Poseidon hasher contract
     IPoseidonHasher public immutable poseidonHasher;
 
+    /// @notice The groth16 verifier contract
+    IVerifier public immutable verifier;
+
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
     /// @param index The index of the member in the set
@@ -70,12 +80,14 @@ contract RLN {
     constructor(
         uint256 membershipDeposit,
         uint256 depth,
-        address _poseidonHasher
+        address _poseidonHasher,
+        address _verifier
     ) {
         MEMBERSHIP_DEPOSIT = membershipDeposit;
         DEPTH = depth;
         SET_SIZE = 1 << depth;
         poseidonHasher = IPoseidonHasher(_poseidonHasher);
+        verifier = IVerifier(_verifier);
     }
 
     /// Allows a user to register as a member
@@ -100,26 +112,27 @@ contract RLN {
         idCommitmentIndex += 1;
     }
 
-    /// Allows a user to slash a member
-    /// @param secret The idSecretHash of the member
-    function slash(uint256 secret, address payable receiver) external {
-        _slash(secret, receiver);
+    /// @dev Allows a user to slash a member
+    /// @param idCommitment The idCommitment of the member
+    function slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) external {
+        _slash(idCommitment, receiver, proof);
     }
 
-    /// Slashes a member by removing them from the set, and transferring their
-    /// stake to the receiver
-    /// @param secret The idSecretHash of the member
+    /// @dev Slashes a member by removing them from the set, and adding their
+    /// stake to the receiver's available withdrawal balance
+    /// @param idCommitment The idCommitment of the member
     /// @param receiver The address to receive the funds
-    function _slash(uint256 secret, address payable receiver) internal {
+    function _slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) internal {
         if (receiver == address(this) || receiver == address(0))
             revert InvalidReceiverAddress(receiver);
 
-        // derive idCommitment
-        uint256 idCommitment = hash(secret);
-        // check if member is registered
         if (members[idCommitment] == 0) revert MemberNotRegistered(idCommitment);
+        // check if member is registered
         if (stakedAmounts[idCommitment] == 0)
             revert MemberHasNoStake(idCommitment);
+
+        if(!_verifyProof(idCommitment, receiver, proof))
+            revert InvalidProof();
 
         uint256 amountToTransfer = stakedAmounts[idCommitment];
 
@@ -152,5 +165,19 @@ contract RLN {
     /// @param input The value to hash
     function hash(uint256 input) internal view returns (uint256) {
         return poseidonHasher.hash(input);
+    }
+
+    /// @dev Groth16 proof verification
+    function _verifyProof(uint256 idCommitment, address receiver, uint256[8] calldata proof)
+        internal
+        view
+        returns (bool)
+    {
+        return verifier.verifyProof(
+            [proof[0], proof[1]],
+            [[proof[2], proof[3]], [proof[4], proof[5]]],
+            [proof[6], proof[7]],
+            [idCommitment, uint256(uint160(receiver))]
+        );
     }
 }
