@@ -29,7 +29,7 @@
           ]
         },
         "RLN": {
-          "address": "0x9C09146844C1326c2dBC41c451766C7138F88155",
+          "address": "0xB8144E3214080f179D037bbb4dcaaa6B87f224E4",
           "abi": [
             {
               "inputs": [
@@ -47,6 +47,11 @@
                   "internalType": "address",
                   "name": "_poseidonHasher",
                   "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_verifier",
+                  "type": "address"
                 }
               ],
               "stateMutability": "nonpayable",
@@ -59,12 +64,12 @@
             },
             {
               "inputs": [],
-              "name": "EmptyBatch",
+              "name": "FullTree",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "FullBatch",
+              "name": "InsufficientContractBalance",
               "type": "error"
             },
             {
@@ -84,6 +89,16 @@
               "type": "error"
             },
             {
+              "inputs": [],
+              "name": "InsufficientWithdrawalBalance",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "InvalidProof",
+              "type": "error"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -91,7 +106,7 @@
                   "type": "address"
                 }
               ],
-              "name": "InvalidWithdrawalAddress",
+              "name": "InvalidReceiverAddress",
               "type": "error"
             },
             {
@@ -114,22 +129,6 @@
                 }
               ],
               "name": "MemberNotRegistered",
-              "type": "error"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "givenSecretsLen",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "givenReceiversLen",
-                  "type": "uint256"
-                }
-              ],
-              "name": "MismatchedBatchSize",
               "type": "error"
             },
             {
@@ -158,6 +157,12 @@
                   "indexed": false,
                   "internalType": "uint256",
                   "name": "idCommitment",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "index",
                   "type": "uint256"
                 }
               ],
@@ -227,9 +232,9 @@
               "name": "members",
               "outputs": [
                 {
-                  "internalType": "bool",
+                  "internalType": "uint256",
                   "name": "",
-                  "type": "bool"
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -264,14 +269,24 @@
             {
               "inputs": [
                 {
-                  "internalType": "uint256[]",
-                  "name": "idCommitments",
-                  "type": "uint256[]"
+                  "internalType": "uint256",
+                  "name": "idCommitment",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "receiver",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256[8]",
+                  "name": "proof",
+                  "type": "uint256[8]"
                 }
               ],
-              "name": "registerBatch",
+              "name": "slash",
               "outputs": [],
-              "stateMutability": "payable",
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -294,18 +309,20 @@
               "type": "function"
             },
             {
-              "inputs": [
+              "inputs": [],
+              "name": "verifier",
+              "outputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "secret",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address payable",
-                  "name": "receiver",
+                  "internalType": "contract IVerifier",
+                  "name": "",
                   "type": "address"
                 }
               ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "withdraw",
               "outputs": [],
               "stateMutability": "nonpayable",
@@ -314,19 +331,59 @@
             {
               "inputs": [
                 {
-                  "internalType": "uint256[]",
-                  "name": "secrets",
-                  "type": "uint256[]"
-                },
-                {
-                  "internalType": "address payable[]",
-                  "name": "receivers",
-                  "type": "address[]"
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
-              "name": "withdrawBatch",
-              "outputs": [],
-              "stateMutability": "nonpayable",
+              "name": "withdrawalBalance",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ]
+        },
+        "Verifier": {
+          "address": "0xb81Faa6F0126dedB55A45eb63E8430B270A00303",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256[2]",
+                  "name": "a",
+                  "type": "uint256[2]"
+                },
+                {
+                  "internalType": "uint256[2][2]",
+                  "name": "b",
+                  "type": "uint256[2][2]"
+                },
+                {
+                  "internalType": "uint256[2]",
+                  "name": "c",
+                  "type": "uint256[2]"
+                },
+                {
+                  "internalType": "uint256[2]",
+                  "name": "input",
+                  "type": "uint256[2]"
+                }
+              ],
+              "name": "verifyProof",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "r",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             }
           ]
