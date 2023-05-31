@@ -5,9 +5,6 @@ pragma solidity 0.8.15;
 import {IPoseidonHasher} from "./PoseidonHasher.sol";
 import {IVerifier} from "./IVerifier.sol";
 
-import "forge-std/console.sol";
-
-
 /// The tree is full
 error FullTree();
 
@@ -77,12 +74,7 @@ contract RLN {
     /// @param index The index of the member in the set
     event MemberWithdrawn(uint256 idCommitment, uint256 index);
 
-    constructor(
-        uint256 membershipDeposit,
-        uint256 depth,
-        address _poseidonHasher,
-        address _verifier
-    ) {
+    constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) {
         MEMBERSHIP_DEPOSIT = membershipDeposit;
         DEPTH = depth;
         SET_SIZE = 1 << depth;
@@ -93,8 +85,9 @@ contract RLN {
     /// Allows a user to register as a member
     /// @param idCommitment The idCommitment of the member
     function register(uint256 idCommitment) external payable {
-        if (msg.value != MEMBERSHIP_DEPOSIT)
+        if (msg.value != MEMBERSHIP_DEPOSIT) {
             revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
+        }
         _register(idCommitment, msg.value);
     }
 
@@ -123,16 +116,19 @@ contract RLN {
     /// @param idCommitment The idCommitment of the member
     /// @param receiver The address to receive the funds
     function _slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) internal {
-        if (receiver == address(this) || receiver == address(0))
+        if (receiver == address(this) || receiver == address(0)) {
             revert InvalidReceiverAddress(receiver);
+        }
 
         if (members[idCommitment] == 0) revert MemberNotRegistered(idCommitment);
         // check if member is registered
-        if (stakedAmounts[idCommitment] == 0)
+        if (stakedAmounts[idCommitment] == 0) {
             revert MemberHasNoStake(idCommitment);
+        }
 
-        if(!_verifyProof(idCommitment, receiver, proof))
+        if (!_verifyProof(idCommitment, receiver, proof)) {
             revert InvalidProof();
+        }
 
         uint256 amountToTransfer = stakedAmounts[idCommitment];
 
@@ -152,8 +148,9 @@ contract RLN {
         uint256 amount = withdrawalBalance[msg.sender];
 
         if (amount == 0) revert InsufficientWithdrawalBalance();
-        if (amount > address(this).balance)
+        if (amount > address(this).balance) {
             revert InsufficientContractBalance();
+        }
 
         withdrawalBalance[msg.sender] = 0;
 
