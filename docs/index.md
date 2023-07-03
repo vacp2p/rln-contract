@@ -12,8 +12,8 @@ Hashes the input using the Poseidon hash function, n = 2, second input is the co
 
 #### Parameters
 
-| Name  | Type    | Description       |
-| ----- | ------- | ----------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | input | uint256 | The input to hash |
 
 ## PoseidonHasher
@@ -826,11 +826,11 @@ Hashes the input using the Poseidon hash function, n = 2, second input is the co
 
 #### Parameters
 
-| Name  | Type    | Description       |
-| ----- | ------- | ----------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | input | uint256 | The input to hash |
 
-### \_hash
+### _hash
 
 ```solidity
 function _hash(uint256 input) internal pure returns (uint256 result)
@@ -905,10 +905,10 @@ Emitted when a new member is added to the set
 
 #### Parameters
 
-| Name         | Type    | Description                        |
-| ------------ | ------- | ---------------------------------- |
-| idCommitment | uint256 | The idCommitment of the member     |
-| index        | uint256 | The index of the member in the set |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| idCommitment | uint256 | The idCommitment of the member |
+| index | uint256 | The index of the member in the set |
 
 ### constructor
 
@@ -916,7 +916,7 @@ Emitted when a new member is added to the set
 constructor(uint256[] constructMembers, address _poseidonHasher) public
 ```
 
-### \_register
+### _register
 
 ```solidity
 function _register(uint256 idCommitment) internal
@@ -926,8 +926,8 @@ Registers a member
 
 #### Parameters
 
-| Name         | Type    | Description                    |
-| ------------ | ------- | ------------------------------ |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | idCommitment | uint256 | The idCommitment of the member |
 
 ### hash
@@ -941,6 +941,7 @@ NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2, and the s
 
 #### Parameters
 
-| Name  | Type    | Description       |
-| ----- | ------- | ----------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | input | uint256 | The value to hash |
+
