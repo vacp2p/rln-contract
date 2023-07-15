@@ -5,7 +5,7 @@
       "chainId": "11155111",
       "contracts": {
         "PoseidonHasher": {
-          "address": "0xa1554EAF0DF18C05956249aac375e212edeD2CcF",
+          "address": "0xCEa589C69338F02e857C2Bf201e897EF59D4CB69",
           "abi": [
             {
               "inputs": [
@@ -28,8 +28,47 @@
             }
           ]
         },
+        "Verifier": {
+          "address": "0xa6Da88FA985557936594CD1a04d9F7B9593806E9",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256[2]",
+                  "name": "a",
+                  "type": "uint256[2]"
+                },
+                {
+                  "internalType": "uint256[2][2]",
+                  "name": "b",
+                  "type": "uint256[2][2]"
+                },
+                {
+                  "internalType": "uint256[2]",
+                  "name": "c",
+                  "type": "uint256[2]"
+                },
+                {
+                  "internalType": "uint256[2]",
+                  "name": "input",
+                  "type": "uint256[2]"
+                }
+              ],
+              "name": "verifyProof",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "r",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ]
+        },
         "RLN": {
-          "address": "0xB8144E3214080f179D037bbb4dcaaa6B87f224E4",
+          "address": "0x39558059411112732D73997712B75a865a697330",
           "abi": [
             {
               "inputs": [
@@ -342,45 +381,6 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            }
-          ]
-        },
-        "Verifier": {
-          "address": "0xb81Faa6F0126dedB55A45eb63E8430B270A00303",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256[2]",
-                  "name": "a",
-                  "type": "uint256[2]"
-                },
-                {
-                  "internalType": "uint256[2][2]",
-                  "name": "b",
-                  "type": "uint256[2][2]"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "c",
-                  "type": "uint256[2]"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "input",
-                  "type": "uint256[2]"
-                }
-              ],
-              "name": "verifyProof",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "r",
-                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
