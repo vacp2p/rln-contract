@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import { ethers, deployments } from "hardhat";
 
-describe("RLN", () => {
+describe("Rln", () => {
   beforeEach(async () => {
-    await deployments.fixture(["RLN"]);
+    await deployments.fixture(["Rln"]);
   });
 
   it("should register new memberships", async () => {
-    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+    const rln = await ethers.getContract("Rln", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
 
@@ -30,7 +30,7 @@ describe("RLN", () => {
   });
 
   it("should slash membership", async () => {
-    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+    const rln = await ethers.getContract("Rln", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
 
@@ -55,7 +55,7 @@ describe("RLN", () => {
   });
 
   it("should not allow multiple registrations with same pubkey", async () => {
-    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
+    const rln = await ethers.getContract("Rln", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
 

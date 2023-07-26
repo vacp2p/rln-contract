@@ -11,12 +11,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     .address;
   const rlnVerifierAddress = (await deployments.get("Verifier")).address;
 
-  await deploy("RLN", {
+  await deploy("Rln", {
     from: deployer,
     log: true,
     args: [1000000000000000, 20, poseidonHasherAddress, rlnVerifierAddress],
   });
 };
 export default func;
-func.tags = ["RLN"];
+func.tags = ["Rln"];
 func.dependencies = ["PoseidonHasher", "RlnVerifier"];
