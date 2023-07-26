@@ -36,8 +36,11 @@ contract RLN {
         poseidonHasher = IPoseidonHasher(_poseidonHasher);
         SET_SIZE = 1 << DEPTH;
         if (constructMembers.length > SET_SIZE) revert FullTree();
-        for (uint256 i = 0; i < constructMembers.length; i++) {
+        for (uint256 i = 0; i < constructMembers.length;) {
             _register(constructMembers[i]);
+            unchecked {
+                ++i;
+            }
         }
     }
 
