@@ -8,11 +8,10 @@ import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
 import "forge-std/console.sol";
 
-
-contract RLNTest is Test {
+contract RlnTest is Test {
     using stdStorage for StdStorage;
 
-    RLN public rln;
+    Rln public rln;
     PoseidonHasher public poseidon;
     TrueVerifier public trueVerifier;
     FalseVerifier public falseVerifier;
@@ -22,13 +21,12 @@ contract RLNTest is Test {
     uint256 public constant SET_SIZE = 1048576;
     uint256[8] public zeroedProof = [0, 0, 0, 0, 0, 0, 0, 0];
 
-
     /// @dev Setup the testing environment.
     function setUp() public {
         poseidon = new PoseidonHasher();
         trueVerifier = new TrueVerifier();
         falseVerifier = new FalseVerifier();
-        rln = new RLN(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon), address(trueVerifier));
+        rln = new Rln(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon), address(trueVerifier));
     }
 
     /// @dev Ensure that you can hash a value.
@@ -44,9 +42,7 @@ contract RLNTest is Test {
         assertEq(rln.members(idCommitment), 1);
     }
 
-    function test__InvalidRegistration__DuplicateCommitment(
-        uint256 idCommitment
-    ) public {
+    function test__InvalidRegistration__DuplicateCommitment(uint256 idCommitment) public {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         assertEq(rln.members(idCommitment), 1);
@@ -54,25 +50,15 @@ contract RLNTest is Test {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
     }
 
-    function test__InvalidRegistration__InsufficientDeposit(
-        uint256 idCommitment
-    ) public {
+    function test__InvalidRegistration__InsufficientDeposit(uint256 idCommitment) public {
         uint256 badDepositAmount = MEMBERSHIP_DEPOSIT - 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                InsufficientDeposit.selector,
-                MEMBERSHIP_DEPOSIT,
-                badDepositAmount
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(InsufficientDeposit.selector, MEMBERSHIP_DEPOSIT, badDepositAmount));
         rln.register{value: badDepositAmount}(idCommitment);
     }
 
-    function test__InvalidRegistration__FullSet(
-        uint256 idCommitmentSeed
-    ) public {
+    function test__InvalidRegistration__FullSet(uint256 idCommitmentSeed) public {
         vm.assume(idCommitmentSeed < 2 ** 255 - SET_SIZE);
-        RLN tempRln = new RLN(
+        Rln tempRln = new Rln(
             MEMBERSHIP_DEPOSIT,
             2,
             address(rln.poseidonHasher()),
@@ -111,9 +97,7 @@ contract RLNTest is Test {
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        vm.expectRevert(
-            abi.encodeWithSelector(InvalidReceiverAddress.selector, address(0))
-        );
+        vm.expectRevert(abi.encodeWithSelector(InvalidReceiverAddress.selector, address(0)));
         rln.slash(idCommitment, payable(address(0)), zeroedProof);
     }
 
@@ -121,29 +105,17 @@ contract RLNTest is Test {
         uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                InvalidReceiverAddress.selector,
-                address(rln)
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(InvalidReceiverAddress.selector, address(rln)));
         rln.slash(idCommitment, payable(address(rln)), zeroedProof);
     }
 
-    function test__InvalidSlash__InvalidIdCommitment(
-        uint256 idCommitment
-    ) public {
-        vm.expectRevert(
-            abi.encodeWithSelector(MemberNotRegistered.selector, idCommitment)
-        );
+    function test__InvalidSlash__InvalidIdCommitment(uint256 idCommitment) public {
+        vm.expectRevert(abi.encodeWithSelector(MemberNotRegistered.selector, idCommitment));
         rln.slash(idCommitment, payable(address(this)), zeroedProof);
     }
 
     // this shouldn't be possible, but just in case
-    function test__InvalidSlash__NoStake(
-        uint256 idCommitment,
-        address payable to
-    ) public {
+    function test__InvalidSlash__NoStake(uint256 idCommitment, address payable to) public {
         // avoid precompiles, etc
         assumePayable(to);
         assumeNoPrecompiles(to);
@@ -157,23 +129,16 @@ contract RLNTest is Test {
         assertEq(rln.members(idCommitment), 0);
 
         // manually set members[idCommitment] to true using vm
-        stdstore
-            .target(address(rln))
-            .sig("members(uint256)")
-            .with_key(idCommitment)
-            .depth(0)
-            .checked_write(true);
+        stdstore.target(address(rln)).sig("members(uint256)").with_key(idCommitment).depth(0).checked_write(true);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(MemberHasNoStake.selector, idCommitment)
-        );
+        vm.expectRevert(abi.encodeWithSelector(MemberHasNoStake.selector, idCommitment));
         rln.slash(idCommitment, to, zeroedProof);
     }
 
     function test__InvalidSlash__InvalidProof() public {
         uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
 
-        RLN tempRln = new RLN(
+        Rln tempRln = new Rln(
             MEMBERSHIP_DEPOSIT,
             2,
             address(rln.poseidonHasher()),

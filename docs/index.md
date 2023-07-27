@@ -844,6 +844,28 @@ Hashes the input using the Poseidon hash function, n = 2, second input is the co
 function _hash(uint256 input) internal pure returns (uint256 result)
 ```
 
+## Rln
+
+### constructor
+
+```solidity
+constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) public
+```
+
+### \_validateRegistration
+
+```solidity
+function _validateRegistration(uint256 idCommitment) internal pure
+```
+
+_Inheriting contracts MUST override this function_
+
+### \_validateSlash
+
+```solidity
+function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal pure
+```
+
 ## FullTree
 
 ```solidity
@@ -874,6 +896,14 @@ error DuplicateIdCommitment()
 ```
 
 Member is already registered
+
+## FailedValidation
+
+```solidity
+error FailedValidation()
+```
+
+Failed validation on registration/slashing
 
 ## InvalidReceiverAddress
 
@@ -923,7 +953,7 @@ error InvalidProof()
 
 Invalid proof
 
-## RLN
+## RlnBase
 
 ### MEMBERSHIP_DEPOSIT
 
@@ -1032,7 +1062,7 @@ Emitted when a member is removed from the set
 ### constructor
 
 ```solidity
-constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) public
+constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) internal
 ```
 
 ### register
@@ -1063,6 +1093,14 @@ Registers a member
 | ------------ | ------- | -------------------------------------- |
 | idCommitment | uint256 | The idCommitment of the member         |
 | stake        | uint256 | The amount of eth staked by the member |
+
+### \_validateRegistration
+
+```solidity
+function _validateRegistration(uint256 idCommitment) internal view virtual
+```
+
+_Inheriting contracts MUST override this function_
 
 ### slash
 
@@ -1096,6 +1134,12 @@ stake to the receiver's available withdrawal balance_
 | idCommitment | uint256         | The idCommitment of the member   |
 | receiver     | address payable | The address to receive the funds |
 | proof        | uint256[8]      |                                  |
+
+### \_validateSlash
+
+```solidity
+function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal view virtual
+```
 
 ### withdraw
 
