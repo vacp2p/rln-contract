@@ -12,7 +12,10 @@ contract RlnApp is RlnBase {
     uint256 public constant allowedIdCommitment =
         21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
-    constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier)
+    uint256 private membershipDeposit = 1000000000000000;
+    uint256 private depth = 20;
+
+    constructor(address _poseidonHasher, address _verifier)
         RlnBase(membershipDeposit, depth, _poseidonHasher, _verifier)
     {}
 
@@ -42,7 +45,7 @@ contract RLNAppTest is Test {
     function setUp() public {
         poseidon = new PoseidonHasher();
         trueVerifier = new TrueVerifier();
-        rlnApp = new RlnApp(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon), address(trueVerifier));
+        rlnApp = new RlnApp(address(poseidon), address(trueVerifier));
     }
 
     function test__Constants() public {
