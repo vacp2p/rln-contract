@@ -13,7 +13,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deploy("WakuRln", {
     from: deployer,
     log: true,
-    args: [[], poseidonHasherAddress],
+    args: [poseidonHasherAddress],
   });
 };
 
