@@ -87,7 +87,7 @@ abstract contract RlnBase {
 
     /// Allows a user to register as a member
     /// @param idCommitment The idCommitment of the member
-    function register(uint256 idCommitment) external payable {
+    function register(uint256 idCommitment) external payable virtual {
         if (msg.value != MEMBERSHIP_DEPOSIT) {
             revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
         }
@@ -98,7 +98,7 @@ abstract contract RlnBase {
     /// Registers a member
     /// @param idCommitment The idCommitment of the member
     /// @param stake The amount of eth staked by the member
-    function _register(uint256 idCommitment, uint256 stake) internal {
+    function _register(uint256 idCommitment, uint256 stake) internal virtual {
         if (members[idCommitment] != 0) revert DuplicateIdCommitment();
         if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
@@ -114,7 +114,7 @@ abstract contract RlnBase {
 
     /// @dev Allows a user to slash a member
     /// @param idCommitment The idCommitment of the member
-    function slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) external {
+    function slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) external virtual {
         _validateSlash(idCommitment, receiver, proof);
         _slash(idCommitment, receiver, proof);
     }
@@ -123,7 +123,7 @@ abstract contract RlnBase {
     /// stake to the receiver's available withdrawal balance
     /// @param idCommitment The idCommitment of the member
     /// @param receiver The address to receive the funds
-    function _slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) internal {
+    function _slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) internal virtual {
         if (receiver == address(this) || receiver == address(0)) {
             revert InvalidReceiverAddress(receiver);
         }
@@ -157,7 +157,7 @@ abstract contract RlnBase {
         virtual;
 
     /// Allows a user to withdraw funds allocated to them upon slashing a member
-    function withdraw() external {
+    function withdraw() external virtual {
         uint256 amount = withdrawalBalance[msg.sender];
 
         if (amount == 0) revert InsufficientWithdrawalBalance();
@@ -181,6 +181,7 @@ abstract contract RlnBase {
     function _verifyProof(uint256 idCommitment, address receiver, uint256[8] calldata proof)
         internal
         view
+        virtual
         returns (bool)
     {
         return verifier.verifyProof(

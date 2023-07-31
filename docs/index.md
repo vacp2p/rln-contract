@@ -1068,7 +1068,7 @@ constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, a
 ### register
 
 ```solidity
-function register(uint256 idCommitment) external payable
+function register(uint256 idCommitment) external payable virtual
 ```
 
 Allows a user to register as a member
@@ -1082,7 +1082,7 @@ Allows a user to register as a member
 ### \_register
 
 ```solidity
-function _register(uint256 idCommitment, uint256 stake) internal
+function _register(uint256 idCommitment, uint256 stake) internal virtual
 ```
 
 Registers a member
@@ -1105,7 +1105,7 @@ _Inheriting contracts MUST override this function_
 ### slash
 
 ```solidity
-function slash(uint256 idCommitment, address payable receiver, uint256[8] proof) external
+function slash(uint256 idCommitment, address payable receiver, uint256[8] proof) external virtual
 ```
 
 _Allows a user to slash a member_
@@ -1121,7 +1121,7 @@ _Allows a user to slash a member_
 ### \_slash
 
 ```solidity
-function _slash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal
+function _slash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal virtual
 ```
 
 _Slashes a member by removing them from the set, and adding their
@@ -1144,7 +1144,7 @@ function _validateSlash(uint256 idCommitment, address payable receiver, uint256[
 ### withdraw
 
 ```solidity
-function withdraw() external
+function withdraw() external virtual
 ```
 
 Allows a user to withdraw funds allocated to them upon slashing a member
@@ -1167,7 +1167,7 @@ NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2, and the s
 ### \_verifyProof
 
 ```solidity
-function _verifyProof(uint256 idCommitment, address receiver, uint256[8] proof) internal view returns (bool)
+function _verifyProof(uint256 idCommitment, address receiver, uint256[8] proof) internal view virtual returns (bool)
 ```
 
 _Groth16 proof verification_
