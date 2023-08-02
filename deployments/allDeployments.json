@@ -29,7 +29,7 @@
           ]
         },
         "WakuRln": {
-          "address": "0x778EB38C149779221b1c24f1c4D07B31823DaB5A",
+          "address": "0x92BE70f431a13E36fADbEfb63b561FbbBE0c0acD",
           "abi": [
             {
               "inputs": [
@@ -45,16 +45,6 @@
             {
               "inputs": [],
               "name": "DuplicateIdCommitment",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "InsufficientContractBalance",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "InsufficientWithdrawalBalance",
               "type": "error"
             },
             {
@@ -321,7 +311,7 @@
               "inputs": [],
               "name": "withdraw",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "pure",
               "type": "function"
             },
             {
