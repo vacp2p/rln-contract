@@ -77,3 +77,11 @@ _Inheriting contracts MUST override this function_
 ```solidity
 function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal pure
 ```
+
+### withdraw
+
+```solidity
+function withdraw() external pure
+```
+
+Allows a user to withdraw funds allocated to them upon slashing a member

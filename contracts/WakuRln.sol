@@ -50,4 +50,8 @@ contract WakuRln is Ownable, RlnBase {
     {
         revert NotImplemented();
     }
+
+    function withdraw() external pure override {
+        revert NotImplemented();
+    }
 }

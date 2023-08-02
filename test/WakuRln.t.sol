@@ -64,5 +64,7 @@ contract WakuRlnTest is Test {
         wakuRln.register(idCommitment);
         vm.expectRevert(NotImplemented.selector);
         wakuRln.slash(idCommitment, payable(address(0)), zeroedProof);
+        vm.expectRevert(NotImplemented.selector);
+        wakuRln.withdraw();
     }
 }
