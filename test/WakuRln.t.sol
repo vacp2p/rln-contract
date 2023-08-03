@@ -2,21 +2,10 @@
 pragma solidity ^0.8.15;
 
 import {PoseidonHasher} from "rln-contract/PoseidonHasher.sol";
+import "./utils.sol";
 import "../contracts/WakuRLn.sol";
 import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
-
-function noDuplicate(uint256[] calldata ids) pure returns (bool) {
-    uint256 len = ids.length;
-    for (uint256 i = 0; i < len; i++) {
-        for (uint256 j = i + 1; j < len; j++) {
-            if (ids[i] == ids[j]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
 
 contract WakuRlnTest is Test {
     using stdStorage for StdStorage;

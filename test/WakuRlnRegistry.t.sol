@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {PoseidonHasher} from "rln-contract/PoseidonHasher.sol";
 import "../contracts/WakuRlnRegistry.sol";
-import {noDuplicate} from "./WakuRln.t.sol";
+import {PoseidonHasher} from "rln-contract/PoseidonHasher.sol";
 import {DuplicateIdCommitment} from "rln-contract/RlnBase.sol";
+import {noDuplicate} from "./utils.sol";
 import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
 
