@@ -112,10 +112,10 @@ error FailedToRegister(string reason)
 
 ## WakuRlnRegistry
 
-### currentStorageIndex
+### nextStorageIndex
 
 ```solidity
-uint16 currentStorageIndex
+uint16 nextStorageIndex
 ```
 
 ### storages

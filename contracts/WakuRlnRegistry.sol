@@ -10,7 +10,7 @@ error NoStorageContractAvailable();
 error FailedToRegister(string reason);
 
 contract WakuRlnRegistry is Ownable {
-    uint16 public currentStorageIndex;
+    uint16 public nextStorageIndex;
     mapping(uint16 => address) public storages;
 
     uint16 public usingStorageIndex = 0;
@@ -24,23 +24,23 @@ contract WakuRlnRegistry is Ownable {
     }
 
     function _insertIntoStorageMap(address storageAddress) internal {
-        storages[currentStorageIndex] = storageAddress;
-        emit NewStorageContract(currentStorageIndex, storageAddress);
-        currentStorageIndex += 1;
+        storages[nextStorageIndex] = storageAddress;
+        emit NewStorageContract(nextStorageIndex, storageAddress);
+        nextStorageIndex += 1;
     }
 
     function registerStorage(address storageAddress) external onlyOwner {
-        if (storages[currentStorageIndex] != address(0)) revert StorageAlreadyExists(storageAddress);
+        if (storages[nextStorageIndex] != address(0)) revert StorageAlreadyExists(storageAddress);
         _insertIntoStorageMap(storageAddress);
     }
 
     function newStorage() external onlyOwner {
-        WakuRln newStorageContract = new WakuRln(address(poseidonHasher), currentStorageIndex);
+        WakuRln newStorageContract = new WakuRln(address(poseidonHasher), nextStorageIndex);
         _insertIntoStorageMap(address(newStorageContract));
     }
 
     function register(uint256 commitment) external payable {
-        if (usingStorageIndex >= currentStorageIndex) revert NoStorageContractAvailable();
+        if (usingStorageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
 
         // iteratively check if the storage contract is full, and increment the usingStorageIndex if it is
         while (true) {
