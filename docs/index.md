@@ -104,10 +104,16 @@ error StorageAlreadyExists(address storageAddress)
 error NoStorageContractAvailable()
 ```
 
-## FailedToRegister
+## IncompatibleStorage
 
 ```solidity
-error FailedToRegister(string reason)
+error IncompatibleStorage()
+```
+
+## IncompatibleStorageIndex
+
+```solidity
+error IncompatibleStorageIndex()
 ```
 
 ## WakuRlnRegistry
@@ -169,5 +175,11 @@ function newStorage() external
 ### register
 
 ```solidity
-function register(uint256 commitment) external payable
+function register(uint256[] commitments) external payable
+```
+
+### forceProgress
+
+```solidity
+function forceProgress() external
 ```
