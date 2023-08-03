@@ -33,7 +33,7 @@ contract WakuRlnTest is Test {
     /// @dev Setup the testing environment.
     function setUp() public {
         poseidon = new PoseidonHasher();
-        wakuRln = new WakuRln(address(poseidon));
+        wakuRln = new WakuRln(address(poseidon), 0);
     }
 
     /// @dev Ensure that you can hash a value.

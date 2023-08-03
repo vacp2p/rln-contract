@@ -8,10 +8,16 @@ error NotImplemented()
 
 ## WakuRln
 
+### contractIndex
+
+```solidity
+uint16 contractIndex
+```
+
 ### constructor
 
 ```solidity
-constructor(address _poseidonHasher) public
+constructor(address _poseidonHasher, uint16 _contractIndex) public
 ```
 
 ### \_register
@@ -85,3 +91,83 @@ function withdraw() external pure
 ```
 
 Allows a user to withdraw funds allocated to them upon slashing a member
+
+## StorageAlreadyExists
+
+```solidity
+error StorageAlreadyExists(address storageAddress)
+```
+
+## NoStorageContractAvailable
+
+```solidity
+error NoStorageContractAvailable()
+```
+
+## FailedToRegister
+
+```solidity
+error FailedToRegister(string reason)
+```
+
+## WakuRlnRegistry
+
+### currentStorageIndex
+
+```solidity
+uint16 currentStorageIndex
+```
+
+### storages
+
+```solidity
+mapping(uint16 => address) storages
+```
+
+### usingStorageIndex
+
+```solidity
+uint16 usingStorageIndex
+```
+
+### poseidonHasher
+
+```solidity
+contract IPoseidonHasher poseidonHasher
+```
+
+### NewStorageContract
+
+```solidity
+event NewStorageContract(uint16 index, address storageAddress)
+```
+
+### constructor
+
+```solidity
+constructor(address _poseidonHasher) public
+```
+
+### \_insertIntoStorageMap
+
+```solidity
+function _insertIntoStorageMap(address storageAddress) internal
+```
+
+### registerStorage
+
+```solidity
+function registerStorage(address storageAddress) external
+```
+
+### newStorage
+
+```solidity
+function newStorage() external
+```
+
+### register
+
+```solidity
+function register(uint256 commitment) external payable
+```

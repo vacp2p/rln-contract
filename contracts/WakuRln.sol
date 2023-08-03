@@ -8,7 +8,11 @@ import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 error NotImplemented();
 
 contract WakuRln is Ownable, RlnBase {
-    constructor(address _poseidonHasher) Ownable() RlnBase(0, 20, _poseidonHasher, address(0)) {}
+    uint16 public immutable contractIndex;
+
+    constructor(address _poseidonHasher, uint16 _contractIndex) Ownable() RlnBase(0, 20, _poseidonHasher, address(0)) {
+        contractIndex = _contractIndex;
+    }
 
     /// Registers a member
     /// @param idCommitment The idCommitment of the member
