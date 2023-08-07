@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {PoseidonHasher} from "rln-contract/PoseidonHasher.sol";
 import "./utils.sol";
-import "../contracts/WakuRLn.sol";
+import "../contracts/WakuRln.sol";
 import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
 
