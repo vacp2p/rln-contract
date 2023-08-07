@@ -49,7 +49,6 @@ contract WakuRlnRegistryTest is Test {
 
     function test__forceProgression() public {
         wakuRlnRegistry.newStorage();
-        wakuRlnRegistry.newStorage();
         wakuRlnRegistry.forceProgress();
         require(wakuRlnRegistry.usingStorageIndex() == 1);
     }
