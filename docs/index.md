@@ -148,6 +148,12 @@ contract IPoseidonHasher poseidonHasher
 event NewStorageContract(uint16 index, address storageAddress)
 ```
 
+### onlyUsableStorage
+
+```solidity
+modifier onlyUsableStorage()
+```
+
 ### constructor
 
 ```solidity

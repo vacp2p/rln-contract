@@ -20,6 +20,11 @@ contract WakuRlnRegistry is Ownable {
 
     event NewStorageContract(uint16 index, address storageAddress);
 
+    modifier onlyUsableStorage() {
+        if (usingStorageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
+        _;
+    }
+
     constructor(address _poseidonHasher) Ownable() {
         poseidonHasher = IPoseidonHasher(_poseidonHasher);
     }
@@ -43,9 +48,7 @@ contract WakuRlnRegistry is Ownable {
         _insertIntoStorageMap(address(newStorageContract));
     }
 
-    function register(uint256[] calldata commitments) external payable {
-        if (usingStorageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
-
+    function register(uint256[] calldata commitments) external payable onlyUsableStorage {
         // iteratively check if the storage contract is full, and increment the usingStorageIndex if it is
         while (true) {
             try WakuRln(storages[usingStorageIndex]).register(commitments) {
@@ -77,8 +80,7 @@ contract WakuRlnRegistry is Ownable {
         WakuRln(storages[storageIndex]).register(commitments);
     }
 
-    function forceProgress() external onlyOwner {
-        if (usingStorageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
+    function forceProgress() external onlyOwner onlyUsableStorage {
         usingStorageIndex += 1;
     }
 }
