@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 import {WakuRln} from "./WakuRln.sol";
 import {IPoseidonHasher} from "rln-contract/PoseidonHasher.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "forge-std/console.sol";
 
 error StorageAlreadyExists(address storageAddress);
 error NoStorageContractAvailable();
@@ -56,10 +55,26 @@ contract WakuRlnRegistry is Ownable {
                     assembly {
                         revert(add(32, err), mload(err))
                     }
+                    // when there are no further storage contracts available, revert
+                } else if (usingStorageIndex + 1 >= nextStorageIndex) {
+                    revert NoStorageContractAvailable();
                 }
                 usingStorageIndex += 1;
             }
         }
+    }
+
+    function register(uint16 storageIndex, uint256[] calldata commitments) external payable {
+        if (storageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
+        WakuRln(storages[storageIndex]).register(commitments);
+    }
+
+    function register(uint16 storageIndex, uint256 commitment) external payable {
+        if (storageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
+        // optimize the gas used below
+        uint256[] memory commitments = new uint256[](1);
+        commitments[0] = commitment;
+        WakuRln(storages[storageIndex]).register(commitments);
     }
 
     function forceProgress() external onlyOwner {

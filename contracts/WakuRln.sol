@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IPoseidonHasher} from "rln-contract/PoseidonHasher.sol";
-import {RlnBase, DuplicateIdCommitment} from "rln-contract/RlnBase.sol";
+import {RlnBase, DuplicateIdCommitment, FullTree} from "rln-contract/RlnBase.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 error NotImplemented();
@@ -25,7 +25,7 @@ contract WakuRln is Ownable, RlnBase {
         idCommitmentIndex += 1;
     }
 
-    function register(uint256[] memory idCommitments) external onlyOwner {
+    function register(uint256[] calldata idCommitments) external onlyOwner {
         uint256 len = idCommitments.length;
         for (uint256 i = 0; i < len;) {
             _register(idCommitments[i]);
@@ -45,6 +45,7 @@ contract WakuRln is Ownable, RlnBase {
 
     function _validateRegistration(uint256 idCommitment) internal view override {
         if (members[idCommitment] != 0) revert DuplicateIdCommitment();
+        if (idCommitmentIndex >= SET_SIZE) revert FullTree();
     }
 
     function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof)
