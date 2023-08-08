@@ -77,7 +77,7 @@ contract RlnTest is Test {
         // avoid precompiles, etc
         // TODO: wrap both of these in a single function
         assumePayable(to);
-        assumeNoPrecompiles(to);
+        assumeNotPrecompile(to);
         vm.assume(to != address(0));
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
@@ -118,7 +118,7 @@ contract RlnTest is Test {
     function test__InvalidSlash__NoStake(uint256 idCommitment, address payable to) public {
         // avoid precompiles, etc
         assumePayable(to);
-        assumeNoPrecompiles(to);
+        assumeNotPrecompile(to);
         vm.assume(to != address(0));
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
@@ -171,7 +171,7 @@ contract RlnTest is Test {
 
     function test__ValidWithdraw(address payable to) public {
         assumePayable(to);
-        assumeNoPrecompiles(to);
+        assumeNotPrecompile(to);
 
         uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
 
