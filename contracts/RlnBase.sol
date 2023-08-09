@@ -70,6 +70,9 @@ abstract contract RlnBase {
     /// @notice The groth16 verifier contract
     IVerifier public immutable verifier;
 
+    /// @notice the deployed block number
+    uint256 public immutable deployedBlockNumber;
+
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
     /// @param index The index of the member in the set
@@ -91,6 +94,7 @@ abstract contract RlnBase {
         SET_SIZE = 1 << depth;
         poseidonHasher = PoseidonHasher(_poseidonHasher);
         verifier = IVerifier(_verifier);
+        deployedBlockNumber = block.number;
     }
 
     /// Allows a user to register as a member
