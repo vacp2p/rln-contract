@@ -905,6 +905,14 @@ error FailedValidation()
 
 Failed validation on registration/slashing
 
+## InvalidIdCommitment
+
+```solidity
+error InvalidIdCommitment(uint256 idCommitment)
+```
+
+Invalid idCommitment
+
 ## InvalidReceiverAddress
 
 ```solidity
@@ -1016,7 +1024,7 @@ The balance of each user that can be withdrawn
 ### poseidonHasher
 
 ```solidity
-contract IPoseidonHasher poseidonHasher
+contract PoseidonHasher poseidonHasher
 ```
 
 The Poseidon hasher contract
@@ -1058,6 +1066,12 @@ Emitted when a member is removed from the set
 | ------------ | ------- | ---------------------------------- |
 | idCommitment | uint256 | The idCommitment of the member     |
 | index        | uint256 | The index of the member in the set |
+
+### onlyValidIdCommitment
+
+```solidity
+modifier onlyValidIdCommitment(uint256 idCommitment)
+```
 
 ### constructor
 
@@ -1163,6 +1177,12 @@ NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2, and the s
 | Name  | Type    | Description       |
 | ----- | ------- | ----------------- |
 | input | uint256 | The value to hash |
+
+### isValidCommitment
+
+```solidity
+function isValidCommitment(uint256 idCommitment) public view returns (bool)
+```
 
 ### \_verifyProof
 

@@ -37,12 +37,14 @@ contract RlnTest is Test {
     }
 
     function test__ValidRegistration(uint256 idCommitment) public {
+        vm.assume(rln.isValidCommitment(idCommitment));
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         assertEq(rln.members(idCommitment), 1);
     }
 
     function test__InvalidRegistration__DuplicateCommitment(uint256 idCommitment) public {
+        vm.assume(rln.isValidCommitment(idCommitment));
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         assertEq(rln.members(idCommitment), 1);
@@ -51,13 +53,13 @@ contract RlnTest is Test {
     }
 
     function test__InvalidRegistration__InsufficientDeposit(uint256 idCommitment) public {
+        vm.assume(rln.isValidCommitment(idCommitment));
         uint256 badDepositAmount = MEMBERSHIP_DEPOSIT - 1;
         vm.expectRevert(abi.encodeWithSelector(InsufficientDeposit.selector, MEMBERSHIP_DEPOSIT, badDepositAmount));
         rln.register{value: badDepositAmount}(idCommitment);
     }
 
-    function test__InvalidRegistration__FullSet(uint256 idCommitmentSeed) public {
-        vm.assume(idCommitmentSeed < 2 ** 255 - SET_SIZE);
+    function test__InvalidRegistration__FullSet() public {
         Rln tempRln = new Rln(
             MEMBERSHIP_DEPOSIT,
             2,
@@ -65,12 +67,12 @@ contract RlnTest is Test {
             address(rln.verifier())
         );
         uint256 setSize = tempRln.SET_SIZE() - 1;
-        for (uint256 i = 0; i < setSize; i++) {
-            tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + i);
+        for (uint256 i = 1; i <= setSize; i++) {
+            tempRln.register{value: MEMBERSHIP_DEPOSIT}(i);
         }
         assertEq(tempRln.idCommitmentIndex(), 4);
         vm.expectRevert(FullTree.selector);
-        tempRln.register{value: MEMBERSHIP_DEPOSIT}(idCommitmentSeed + setSize);
+        tempRln.register{value: MEMBERSHIP_DEPOSIT}(setSize + 1);
     }
 
     function test__ValidSlash(uint256 idCommitment, address payable to) public {
@@ -79,6 +81,7 @@ contract RlnTest is Test {
         assumePayable(to);
         assumeNotPrecompile(to);
         vm.assume(to != address(0));
+        vm.assume(rln.isValidCommitment(idCommitment));
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
@@ -110,6 +113,7 @@ contract RlnTest is Test {
     }
 
     function test__InvalidSlash__InvalidIdCommitment(uint256 idCommitment) public {
+        vm.assume(rln.isValidCommitment(idCommitment));
         vm.expectRevert(abi.encodeWithSelector(MemberNotRegistered.selector, idCommitment));
         rln.slash(idCommitment, payable(address(this)), zeroedProof);
     }
@@ -120,6 +124,7 @@ contract RlnTest is Test {
         assumePayable(to);
         assumeNotPrecompile(to);
         vm.assume(to != address(0));
+        vm.assume(rln.isValidCommitment(idCommitment));
 
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
