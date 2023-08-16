@@ -52,6 +52,12 @@ contract RlnTest is Test {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
     }
 
+    function test__InvalidRegistration__InvalidIdCommitment(uint256 idCommitment) public {
+        vm.assume(!rln.isValidCommitment(idCommitment));
+        vm.expectRevert(abi.encodeWithSelector(InvalidIdCommitment.selector, idCommitment));
+        rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
+    }
+
     function test__InvalidRegistration__InsufficientDeposit(uint256 idCommitment) public {
         vm.assume(rln.isValidCommitment(idCommitment));
         uint256 badDepositAmount = MEMBERSHIP_DEPOSIT - 1;
