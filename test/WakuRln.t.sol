@@ -1,22 +1,11 @@
-// SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
 import {PoseidonHasher} from "rln-contract/PoseidonHasher.sol";
-import "../contracts/WakuRLn.sol";
+import "./utils.sol";
+import "../contracts/WakuRln.sol";
 import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
-
-function noDuplicate(uint256[] calldata ids) pure returns (bool) {
-    uint256 len = ids.length;
-    for (uint256 i = 0; i < len; i++) {
-        for (uint256 j = i + 1; j < len; j++) {
-            if (ids[i] == ids[j]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
 
 contract WakuRlnTest is Test {
     using stdStorage for StdStorage;
@@ -33,7 +22,7 @@ contract WakuRlnTest is Test {
     /// @dev Setup the testing environment.
     function setUp() public {
         poseidon = new PoseidonHasher();
-        wakuRln = new WakuRln(address(poseidon));
+        wakuRln = new WakuRln(address(poseidon), 0);
     }
 
     /// @dev Ensure that you can hash a value.

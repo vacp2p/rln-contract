@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const poseidonHasherAddress = (await deployments.get("PoseidonHasher"))
     .address;
 
-  await deploy("WakuRln", {
+  await deploy("WakuRlnRegistry", {
     from: deployer,
     log: true,
     args: [poseidonHasherAddress],
@@ -18,5 +18,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default func;
-func.tags = ["WakuRln"];
+func.tags = ["WakuRlnRegistry"];
 func.dependencies = ["PoseidonHasher"];
