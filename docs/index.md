@@ -20,8 +20,8 @@ Hashes the input using the Poseidon hash function, n = 2, second input is the co
 
 #### Parameters
 
-| Name  | Type    | Description       |
-| ----- | ------- | ----------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | input | uint256 | The input to hash |
 
 ## PoseidonHasher
@@ -834,11 +834,11 @@ Hashes the input using the Poseidon hash function, n = 2, second input is the co
 
 #### Parameters
 
-| Name  | Type    | Description       |
-| ----- | ------- | ----------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | input | uint256 | The input to hash |
 
-### \_hash
+### _hash
 
 ```solidity
 function _hash(uint256 input) internal pure returns (uint256 result)
@@ -852,7 +852,7 @@ function _hash(uint256 input) internal pure returns (uint256 result)
 constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) public
 ```
 
-### \_validateRegistration
+### _validateRegistration
 
 ```solidity
 function _validateRegistration(uint256 idCommitment) internal pure
@@ -860,7 +860,7 @@ function _validateRegistration(uint256 idCommitment) internal pure
 
 _Inheriting contracts MUST override this function_
 
-### \_validateSlash
+### _validateSlash
 
 ```solidity
 function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal pure
@@ -884,8 +884,8 @@ Invalid deposit amount
 
 ### Parameters
 
-| Name     | Type    | Description                 |
-| -------- | ------- | --------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | required | uint256 | The required deposit amount |
 | provided | uint256 | The provided deposit amount |
 
@@ -904,6 +904,14 @@ error FailedValidation()
 ```
 
 Failed validation on registration/slashing
+
+## InvalidIdCommitment
+
+```solidity
+error InvalidIdCommitment(uint256 idCommitment)
+```
+
+Invalid idCommitment
 
 ## InvalidReceiverAddress
 
@@ -1016,7 +1024,7 @@ The balance of each user that can be withdrawn
 ### poseidonHasher
 
 ```solidity
-contract IPoseidonHasher poseidonHasher
+contract PoseidonHasher poseidonHasher
 ```
 
 The Poseidon hasher contract
@@ -1039,10 +1047,10 @@ Emitted when a new member is added to the set
 
 #### Parameters
 
-| Name         | Type    | Description                        |
-| ------------ | ------- | ---------------------------------- |
-| idCommitment | uint256 | The idCommitment of the member     |
-| index        | uint256 | The index of the member in the set |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| idCommitment | uint256 | The idCommitment of the member |
+| index | uint256 | The index of the member in the set |
 
 ### MemberWithdrawn
 
@@ -1054,10 +1062,16 @@ Emitted when a member is removed from the set
 
 #### Parameters
 
-| Name         | Type    | Description                        |
-| ------------ | ------- | ---------------------------------- |
-| idCommitment | uint256 | The idCommitment of the member     |
-| index        | uint256 | The index of the member in the set |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| idCommitment | uint256 | The idCommitment of the member |
+| index | uint256 | The index of the member in the set |
+
+### onlyValidIdCommitment
+
+```solidity
+modifier onlyValidIdCommitment(uint256 idCommitment)
+```
 
 ### constructor
 
@@ -1075,11 +1089,11 @@ Allows a user to register as a member
 
 #### Parameters
 
-| Name         | Type    | Description                    |
-| ------------ | ------- | ------------------------------ |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | idCommitment | uint256 | The idCommitment of the member |
 
-### \_register
+### _register
 
 ```solidity
 function _register(uint256 idCommitment, uint256 stake) internal virtual
@@ -1089,12 +1103,12 @@ Registers a member
 
 #### Parameters
 
-| Name         | Type    | Description                            |
-| ------------ | ------- | -------------------------------------- |
-| idCommitment | uint256 | The idCommitment of the member         |
-| stake        | uint256 | The amount of eth staked by the member |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| idCommitment | uint256 | The idCommitment of the member |
+| stake | uint256 | The amount of eth staked by the member |
 
-### \_validateRegistration
+### _validateRegistration
 
 ```solidity
 function _validateRegistration(uint256 idCommitment) internal view virtual
@@ -1112,13 +1126,13 @@ _Allows a user to slash a member_
 
 #### Parameters
 
-| Name         | Type            | Description                    |
-| ------------ | --------------- | ------------------------------ |
-| idCommitment | uint256         | The idCommitment of the member |
-| receiver     | address payable |                                |
-| proof        | uint256[8]      |                                |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| idCommitment | uint256 | The idCommitment of the member |
+| receiver | address payable |  |
+| proof | uint256[8] |  |
 
-### \_slash
+### _slash
 
 ```solidity
 function _slash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal virtual
@@ -1129,13 +1143,13 @@ stake to the receiver's available withdrawal balance_
 
 #### Parameters
 
-| Name         | Type            | Description                      |
-| ------------ | --------------- | -------------------------------- |
-| idCommitment | uint256         | The idCommitment of the member   |
-| receiver     | address payable | The address to receive the funds |
-| proof        | uint256[8]      |                                  |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| idCommitment | uint256 | The idCommitment of the member |
+| receiver | address payable | The address to receive the funds |
+| proof | uint256[8] |  |
 
-### \_validateSlash
+### _validateSlash
 
 ```solidity
 function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal view virtual
@@ -1160,11 +1174,17 @@ NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2, and the s
 
 #### Parameters
 
-| Name  | Type    | Description       |
-| ----- | ------- | ----------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | input | uint256 | The value to hash |
 
-### \_verifyProof
+### isValidCommitment
+
+```solidity
+function isValidCommitment(uint256 idCommitment) public view returns (bool)
+```
+
+### _verifyProof
 
 ```solidity
 function _verifyProof(uint256 idCommitment, address receiver, uint256[8] proof) internal view virtual returns (bool)
@@ -1200,9 +1220,9 @@ function P1() internal pure returns (struct Pairing.G1Point)
 
 #### Return Values
 
-| Name | Type                   | Description         |
-| ---- | ---------------------- | ------------------- |
-| [0]  | struct Pairing.G1Point | the generator of G1 |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct Pairing.G1Point | the generator of G1 |
 
 ### P2
 
@@ -1212,9 +1232,9 @@ function P2() internal pure returns (struct Pairing.G2Point)
 
 #### Return Values
 
-| Name | Type                   | Description         |
-| ---- | ---------------------- | ------------------- |
-| [0]  | struct Pairing.G2Point | the generator of G2 |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct Pairing.G2Point | the generator of G2 |
 
 ### negate
 
@@ -1224,9 +1244,9 @@ function negate(struct Pairing.G1Point p) internal pure returns (struct Pairing.
 
 #### Return Values
 
-| Name | Type                   | Description                                                    |
-| ---- | ---------------------- | -------------------------------------------------------------- |
-| r    | struct Pairing.G1Point | the negation of p, i.e. p.addition(p.negate()) should be zero. |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| r | struct Pairing.G1Point | the negation of p, i.e. p.addition(p.negate()) should be zero. |
 
 ### addition
 
@@ -1236,9 +1256,9 @@ function addition(struct Pairing.G1Point p1, struct Pairing.G1Point p2) internal
 
 #### Return Values
 
-| Name | Type                   | Description                 |
-| ---- | ---------------------- | --------------------------- |
-| r    | struct Pairing.G1Point | the sum of two points of G1 |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| r | struct Pairing.G1Point | the sum of two points of G1 |
 
 ### scalar_mul
 
@@ -1248,9 +1268,9 @@ function scalar_mul(struct Pairing.G1Point p, uint256 s) internal view returns (
 
 #### Return Values
 
-| Name | Type                   | Description                                                                                                                 |
-| ---- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| r    | struct Pairing.G1Point | the product of a point on G1 and a scalar, i.e. p == p.scalar_mul(1) and p.addition(p) == p.scalar_mul(2) for all points p. |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| r | struct Pairing.G1Point | the product of a point on G1 and a scalar, i.e. p == p.scalar_mul(1) and p.addition(p) == p.scalar_mul(2) for all points p. |
 
 ### pairing
 
@@ -1260,9 +1280,9 @@ function pairing(struct Pairing.G1Point[] p1, struct Pairing.G2Point[] p2) inter
 
 #### Return Values
 
-| Name | Type | Description                                                                                                                                                          |
-| ---- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [0]  | bool | the result of computing the pairing check e(p1[0], p2[0]) _ .... _ e(p1[n], p2[n]) == 1 For example pairing([P1(), P1().negate()], [P2(), P2()]) should return true. |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bool | the result of computing the pairing check e(p1[0], p2[0]) *  .... * e(p1[n], p2[n]) == 1 For example pairing([P1(), P1().negate()], [P2(), P2()]) should return true. |
 
 ### pairingProd2
 
@@ -1332,6 +1352,7 @@ function verifyProof(uint256[2] a, uint256[2][2] b, uint256[2] c, uint256[2] inp
 
 #### Return Values
 
-| Name | Type | Description                 |
-| ---- | ---- | --------------------------- |
-| r    | bool | bool true if proof is valid |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| r | bool | bool true if proof is valid |
+

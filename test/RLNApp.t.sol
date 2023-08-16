@@ -10,7 +10,7 @@ import "forge-std/console.sol";
 
 contract RlnApp is RlnBase {
     uint256 public constant allowedIdCommitment =
-        21888242871839275222246405745257275088548364400416034343698204186575808495617;
+        19014214495641488759237505126948346942972912379615652741039992445865937985820;
 
     uint256 private membershipDeposit = 1000000000000000;
     uint256 private depth = 20;
@@ -57,6 +57,7 @@ contract RLNAppTest is Test {
 
     function test__InvalidRegistration(uint256 idCommitment) public {
         vm.assume(idCommitment != rlnApp.allowedIdCommitment());
+        vm.assume(rlnApp.isValidCommitment(idCommitment));
         vm.expectRevert(FailedValidation.selector);
         rlnApp.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
     }

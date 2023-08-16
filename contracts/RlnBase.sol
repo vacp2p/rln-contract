@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.15;
 
-import {IPoseidonHasher} from "./PoseidonHasher.sol";
+import {PoseidonHasher} from "./PoseidonHasher.sol";
 import {IVerifier} from "./IVerifier.sol";
 
 /// The tree is full
@@ -18,6 +18,9 @@ error DuplicateIdCommitment();
 
 /// Failed validation on registration/slashing
 error FailedValidation();
+
+/// Invalid idCommitment
+error InvalidIdCommitment(uint256 idCommitment);
 
 /// Invalid receiver address, when the receiver is the contract itself or 0x0
 error InvalidReceiverAddress(address to);
@@ -62,7 +65,7 @@ abstract contract RlnBase {
     mapping(address => uint256) public withdrawalBalance;
 
     /// @notice The Poseidon hasher contract
-    IPoseidonHasher public immutable poseidonHasher;
+    PoseidonHasher public immutable poseidonHasher;
 
     /// @notice The groth16 verifier contract
     IVerifier public immutable verifier;
@@ -77,17 +80,22 @@ abstract contract RlnBase {
     /// @param index The index of the member in the set
     event MemberWithdrawn(uint256 idCommitment, uint256 index);
 
+    modifier onlyValidIdCommitment(uint256 idCommitment) {
+        if (!isValidCommitment(idCommitment)) revert InvalidIdCommitment(idCommitment);
+        _;
+    }
+
     constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) {
         MEMBERSHIP_DEPOSIT = membershipDeposit;
         DEPTH = depth;
         SET_SIZE = 1 << depth;
-        poseidonHasher = IPoseidonHasher(_poseidonHasher);
+        poseidonHasher = PoseidonHasher(_poseidonHasher);
         verifier = IVerifier(_verifier);
     }
 
     /// Allows a user to register as a member
     /// @param idCommitment The idCommitment of the member
-    function register(uint256 idCommitment) external payable virtual {
+    function register(uint256 idCommitment) external payable virtual onlyValidIdCommitment(idCommitment) {
         if (msg.value != MEMBERSHIP_DEPOSIT) {
             revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
         }
@@ -114,7 +122,11 @@ abstract contract RlnBase {
 
     /// @dev Allows a user to slash a member
     /// @param idCommitment The idCommitment of the member
-    function slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) external virtual {
+    function slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof)
+        external
+        virtual
+        onlyValidIdCommitment(idCommitment)
+    {
         _validateSlash(idCommitment, receiver, proof);
         _slash(idCommitment, receiver, proof);
     }
@@ -175,6 +187,10 @@ abstract contract RlnBase {
     /// @param input The value to hash
     function hash(uint256 input) internal view returns (uint256) {
         return poseidonHasher.hash(input);
+    }
+
+    function isValidCommitment(uint256 idCommitment) public view returns (bool) {
+        return idCommitment != 0 && idCommitment < poseidonHasher.Q();
     }
 
     /// @dev Groth16 proof verification
