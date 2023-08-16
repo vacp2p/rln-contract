@@ -112,7 +112,7 @@ contract RlnTest is Test {
         rln.slash(idCommitment, payable(address(rln)), zeroedProof);
     }
 
-    function test__InvalidSlash__InvalidIdCommitment(uint256 idCommitment) public {
+    function test__InvalidSlash__MemberNotRegistered(uint256 idCommitment) public {
         vm.assume(rln.isValidCommitment(idCommitment));
         vm.expectRevert(abi.encodeWithSelector(MemberNotRegistered.selector, idCommitment));
         rln.slash(idCommitment, payable(address(this)), zeroedProof);
