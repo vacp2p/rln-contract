@@ -1040,7 +1040,7 @@ The groth16 verifier contract
 ### deployedBlockNumber
 
 ```solidity
-uint256 deployedBlockNumber
+uint32 deployedBlockNumber
 ```
 
 the deployed block number
@@ -1074,12 +1074,6 @@ Emitted when a member is removed from the set
 | ------------ | ------- | ---------------------------------- |
 | idCommitment | uint256 | The idCommitment of the member     |
 | index        | uint256 | The index of the member in the set |
-
-### onlyValidIdCommitment
-
-```solidity
-modifier onlyValidIdCommitment(uint256 idCommitment)
-```
 
 ### onlyValidIdCommitment
 

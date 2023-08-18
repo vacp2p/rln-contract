@@ -71,7 +71,7 @@ abstract contract RlnBase {
     IVerifier public immutable verifier;
 
     /// @notice the deployed block number
-    uint256 public immutable deployedBlockNumber;
+    uint32 public immutable deployedBlockNumber;
 
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
@@ -94,7 +94,7 @@ abstract contract RlnBase {
         SET_SIZE = 1 << depth;
         poseidonHasher = PoseidonHasher(_poseidonHasher);
         verifier = IVerifier(_verifier);
-        deployedBlockNumber = block.number;
+        deployedBlockNumber = uint32(block.number);
     }
 
     /// Allows a user to register as a member
