@@ -34,6 +34,7 @@ contract RlnTest is Test {
         assertEq(rln.MEMBERSHIP_DEPOSIT(), MEMBERSHIP_DEPOSIT);
         assertEq(rln.DEPTH(), DEPTH);
         assertEq(rln.SET_SIZE(), SET_SIZE);
+        assertEq(rln.deployedBlockNumber(), 1);
     }
 
     function test__ValidRegistration(uint256 idCommitment) public {
