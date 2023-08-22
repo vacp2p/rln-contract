@@ -14,7 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deploy("RLN", {
     from: deployer,
     log: true,
-    args: [1000000000000000, 20, poseidonHasherAddress, rlnVerifierAddress],
+    args: [0, 20, poseidonHasherAddress, rlnVerifierAddress],
   });
 };
 export default func;
