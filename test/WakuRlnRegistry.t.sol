@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import "../contracts/WakuRlnRegistry.sol";
 import {PoseidonHasher} from "rln-contract/PoseidonHasher.sol";
 import {DuplicateIdCommitment, FullTree} from "rln-contract/RlnBase.sol";
-import {noDuplicate} from "./utils.sol";
+import {noDuplicate, noInvalidCommitment, isValidCommitment} from "./utils.sol";
 import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
 
@@ -37,12 +37,14 @@ contract WakuRlnRegistryTest is Test {
     }
 
     function test__Register(uint256[] calldata commitments) public {
+        vm.assume(noInvalidCommitment(commitments, poseidonHasher.Q()));
         vm.assume(noDuplicate(commitments));
         wakuRlnRegistry.newStorage();
         wakuRlnRegistry.register(commitments);
     }
 
     function test__InvalidRegistration_Duplicate(uint256[] calldata commitments) public {
+        vm.assume(noInvalidCommitment(commitments, poseidonHasher.Q()));
         vm.assume(!noDuplicate(commitments));
         wakuRlnRegistry.newStorage();
         vm.expectRevert(DuplicateIdCommitment.selector);
@@ -56,17 +58,20 @@ contract WakuRlnRegistryTest is Test {
     }
 
     function test__SingleRegistration(uint256 commitment) public {
+        vm.assume(isValidCommitment(commitment, poseidonHasher.Q()));
         wakuRlnRegistry.newStorage();
         wakuRlnRegistry.register(0, commitment);
     }
 
     function test__InvalidSingleRegistration__NoStorageContract(uint256 commitment) public {
         wakuRlnRegistry.newStorage();
+        vm.assume(isValidCommitment(commitment, poseidonHasher.Q()));
         vm.expectRevert(NoStorageContractAvailable.selector);
         wakuRlnRegistry.register(1, commitment);
     }
 
     function test__InvalidSingleRegistration__Duplicate(uint256 commitment) public {
+        vm.assume(isValidCommitment(commitment, poseidonHasher.Q()));
         wakuRlnRegistry.newStorage();
         wakuRlnRegistry.register(0, commitment);
         vm.expectRevert(DuplicateIdCommitment.selector);
@@ -74,29 +79,29 @@ contract WakuRlnRegistryTest is Test {
     }
 
     function test__InvalidSingleRegistration__FullTree() public {
-        vm.pauseGasMetering();
         wakuRlnRegistry.newStorage();
         WakuRln wakuRln = WakuRln(wakuRlnRegistry.storages(0));
-        uint256 setSize = wakuRln.SET_SIZE();
-        // setSize - 1 because RlnBase uses 1-indexing
-        for (uint256 i = 0; i < setSize - 1; i++) {
-            wakuRlnRegistry.register(0, i);
-        }
-        vm.resumeGasMetering();
+        uint256[] memory commitments = new uint256[](1);
+
+        vm.mockCallRevert(
+            address(wakuRln),
+            abi.encodeWithSignature("register(uint256[])", commitments),
+            abi.encodeWithSelector(FullTree.selector)
+        );
         vm.expectRevert(FullTree.selector);
-        wakuRlnRegistry.register(0, setSize);
+        wakuRlnRegistry.register(0, commitments[0]);
     }
 
     function test__InvalidRegistration__NoStorageContract() public {
-        vm.pauseGasMetering();
         wakuRlnRegistry.newStorage();
-        address storageContract = wakuRlnRegistry.storages(0);
-        uint256 setSize = WakuRln(storageContract).SET_SIZE();
+        WakuRln wakuRln = WakuRln(wakuRlnRegistry.storages(0));
 
-        uint256[] memory commitments = new uint256[](setSize);
-        for (uint256 i = 1; i < setSize; i++) {
-            commitments[i] = i;
-        }
+        uint256[] memory commitments = new uint256[](1);
+        vm.mockCallRevert(
+            address(wakuRln),
+            abi.encodeWithSignature("register(uint256[])", commitments),
+            abi.encodeWithSelector(FullTree.selector)
+        );
         vm.expectRevert(NoStorageContractAvailable.selector);
         wakuRlnRegistry.register(commitments);
     }
