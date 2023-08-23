@@ -81,6 +81,7 @@ contract WakuRlnRegistry is Ownable {
     }
 
     function forceProgress() external onlyOwner onlyUsableStorage {
+        if (storages[usingStorageIndex + 1] == address(0)) revert NoStorageContractAvailable();
         usingStorageIndex += 1;
     }
 }

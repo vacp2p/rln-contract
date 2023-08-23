@@ -53,8 +53,10 @@ contract WakuRlnRegistryTest is Test {
 
     function test__forceProgression() public {
         wakuRlnRegistry.newStorage();
+        wakuRlnRegistry.newStorage();
         wakuRlnRegistry.forceProgress();
-        require(wakuRlnRegistry.usingStorageIndex() == 1);
+        assertEq(wakuRlnRegistry.usingStorageIndex(), 1);
+        assertEq(wakuRlnRegistry.nextStorageIndex(), 2);
     }
 
     function test__SingleRegistration(uint256 commitment) public {
@@ -104,5 +106,12 @@ contract WakuRlnRegistryTest is Test {
         );
         vm.expectRevert(NoStorageContractAvailable.selector);
         wakuRlnRegistry.register(commitments);
+    }
+
+    function test__forceProgression__NoStorageContract() public {
+        vm.expectRevert(NoStorageContractAvailable.selector);
+        wakuRlnRegistry.forceProgress();
+        assertEq(wakuRlnRegistry.usingStorageIndex(), 0);
+        assertEq(wakuRlnRegistry.nextStorageIndex(), 0);
     }
 }
