@@ -29,12 +29,14 @@ contract WakuRlnTest is Test {
     function test__Constants() public {
         assertEq(wakuRln.DEPTH(), DEPTH);
         assertEq(wakuRln.SET_SIZE(), SET_SIZE);
+        assertEq(wakuRln.deployedBlockNumber(), block.number);
     }
 
     function test__ValidRegistration(uint256[] calldata idCommitments) public {
         // Register a batch of commitments
         vm.assume(idCommitments.length < 10_000);
         vm.assume(noDuplicate(idCommitments));
+        vm.assume(noInvalidCommitment(idCommitments, poseidon.Q()));
         wakuRln.register(idCommitments);
     }
 
