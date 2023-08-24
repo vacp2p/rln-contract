@@ -48,7 +48,7 @@ contract WakuRlnRegistry is Ownable {
         _insertIntoStorageMap(address(newStorageContract));
     }
 
-    function register(uint256[] calldata commitments) external payable onlyUsableStorage {
+    function register(uint256[] calldata commitments) external onlyUsableStorage {
         // iteratively check if the storage contract is full, and increment the usingStorageIndex if it is
         while (true) {
             try WakuRln(storages[usingStorageIndex]).register(commitments) {
@@ -67,12 +67,12 @@ contract WakuRlnRegistry is Ownable {
         }
     }
 
-    function register(uint16 storageIndex, uint256[] calldata commitments) external payable {
+    function register(uint16 storageIndex, uint256[] calldata commitments) external {
         if (storageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
         WakuRln(storages[storageIndex]).register(commitments);
     }
 
-    function register(uint16 storageIndex, uint256 commitment) external payable {
+    function register(uint16 storageIndex, uint256 commitment) external {
         if (storageIndex >= nextStorageIndex) revert NoStorageContractAvailable();
         // optimize the gas used below
         uint256[] memory commitments = new uint256[](1);
@@ -81,6 +81,7 @@ contract WakuRlnRegistry is Ownable {
     }
 
     function forceProgress() external onlyOwner onlyUsableStorage {
+        if (storages[usingStorageIndex + 1] == address(0)) revert NoStorageContractAvailable();
         usingStorageIndex += 1;
     }
 }

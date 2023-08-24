@@ -181,19 +181,19 @@ function newStorage() external
 ### register
 
 ```solidity
-function register(uint256[] commitments) external payable
+function register(uint256[] commitments) external
 ```
 
 ### register
 
 ```solidity
-function register(uint16 storageIndex, uint256[] commitments) external payable
+function register(uint16 storageIndex, uint256[] commitments) external
 ```
 
 ### register
 
 ```solidity
-function register(uint16 storageIndex, uint256 commitment) external payable
+function register(uint16 storageIndex, uint256 commitment) external
 ```
 
 ### forceProgress

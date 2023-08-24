@@ -37,7 +37,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     solcInput: extendedArtifact.solcInput,
     devdoc: extendedArtifact.devdoc,
   };
-  console.log(d);
   deployments.save(`WakuRlnStorage_${indexOfStorageToBeDeployed}`, d);
 };
 
