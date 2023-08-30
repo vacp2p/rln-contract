@@ -5,8 +5,21 @@
       "chainId": "11155111",
       "contracts": {
         "PoseidonHasher": {
-          "address": "0xCF6ccD3691f67dfa0EdDeFED1B295139d0197609",
+          "address": "0xcBC443bAE23a0BeF71d7f23588108C9929C582C2",
           "abi": [
+            {
+              "inputs": [],
+              "name": "Q",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
             {
               "inputs": [
                 {
@@ -28,315 +41,8 @@
             }
           ]
         },
-        "WakuRln": {
-          "address": "0x92BE70f431a13E36fADbEfb63b561FbbBE0c0acD",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_poseidonHasher",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "inputs": [],
-              "name": "DuplicateIdCommitment",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "NotImplemented",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "index",
-                  "type": "uint256"
-                }
-              ],
-              "name": "MemberRegistered",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "index",
-                  "type": "uint256"
-                }
-              ],
-              "name": "MemberWithdrawn",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "DEPTH",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "MEMBERSHIP_DEPOSIT",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "SET_SIZE",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "idCommitmentIndex",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "members",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "poseidonHasher",
-              "outputs": [
-                {
-                  "internalType": "contract IPoseidonHasher",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256[]",
-                  "name": "idCommitments",
-                  "type": "uint256[]"
-                }
-              ],
-              "name": "register",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                }
-              ],
-              "name": "register",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address payable",
-                  "name": "receiver",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[8]",
-                  "name": "proof",
-                  "type": "uint256[8]"
-                }
-              ],
-              "name": "slash",
-              "outputs": [],
-              "stateMutability": "pure",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "stakedAmounts",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "verifier",
-              "outputs": [
-                {
-                  "internalType": "contract IVerifier",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "withdraw",
-              "outputs": [],
-              "stateMutability": "pure",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "name": "withdrawalBalance",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            }
-          ]
-        },
         "WakuRlnRegistry": {
-          "address": "0x50D658a2ab7f66f4B73E27e8731B8b13Cd06Df8A",
+          "address": "0x8e1F3742B987d8BA376c0CBbD7357fE1F003ED71",
           "abi": [
             {
               "inputs": [
@@ -350,14 +56,13 @@
               "type": "constructor"
             },
             {
-              "inputs": [
-                {
-                  "internalType": "string",
-                  "name": "reason",
-                  "type": "string"
-                }
-              ],
-              "name": "FailedToRegister",
+              "inputs": [],
+              "name": "IncompatibleStorage",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "IncompatibleStorageIndex",
               "type": "error"
             },
             {
@@ -416,6 +121,13 @@
             },
             {
               "inputs": [],
+              "name": "forceProgress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "newStorage",
               "outputs": [],
               "stateMutability": "nonpayable",
@@ -463,6 +175,11 @@
             {
               "inputs": [
                 {
+                  "internalType": "uint16",
+                  "name": "storageIndex",
+                  "type": "uint16"
+                },
+                {
                   "internalType": "uint256",
                   "name": "commitment",
                   "type": "uint256"
@@ -470,7 +187,38 @@
               ],
               "name": "register",
               "outputs": [],
-              "stateMutability": "payable",
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256[]",
+                  "name": "commitments",
+                  "type": "uint256[]"
+                }
+              ],
+              "name": "register",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint16",
+                  "name": "storageIndex",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "commitments",
+                  "type": "uint256[]"
+                }
+              ],
+              "name": "register",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -541,7 +289,7 @@
           ]
         },
         "WakuRlnStorage_0": {
-          "address": "0x02c233d3899c3A435631AC857DAD5555F4f9656C",
+          "address": "0xb61a949493847FF51A82d2617FEdAeD5D67cf785",
           "abi": [
             {
               "inputs": [
@@ -562,6 +310,22 @@
             {
               "inputs": [],
               "name": "DuplicateIdCommitment",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "FullTree",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "idCommitment",
+                  "type": "uint256"
+                }
+              ],
+              "name": "InvalidIdCommitment",
               "type": "error"
             },
             {
@@ -680,12 +444,44 @@
             },
             {
               "inputs": [],
+              "name": "deployedBlockNumber",
+              "outputs": [
+                {
+                  "internalType": "uint32",
+                  "name": "",
+                  "type": "uint32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "idCommitmentIndex",
               "outputs": [
                 {
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "idCommitment",
+                  "type": "uint256"
+                }
+              ],
+              "name": "isValidCommitment",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -728,332 +524,7 @@
               "name": "poseidonHasher",
               "outputs": [
                 {
-                  "internalType": "contract IPoseidonHasher",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256[]",
-                  "name": "idCommitments",
-                  "type": "uint256[]"
-                }
-              ],
-              "name": "register",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                }
-              ],
-              "name": "register",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address payable",
-                  "name": "receiver",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[8]",
-                  "name": "proof",
-                  "type": "uint256[8]"
-                }
-              ],
-              "name": "slash",
-              "outputs": [],
-              "stateMutability": "pure",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "stakedAmounts",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "verifier",
-              "outputs": [
-                {
-                  "internalType": "contract IVerifier",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "withdraw",
-              "outputs": [],
-              "stateMutability": "pure",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "name": "withdrawalBalance",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            }
-          ]
-        },
-        "WakuRlnStorage_1": {
-          "address": "0x662Be55E75c829A03c52CDba4Ab7dAde4e1be8a9",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_poseidonHasher",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint16",
-                  "name": "_contractIndex",
-                  "type": "uint16"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "inputs": [],
-              "name": "DuplicateIdCommitment",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "NotImplemented",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "index",
-                  "type": "uint256"
-                }
-              ],
-              "name": "MemberRegistered",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "idCommitment",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "index",
-                  "type": "uint256"
-                }
-              ],
-              "name": "MemberWithdrawn",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "DEPTH",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "MEMBERSHIP_DEPOSIT",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "SET_SIZE",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "contractIndex",
-              "outputs": [
-                {
-                  "internalType": "uint16",
-                  "name": "",
-                  "type": "uint16"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "idCommitmentIndex",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "name": "members",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "poseidonHasher",
-              "outputs": [
-                {
-                  "internalType": "contract IPoseidonHasher",
+                  "internalType": "contract PoseidonHasher",
                   "name": "",
                   "type": "address"
                 }
