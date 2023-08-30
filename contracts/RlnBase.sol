@@ -51,7 +51,7 @@ abstract contract RlnBase {
     uint256 public immutable SET_SIZE;
 
     /// @notice The index of the next member to be registered
-    uint256 public idCommitmentIndex = 1;
+    uint256 public idCommitmentIndex = 0;
 
     /// @notice The amount of eth staked by each member
     /// maps from idCommitment to the amount staked
@@ -60,6 +60,8 @@ abstract contract RlnBase {
     /// @notice The membership status of each member
     /// maps from idCommitment to their index in the set
     mapping(uint256 => uint256) public members;
+
+    mapping(uint256 => bool) public memberExists;
 
     /// @notice The balance of each user that can be withdrawn
     mapping(address => uint256) public withdrawalBalance;
@@ -111,10 +113,11 @@ abstract contract RlnBase {
     /// @param idCommitment The idCommitment of the member
     /// @param stake The amount of eth staked by the member
     function _register(uint256 idCommitment, uint256 stake) internal virtual {
-        if (members[idCommitment] != 0) revert DuplicateIdCommitment();
+        if (memberExists[idCommitment]) revert DuplicateIdCommitment();
         if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
         members[idCommitment] = idCommitmentIndex;
+        memberExists[idCommitment] = true;
         stakedAmounts[idCommitment] = stake;
 
         emit MemberRegistered(idCommitment, idCommitmentIndex);
@@ -144,7 +147,7 @@ abstract contract RlnBase {
             revert InvalidReceiverAddress(receiver);
         }
 
-        if (members[idCommitment] == 0) revert MemberNotRegistered(idCommitment);
+        if (memberExists[idCommitment] == false) revert MemberNotRegistered(idCommitment);
         // check if member is registered
         if (stakedAmounts[idCommitment] == 0) {
             revert MemberHasNoStake(idCommitment);
@@ -159,6 +162,7 @@ abstract contract RlnBase {
         // delete member
         uint256 index = members[idCommitment];
         members[idCommitment] = 0;
+        memberExists[idCommitment] = false;
         stakedAmounts[idCommitment] = 0;
 
         // refund deposit
