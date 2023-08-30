@@ -41,14 +41,16 @@ contract RlnTest is Test {
         vm.assume(rln.isValidCommitment(idCommitment));
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        assertEq(rln.members(idCommitment), 1);
+        assertEq(rln.memberExists(idCommitment), true);
+        assertEq(rln.members(idCommitment), 0);
     }
 
     function test__InvalidRegistration__DuplicateCommitment(uint256 idCommitment) public {
         vm.assume(rln.isValidCommitment(idCommitment));
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        assertEq(rln.members(idCommitment), 1);
+        assertEq(rln.memberExists(idCommitment), true);
+        assertEq(rln.members(idCommitment), 0);
         vm.expectRevert(DuplicateIdCommitment.selector);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
     }
@@ -73,7 +75,7 @@ contract RlnTest is Test {
             address(rln.poseidonHasher()),
             address(rln.verifier())
         );
-        uint256 setSize = tempRln.SET_SIZE() - 1;
+        uint256 setSize = tempRln.SET_SIZE();
         for (uint256 i = 1; i <= setSize; i++) {
             tempRln.register{value: MEMBERSHIP_DEPOSIT}(i);
         }
@@ -141,7 +143,7 @@ contract RlnTest is Test {
         assertEq(rln.members(idCommitment), 0);
 
         // manually set members[idCommitment] to true using vm
-        stdstore.target(address(rln)).sig("members(uint256)").with_key(idCommitment).depth(0).checked_write(true);
+        stdstore.target(address(rln)).sig("memberExists(uint256)").with_key(idCommitment).depth(0).checked_write(true);
 
         vm.expectRevert(abi.encodeWithSelector(MemberHasNoStake.selector, idCommitment));
         rln.slash(idCommitment, to, zeroedProof);
