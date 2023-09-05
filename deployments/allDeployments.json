@@ -5,7 +5,7 @@
       "chainId": "11155111",
       "contracts": {
         "PoseidonHasher": {
-          "address": "0xcBC443bAE23a0BeF71d7f23588108C9929C582C2",
+          "address": "0x9c1c939aCB5c356c91fF2f27E9FD29C5C95E671b",
           "abi": [
             {
               "inputs": [],
@@ -42,7 +42,7 @@
           ]
         },
         "WakuRlnRegistry": {
-          "address": "0x8e1F3742B987d8BA376c0CBbD7357fE1F003ED71",
+          "address": "0x0A988fd9CA5BAebDf098b8A73621b2AaDa6492E8",
           "abi": [
             {
               "inputs": [
@@ -289,7 +289,7 @@
           ]
         },
         "WakuRlnStorage_0": {
-          "address": "0xb61a949493847FF51A82d2617FEdAeD5D67cf785",
+          "address": "0x02A29114ECDE0Da4D6DB61eAE73a86486cB88c10",
           "abi": [
             {
               "inputs": [
@@ -477,6 +477,25 @@
                 }
               ],
               "name": "isValidCommitment",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "memberExists",
               "outputs": [
                 {
                   "internalType": "bool",

@@ -10,7 +10,10 @@ error NotImplemented();
 contract WakuRln is Ownable, RlnBase {
     uint16 public immutable contractIndex;
 
-    constructor(address _poseidonHasher, uint16 _contractIndex) Ownable() RlnBase(0, 20, _poseidonHasher, address(0)) {
+    constructor(
+        address _poseidonHasher,
+        uint16 _contractIndex
+    ) Ownable() RlnBase(0, 20, _poseidonHasher, address(0)) {
         contractIndex = _contractIndex;
     }
 
@@ -19,7 +22,8 @@ contract WakuRln is Ownable, RlnBase {
     function _register(uint256 idCommitment) internal {
         _validateRegistration(idCommitment);
 
-        members[idCommitment] = 1;
+        members[idCommitment] = idCommitmentIndex;
+        memberExists[idCommitment] = true;
 
         emit MemberRegistered(idCommitment, idCommitmentIndex);
         idCommitmentIndex += 1;
@@ -27,7 +31,7 @@ contract WakuRln is Ownable, RlnBase {
 
     function register(uint256[] calldata idCommitments) external onlyOwner {
         uint256 len = idCommitments.length;
-        for (uint256 i = 0; i < len;) {
+        for (uint256 i = 0; i < len; ) {
             _register(idCommitments[i]);
             unchecked {
                 ++i;
@@ -39,21 +43,28 @@ contract WakuRln is Ownable, RlnBase {
         revert NotImplemented();
     }
 
-    function slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof) external pure override {
+    function slash(
+        uint256 idCommitment,
+        address payable receiver,
+        uint256[8] calldata proof
+    ) external pure override {
         revert NotImplemented();
     }
 
-    function _validateRegistration(uint256 idCommitment) internal view override {
-        if (!isValidCommitment(idCommitment)) revert InvalidIdCommitment(idCommitment);
-        if (members[idCommitment] != 0) revert DuplicateIdCommitment();
+    function _validateRegistration(
+        uint256 idCommitment
+    ) internal view override {
+        if (!isValidCommitment(idCommitment))
+            revert InvalidIdCommitment(idCommitment);
+        if (memberExists[idCommitment] == true) revert DuplicateIdCommitment();
         if (idCommitmentIndex >= SET_SIZE) revert FullTree();
     }
 
-    function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof)
-        internal
-        pure
-        override
-    {
+    function _validateSlash(
+        uint256 idCommitment,
+        address payable receiver,
+        uint256[8] calldata proof
+    ) internal pure override {
         revert NotImplemented();
     }
 

@@ -5,6 +5,7 @@
 [submodule "lib/rln-contract"]
 	path = lib/rln-contract
 	url = https://github.com/vacp2p/rln-contract
+	branch = 35f2182
 [submodule "lib/openzeppelin-contracts"]
 	path = lib/openzeppelin-contracts
 	url = https://github.com/Openzeppelin/openzeppelin-contracts
