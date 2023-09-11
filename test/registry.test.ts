@@ -7,8 +7,13 @@ describe("WakuRlnRegistry", () => {
   });
 
   it("should register new memberships", async () => {
-    const rlnRegistry = await ethers.getContract(
-      "WakuRlnRegistry",
+    const registryDeployment = await deployments.get("WakuRlnRegistry_Proxy");
+    const implDeployment = await deployments.get(
+      "WakuRlnRegistry_Implementation"
+    );
+    const rlnRegistry = new ethers.Contract(
+      registryDeployment.address,
+      implDeployment.abi,
       ethers.provider.getSigner(0)
     );
     const rlnStorage = await ethers.getContract(

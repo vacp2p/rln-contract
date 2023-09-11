@@ -3,20 +3,22 @@ pragma solidity 0.8.15;
 
 import {WakuRln} from "./WakuRln.sol";
 import {IPoseidonHasher} from "rln-contract/PoseidonHasher.sol";
-import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {UUPSUpgradeable} from "openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import {ERC1967Proxy} from "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 error StorageAlreadyExists(address storageAddress);
 error NoStorageContractAvailable();
 error IncompatibleStorage();
 error IncompatibleStorageIndex();
 
-contract WakuRlnRegistry is Ownable {
+contract WakuRlnRegistry is OwnableUpgradeable, UUPSUpgradeable {
     uint16 public nextStorageIndex;
     mapping(uint16 => address) public storages;
 
     uint16 public usingStorageIndex = 0;
 
-    IPoseidonHasher public immutable poseidonHasher;
+    IPoseidonHasher public poseidonHasher;
 
     event NewStorageContract(uint16 index, address storageAddress);
 
@@ -25,9 +27,12 @@ contract WakuRlnRegistry is Ownable {
         _;
     }
 
-    constructor(address _poseidonHasher) Ownable() {
+    function initialize(address _poseidonHasher) external initializer {
         poseidonHasher = IPoseidonHasher(_poseidonHasher);
+        __Ownable_init();
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function _insertIntoStorageMap(address storageAddress) internal {
         storages[nextStorageIndex] = storageAddress;

@@ -6,9 +6,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const [deployer] = await getUnnamedAccounts();
 
-  const wakuRlnRegistry = await deployments.get("WakuRlnRegistry");
+  const proxyDeployment = await deployments.get("WakuRlnRegistry_Proxy");
+  const wakuRlnRegistry = await deployments.get(
+    "WakuRlnRegistry_Implementation"
+  );
   const registryContract = new hre.ethers.Contract(
-    wakuRlnRegistry.address,
+    proxyDeployment.address,
     wakuRlnRegistry.abi,
     hre.ethers.provider.getSigner(deployer)
   );
@@ -43,3 +46,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 export default func;
 func.dependencies = ["WakuRlnRegistry"];
 func.tags = ["WakuRlnStorage"];
+func.skip = async (hre: HardhatRuntimeEnvironment) => {
+  // skip if already deployed
+  const wakuRlnStorage = await hre.deployments.getOrNull("WakuRlnStorage_0");
+  if (wakuRlnStorage) {
+    return true;
+  }
+  return false;
+};

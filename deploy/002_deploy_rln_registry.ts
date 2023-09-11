@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction, DeploymentSubmission } from "hardhat-deploy/types";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getUnnamedAccounts } = hre;
@@ -10,10 +10,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const poseidonHasherAddress = (await deployments.get("PoseidonHasher"))
     .address;
 
-  await deploy("WakuRlnRegistry", {
+  const implRes = await deploy("WakuRlnRegistry_Implementation", {
+    contract: "WakuRlnRegistry",
     from: deployer,
     log: true,
-    args: [poseidonHasherAddress],
+  });
+
+  let initializeAbi = ["function initialize(address _poseidonHasher)"];
+  let iface = new hre.ethers.utils.Interface(initializeAbi);
+  const data = iface.encodeFunctionData("initialize", [poseidonHasherAddress]);
+
+  await deploy("WakuRlnRegistry_Proxy", {
+    contract: "ERC1967Proxy",
+    from: deployer,
+    log: true,
+    args: [implRes.address, data],
   });
 };
 

@@ -20,7 +20,7 @@ uint16 contractIndex
 constructor(address _poseidonHasher, uint16 _contractIndex) public
 ```
 
-### \_register
+### _register
 
 ```solidity
 function _register(uint256 idCommitment) internal
@@ -30,8 +30,8 @@ Registers a member
 
 #### Parameters
 
-| Name         | Type    | Description                    |
-| ------------ | ------- | ------------------------------ |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | idCommitment | uint256 | The idCommitment of the member |
 
 ### register
@@ -50,8 +50,8 @@ Allows a user to register as a member
 
 #### Parameters
 
-| Name         | Type    | Description                    |
-| ------------ | ------- | ------------------------------ |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | idCommitment | uint256 | The idCommitment of the member |
 
 ### slash
@@ -64,13 +64,13 @@ _Allows a user to slash a member_
 
 #### Parameters
 
-| Name         | Type            | Description                    |
-| ------------ | --------------- | ------------------------------ |
-| idCommitment | uint256         | The idCommitment of the member |
-| receiver     | address payable |                                |
-| proof        | uint256[8]      |                                |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| idCommitment | uint256 | The idCommitment of the member |
+| receiver | address payable |  |
+| proof | uint256[8] |  |
 
-### \_validateRegistration
+### _validateRegistration
 
 ```solidity
 function _validateRegistration(uint256 idCommitment) internal view
@@ -78,7 +78,7 @@ function _validateRegistration(uint256 idCommitment) internal view
 
 _Inheriting contracts MUST override this function_
 
-### \_validateSlash
+### _validateSlash
 
 ```solidity
 function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] proof) internal pure
@@ -154,13 +154,28 @@ event NewStorageContract(uint16 index, address storageAddress)
 modifier onlyUsableStorage()
 ```
 
-### constructor
+### initialize
 
 ```solidity
-constructor(address _poseidonHasher) public
+function initialize(address _poseidonHasher) external
 ```
 
-### \_insertIntoStorageMap
+### _authorizeUpgrade
+
+```solidity
+function _authorizeUpgrade(address newImplementation) internal
+```
+
+_Function that should revert when `msg.sender` is not authorized to upgrade the contract. Called by
+{upgradeTo} and {upgradeToAndCall}.
+
+Normally, this function will use an xref:access.adoc[access control] modifier such as {Ownable-onlyOwner}.
+
+```solidity
+function _authorizeUpgrade(address) internal override onlyOwner {}
+```_
+
+### _insertIntoStorageMap
 
 ```solidity
 function _insertIntoStorageMap(address storageAddress) internal
@@ -201,3 +216,4 @@ function register(uint16 storageIndex, uint256 commitment) external
 ```solidity
 function forceProgress() external
 ```
+

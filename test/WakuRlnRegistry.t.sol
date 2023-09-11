@@ -4,6 +4,8 @@ pragma solidity ^0.8.15;
 import "../contracts/WakuRlnRegistry.sol";
 import {PoseidonHasher} from "rln-contract/PoseidonHasher.sol";
 import {DuplicateIdCommitment, FullTree} from "rln-contract/RlnBase.sol";
+import {ERC1967Proxy} from "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+
 import {noDuplicate, noInvalidCommitment, isValidCommitment} from "./utils.sol";
 import "forge-std/Test.sol";
 import "forge-std/StdCheats.sol";
@@ -16,7 +18,10 @@ contract WakuRlnRegistryTest is Test {
 
     function setUp() public {
         poseidonHasher = new PoseidonHasher();
-        wakuRlnRegistry = new WakuRlnRegistry(address(poseidonHasher));
+        address implementation = address(new WakuRlnRegistry());
+        bytes memory data = abi.encodeCall(WakuRlnRegistry.initialize, address(poseidonHasher));
+        address proxy = address(new ERC1967Proxy(implementation, data));
+        wakuRlnRegistry = WakuRlnRegistry(proxy);
     }
 
     function test__NewStorage() public {

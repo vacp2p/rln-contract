@@ -5,7 +5,7 @@
       "chainId": "11155111",
       "contracts": {
         "PoseidonHasher": {
-          "address": "0x9c1c939aCB5c356c91fF2f27E9FD29C5C95E671b",
+          "address": "0x6b81Eaf30b0C16A9842458A3131fBa78745907A8",
           "abi": [
             {
               "inputs": [],
@@ -41,20 +41,9 @@
             }
           ]
         },
-        "WakuRlnRegistry": {
-          "address": "0x0A988fd9CA5BAebDf098b8A73621b2AaDa6492E8",
+        "WakuRlnRegistry_Implementation": {
+          "address": "0xF1935b338321013f11068abCafC548A7B0db732C",
           "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_poseidonHasher",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
             {
               "inputs": [],
               "name": "IncompatibleStorage",
@@ -80,6 +69,51 @@
               ],
               "name": "StorageAlreadyExists",
               "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "previousAdmin",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "newAdmin",
+                  "type": "address"
+                }
+              ],
+              "name": "AdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
             },
             {
               "anonymous": false,
@@ -120,8 +154,34 @@
               "type": "event"
             },
             {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "Upgraded",
+              "type": "event"
+            },
+            {
               "inputs": [],
               "name": "forceProgress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_poseidonHasher",
+                  "type": "address"
+                }
+              ],
+              "name": "initialize",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -167,6 +227,19 @@
                   "internalType": "contract IPoseidonHasher",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proxiableUUID",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
                 }
               ],
               "stateMutability": "view",
@@ -274,6 +347,37 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newImplementation",
+                  "type": "address"
+                }
+              ],
+              "name": "upgradeTo",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newImplementation",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ],
+              "name": "upgradeToAndCall",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "usingStorageIndex",
               "outputs": [
@@ -288,8 +392,82 @@
             }
           ]
         },
+        "WakuRlnRegistry_Proxy": {
+          "address": "0xF471d71E9b1455bBF4b85d475afb9BB0954A29c4",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_logic",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_data",
+                  "type": "bytes"
+                }
+              ],
+              "stateMutability": "payable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "previousAdmin",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "newAdmin",
+                  "type": "address"
+                }
+              ],
+              "name": "AdminChanged",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "Upgraded",
+              "type": "event"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "fallback"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "receive"
+            }
+          ]
+        },
         "WakuRlnStorage_0": {
-          "address": "0x02A29114ECDE0Da4D6DB61eAE73a86486cB88c10",
+          "address": "0x58322513A35a8f747AF5A385bA14C2AbE602AA59",
           "abi": [
             {
               "inputs": [
