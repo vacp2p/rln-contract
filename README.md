@@ -137,7 +137,7 @@ make -j8 wakunode2 RLN=true && ./build/wakunode2 --rln-relay-content-topic:/toy-
                                                  --ports-shift=22 \
                                                  --log-level=DEBUG \
                                                  --dns-discovery \
-                                                 --dns-discovery-url:enrtree://AOGECG2SPND25EEFMAJ5WF3KSGJNSGV356DSTL2YVLLZWIV6SAYBM@prod.waku.nodes.status.im \
+                                                 --dns-discovery-url:enrtree://ANEDLO25QVUGJOUTQFRYKWX6P4Z4GKVESBMHML7DZ6YK4LGS5FC5O@prod.wakuv2.nodes.status.im \
                                                  --discv5-discovery:true \
                                                  --lightpush \
                                                  --filter \
