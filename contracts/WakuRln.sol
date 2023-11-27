@@ -5,13 +5,7 @@ import {IPoseidonHasher} from "rln-contract/PoseidonHasher.sol";
 import {RlnBase, DuplicateIdCommitment, FullTree, InvalidIdCommitment} from "rln-contract/RlnBase.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
-import {LazyIMT, LazyIMTData} from "./LazyIMT.sol";
-
-//import {LazyIMT, LazyIMTData} from "@zk-kit/imt.sol/LazyIMT.sol";
-//import "@zk-kit/incremental-merkle-tree.sol/IncrementalBinaryTree.sol";
-//import {LazyIMTAnother} from "@zk-kit/imt.sol/LazyIMT.sol";
-
-//import {BinaryIMT} from "./LazyIMT.sol";
+import {LazyIMT, LazyIMTData} from "@zk-kit/imt.sol/LazyIMT.sol";
 
 error NotImplemented();
 
@@ -27,15 +21,9 @@ contract WakuRln is Ownable, RlnBase {
     ) Ownable() RlnBase(0, 20, _poseidonHasher, address(0)) {
         contractIndex = _contractIndex;
 
-        //uint8 merkleTreeDepth = 32;
-
-        //tree.init(merkleTreeDepth);
-    }
-
-    // TODO stupid func. Move to constructor
-    function init() external {
-        //uint8 merkleTreeDepth = 32;
-        //tree.init(merkleTreeDepth);
+        // TODO: This errors
+        uint8 merkleTreeDepth = 32;
+        tree.init(merkleTreeDepth);
     }
 
     /// Registers a member
@@ -45,7 +33,7 @@ contract WakuRln is Ownable, RlnBase {
 
         members[idCommitment] = idCommitmentIndex;
         memberExists[idCommitment] = true;
-        //tree.insert(idCommitment);
+        tree.insert(idCommitment);
 
         emit MemberRegistered(idCommitment, idCommitmentIndex);
         idCommitmentIndex += 1;
@@ -93,8 +81,8 @@ contract WakuRln is Ownable, RlnBase {
     function withdraw() external pure override {
         revert NotImplemented();
     }
-/*
-    // Some quick getter functions, unsure if needed
+
+    // TODO Some quick getter functions, unsure if needed
     function merkleRoot() public view returns(uint256) {
         return tree.root();
     }
@@ -108,5 +96,5 @@ contract WakuRln is Ownable, RlnBase {
     // the hashes.
     function getElement(uint256 elementIndex) public view returns(uint256) {
         return tree.elements[elementIndex];
-    }*/
+    }
 }
