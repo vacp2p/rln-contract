@@ -41,6 +41,8 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@zk-kit/imt.sol": "^2.0.0-beta",
+    "@zk-kit/incremental-merkle-tree.sol": "^1.7.0",
     "dotenv": "^16.0.1"
   },
   "lint-staged": {

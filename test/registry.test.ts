@@ -40,5 +40,10 @@ describe("WakuRlnRegistry", () => {
       fetchedIdCommitment.toHexString() === idCommitment,
       "registered commitment doesn't match passed commitment"
     );
+
+    expect(
+      fetchedIdCommitment.toHexString() === idCommitment,
+      "registered commitment doesn't match passed commitment"
+    );
   });
 });

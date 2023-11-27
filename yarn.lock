@@ -1043,6 +1043,20 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
+"@zk-kit/imt.sol@^2.0.0-beta":
+  version "2.0.0-beta"
+  resolved "https://registry.yarnpkg.com/@zk-kit/imt.sol/-/imt.sol-2.0.0-beta.tgz#102f88a52bd6848783fddc0db8219de2f163e684"
+  integrity sha512-bH7RvI5WHAEswUwPspUY582O2+71xbYv5aL+DM4xkaA0GdMyMLUwf5c1yJ4wrt46hp07iXCXJsLXdtLNsTnvZw==
+  dependencies:
+    poseidon-solidity "0.0.5"
+
+"@zk-kit/incremental-merkle-tree.sol@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@zk-kit/incremental-merkle-tree.sol/-/incremental-merkle-tree.sol-1.7.0.tgz#9d6166c2d84b8bb4fae709c7d729aae6c8c6474f"
+  integrity sha512-1HF5HEQ2GVKYBAKeNlhiQ7Fb7g2x6iBQ/bBovxBQYx8xuJlD8jPJU/fn2foMVI42+BQtz2V/V4tVtn+0uNL1Rg==
+  dependencies:
+    poseidon-solidity "0.0.4"
+
 abort-controller@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/abort-controller/-/abort-controller-3.0.0.tgz#eaf54d53b62bae4138e809ca225c8439a6efb392"
@@ -6827,6 +6841,16 @@ pinkie@^2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
   integrity sha512-MnUuEycAemtSaeFSjXKW/aroV7akBbY+Sv+RkyqFjgAe73F+MR0TBWKBRDkmfWq/HiFmdavfZ1G7h4SPZXaCSg==
+
+poseidon-solidity@0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/poseidon-solidity/-/poseidon-solidity-0.0.4.tgz#fb80181fb2b17756d98449d54e4cc2ecd8daa4d0"
+  integrity sha512-+S6jlCXKARCFbw0MMOjfR8gcKUVeB8F3Vu5S+1zDvb8N8cVjiW6WsP9kPqNaZCxjRKakt6LKVRPdA39YbpWfdg==
+
+poseidon-solidity@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/poseidon-solidity/-/poseidon-solidity-0.0.5.tgz#3f93e01cfe25f6d2f2fac49734fbb00961b84655"
+  integrity sha512-NzrvSwHzvZgT4hvg2GyGqeR+UOU/eLSEt4wAoXEua+VaR7NTKKwx1X9bPlh1VMBEVEno+IWvkRBbidFGzTeAqQ==
 
 posix-character-classes@^0.1.0:
   version "0.1.1"

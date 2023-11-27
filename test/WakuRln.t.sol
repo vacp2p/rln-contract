@@ -40,6 +40,19 @@ contract WakuRlnTest is Test {
         wakuRln.register(idCommitments);
     }
 
+    function test__ValidRegistration_InTree(uint256[] calldata idCommitments) public {
+        // Register a batch of commitments
+        vm.assume(idCommitments.length < 10_000);
+        vm.assume(noDuplicate(idCommitments));
+        vm.assume(noInvalidCommitment(idCommitments, poseidon.Q()));
+        wakuRln.register(idCommitments);
+
+        //wakuRln.numOfLeaves()
+        //vm.assume(1 == 2);
+
+        //assertEq(wakuRln.register(idCommitments), 1);
+    }
+
     function test__InvalidRegistration__Duplicate() public {
         // Register a batch of commitments
         uint256[] memory idCommitments = new uint256[](2);

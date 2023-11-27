@@ -9,3 +9,4 @@ openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/
 openzeppelin-contracts/=lib/openzeppelin-contracts/
 openzeppelin/=lib/openzeppelin-contracts-upgradeable/contracts/
 rln-contract/=lib/rln-contract/contracts/
+zk-kit/=lib/zk-kit/

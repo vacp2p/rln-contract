@@ -5,7 +5,7 @@
       "chainId": "11155111",
       "contracts": {
         "PoseidonHasher": {
-          "address": "0x6b81Eaf30b0C16A9842458A3131fBa78745907A8",
+          "address": "0x781521EFC015D383B04F67a13C01E65d1B90A33B",
           "abi": [
             {
               "inputs": [],
@@ -42,7 +42,7 @@
           ]
         },
         "WakuRlnRegistry_Implementation": {
-          "address": "0xF1935b338321013f11068abCafC548A7B0db732C",
+          "address": "0xA6a2add6B251326eA5b44B40f66c54B446681664",
           "abi": [
             {
               "inputs": [],
@@ -393,7 +393,7 @@
           ]
         },
         "WakuRlnRegistry_Proxy": {
-          "address": "0xF471d71E9b1455bBF4b85d475afb9BB0954A29c4",
+          "address": "0x5E16d30a16796aC8C1Ad06C57Fb07B50Fb845440",
           "abi": [
             {
               "inputs": [
