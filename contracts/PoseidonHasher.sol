@@ -1,882 +1,1185 @@
 // SPDX-License-Identifier: MIT
 
-// Forked from https://github.com/kilic/rlnapp/
+// Forked from poseidon-solidity
 
 pragma solidity 0.8.15;
 
+library PoseidonT3 {
+    uint256 constant M00 = 0x109b7f411ba0e4c9b2b70caf5c36a7b194be7c11ad24378bfedb68592ba8118b;
+    uint256 constant M01 = 0x2969f27eed31a480b9c36c764379dbca2cc8fdd1415c3dded62940bcde0bd771;
+    uint256 constant M02 = 0x143021ec686a3f330d5f9e654638065ce6cd79e28c5b3753326244ee65a1b1a7;
+    uint256 constant M10 = 0x16ed41e13bb9c0c66ae119424fddbcbc9314dc9fdbdeea55d6c64543dc4903e0;
+    uint256 constant M11 = 0x2e2419f9ec02ec394c9871c832963dc1b89d743c8c7b964029b2311687b1fe23;
+    uint256 constant M12 = 0x176cc029695ad02582a70eff08a6fd99d057e12e58e7d7b6b16cdfabc8ee2911;
+
+    // See here for a simplified implementation: https://github.com/vimwitch/poseidon-solidity/blob/e57becdabb65d99fdc586fe1e1e09e7108202d53/contracts/Poseidon.sol#L40
+    // Inspired by: https://github.com/iden3/circomlibjs/blob/v0.0.8/src/poseidon_slow.js
+    function hash(uint256[2] memory) public pure returns (uint256) {
+        assembly {
+            let F := 21888242871839275222246405745257275088548364400416034343698204186575808495617
+            let M20 := 0x2b90bba00fca0589f617e7dcbfe82e0df706ab640ceb247b791a93b74e36736d
+            let M21 := 0x101071f0032379b697315876690f053d148d4e109f5fb065c8aacc55a0f89bfa
+            let M22 := 0x19a3fc0a56702bf417ba7fee3802593fa644470307043f7773279cd71d25d5e0
+
+            // load the inputs from memory
+            let state1 := add(mod(mload(0x80), F), 0x00f1445235f2148c5986587169fc1bcd887b08d4d00868df5696fff40956e864)
+            let state2 := add(mod(mload(0xa0), F), 0x08dff3487e8ac99e1f29a058d0fa80b930c728730b7ab36ce879f3890ecf73f5)
+            let scratch0 := mulmod(state1, state1, F)
+            state1 := mulmod(mulmod(scratch0, scratch0, F), state1, F)
+            scratch0 := mulmod(state2, state2, F)
+            state2 := mulmod(mulmod(scratch0, scratch0, F), state2, F)
+            scratch0 :=
+                add(
+                    0x2f27be690fdaee46c3ce28f7532b13c856c35342c84bda6e20966310fadc01d0,
+                    add(
+                        add(
+                            15452833169820924772166449970675545095234312153403844297388521437673434406763,
+                            mulmod(state1, M10, F)
+                        ),
+                        mulmod(state2, M20, F)
+                    )
+                )
+            let scratch1 :=
+                add(
+                    0x2b2ae1acf68b7b8d2416bebf3d4f6234b763fe04b8043ee48b8327bebca16cf2,
+                    add(
+                        add(
+                            18674271267752038776579386132900109523609358935013267566297499497165104279117,
+                            mulmod(state1, M11, F)
+                        ),
+                        mulmod(state2, M21, F)
+                    )
+                )
+            let scratch2 :=
+                add(
+                    0x0319d062072bef7ecca5eac06f97d4d55952c175ab6b03eae64b44c7dbf11cfa,
+                    add(
+                        add(
+                            14817777843080276494683266178512808687156649753153012854386334860566696099579,
+                            mulmod(state1, M12, F)
+                        ),
+                        mulmod(state2, M22, F)
+                    )
+                )
+            let state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 := mulmod(scratch1, scratch1, F)
+            scratch1 := mulmod(mulmod(state0, state0, F), scratch1, F)
+            state0 := mulmod(scratch2, scratch2, F)
+            scratch2 := mulmod(mulmod(state0, state0, F), scratch2, F)
+            state0 :=
+                add(
+                    0x28813dcaebaeaa828a376df87af4a63bc8b7bf27ad49c6298ef7b387bf28526d,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x2727673b2ccbc903f181bf38e1c1d40d2033865200c352bc150928adddf9cb78,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x234ec45ca27727c2e74abd2b2a1494cd6efbd43e340587d6b8fb9e31e65cc632,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 := mulmod(state1, state1, F)
+            state1 := mulmod(mulmod(scratch0, scratch0, F), state1, F)
+            scratch0 := mulmod(state2, state2, F)
+            state2 := mulmod(mulmod(scratch0, scratch0, F), state2, F)
+            scratch0 :=
+                add(
+                    0x15b52534031ae18f7f862cb2cf7cf760ab10a8150a337b1ccd99ff6e8797d428,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x0dc8fad6d9e4b35f5ed9a3d186b79ce38e0e8a8d1b58b132d701d4eecf68d1f6,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x1bcd95ffc211fbca600f705fad3fb567ea4eb378f62e1fec97805518a47e4d9c,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 := mulmod(scratch1, scratch1, F)
+            scratch1 := mulmod(mulmod(state0, state0, F), scratch1, F)
+            state0 := mulmod(scratch2, scratch2, F)
+            scratch2 := mulmod(mulmod(state0, state0, F), scratch2, F)
+            state0 :=
+                add(
+                    0x10520b0ab721cadfe9eff81b016fc34dc76da36c2578937817cb978d069de559,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x1f6d48149b8e7f7d9b257d8ed5fbbaf42932498075fed0ace88a9eb81f5627f6,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x1d9655f652309014d29e00ef35a2089bfff8dc1c816f0dc9ca34bdb5460c8705,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x04df5a56ff95bcafb051f7b1cd43a99ba731ff67e47032058fe3d4185697cc7d,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x0672d995f8fff640151b3d290cedaf148690a10a8c8424a7f6ec282b6e4be828,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x099952b414884454b21200d7ffafdd5f0c9a9dcc06f2708e9fc1d8209b5c75b9,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x052cba2255dfd00c7c483143ba8d469448e43586a9b4cd9183fd0e843a6b9fa6,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x0b8badee690adb8eb0bd74712b7999af82de55707251ad7716077cb93c464ddc,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x119b1590f13307af5a1ee651020c07c749c15d60683a8050b963d0a8e4b2bdd1,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x03150b7cd6d5d17b2529d36be0f67b832c4acfc884ef4ee5ce15be0bfb4a8d09,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x2cc6182c5e14546e3cf1951f173912355374efb83d80898abe69cb317c9ea565,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x005032551e6378c450cfe129a404b3764218cadedac14e2b92d2cd73111bf0f9,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x233237e3289baa34bb147e972ebcb9516469c399fcc069fb88f9da2cc28276b5,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x05c8f4f4ebd4a6e3c980d31674bfbe6323037f21b34ae5a4e80c2d4c24d60280,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x0a7b1db13042d396ba05d818a319f25252bcf35ef3aeed91ee1f09b2590fc65b,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x2a73b71f9b210cf5b14296572c9d32dbf156e2b086ff47dc5df542365a404ec0,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1ac9b0417abcc9a1935107e9ffc91dc3ec18f2c4dbe7f22976a760bb5c50c460,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x12c0339ae08374823fabb076707ef479269f3e4d6cb104349015ee046dc93fc0,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x0b7475b102a165ad7f5b18db4e1e704f52900aa3253baac68246682e56e9a28e,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x037c2849e191ca3edb1c5e49f6e8b8917c843e379366f2ea32ab3aa88d7f8448,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x05a6811f8556f014e92674661e217e9bd5206c5c93a07dc145fdb176a716346f,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x29a795e7d98028946e947b75d54e9f044076e87a7b2883b47b675ef5f38bd66e,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x20439a0c84b322eb45a3857afc18f5826e8c7382c8a1585c507be199981fd22f,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x2e0ba8d94d9ecf4a94ec2050c7371ff1bb50f27799a84b6d4a2a6f2a0982c887,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x143fd115ce08fb27ca38eb7cce822b4517822cd2109048d2e6d0ddcca17d71c8,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x0c64cbecb1c734b857968dbbdcf813cdf8611659323dbcbfc84323623be9caf1,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x028a305847c683f646fca925c163ff5ae74f348d62c2b670f1426cef9403da53,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x2e4ef510ff0b6fda5fa940ab4c4380f26a6bcb64d89427b824d6755b5db9e30c,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x0081c95bc43384e663d79270c956ce3b8925b4f6d033b078b96384f50579400e,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x2ed5f0c91cbd9749187e2fade687e05ee2491b349c039a0bba8a9f4023a0bb38,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x30509991f88da3504bbf374ed5aae2f03448a22c76234c8c990f01f33a735206,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x1c3f20fd55409a53221b7c4d49a356b9f0a1119fb2067b41a7529094424ec6ad,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x10b4e7f3ab5df003049514459b6e18eec46bb2213e8e131e170887b47ddcb96c,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x2a1982979c3ff7f43ddd543d891c2abddd80f804c077d775039aa3502e43adef,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1c74ee64f15e1db6feddbead56d6d55dba431ebc396c9af95cad0f1315bd5c91,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x07533ec850ba7f98eab9303cace01b4b9e4f2e8b82708cfa9c2fe45a0ae146a0,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x21576b438e500449a151e4eeaf17b154285c68f42d42c1808a11abf3764c0750,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x2f17c0559b8fe79608ad5ca193d62f10bce8384c815f0906743d6930836d4a9e,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x2d477e3862d07708a79e8aae946170bc9775a4201318474ae665b0b1b7e2730e,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x162f5243967064c390e095577984f291afba2266c38f5abcd89be0f5b2747eab,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x2b4cb233ede9ba48264ecd2c8ae50d1ad7a8596a87f29f8a7777a70092393311,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x2c8fbcb2dd8573dc1dbaf8f4622854776db2eece6d85c4cf4254e7c35e03b07a,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x1d6f347725e4816af2ff453f0cd56b199e1b61e9f601e9ade5e88db870949da9,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x204b0c397f4ebe71ebc2d8b3df5b913df9e6ac02b68d31324cd49af5c4565529,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x0c4cb9dc3c4fd8174f1149b3c63c3c2f9ecb827cd7dc25534ff8fb75bc79c502,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x174ad61a1448c899a25416474f4930301e5c49475279e0639a616ddc45bc7b54,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1a96177bcf4d8d89f759df4ec2f3cde2eaaa28c177cc0fa13a9816d49a38d2ef,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x066d04b24331d71cd0ef8054bc60c4ff05202c126a233c1a8242ace360b8a30a,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x2a4c4fc6ec0b0cf52195782871c6dd3b381cc65f72e02ad527037a62aa1bd804,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x13ab2d136ccf37d447e9f2e14a7cedc95e727f8446f6d9d7e55afc01219fd649,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x1121552fca26061619d24d843dc82769c1b04fcec26f55194c2e3e869acc6a9a,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x00ef653322b13d6c889bc81715c37d77a6cd267d595c4a8909a5546c7c97cff1,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x0e25483e45a665208b261d8ba74051e6400c776d652595d9845aca35d8a397d3,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x29f536dcb9dd7682245264659e15d88e395ac3d4dde92d8c46448db979eeba89,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x2a56ef9f2c53febadfda33575dbdbd885a124e2780bbea170e456baace0fa5be,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x1c8361c78eb5cf5decfb7a2d17b5c409f2ae2999a46762e8ee416240a8cb9af1,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x151aff5f38b20a0fc0473089aaf0206b83e8e68a764507bfd3d0ab4be74319c5,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x04c6187e41ed881dc1b239c88f7f9d43a9f52fc8c8b6cdd1e76e47615b51f100,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x13b37bd80f4d27fb10d84331f6fb6d534b81c61ed15776449e801b7ddc9c2967,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x01a5c536273c2d9df578bfbd32c17b7a2ce3664c2a52032c9321ceb1c4e8a8e4,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x2ab3561834ca73835ad05f5d7acb950b4a9a2c666b9726da832239065b7c3b02,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x1d4d8ec291e720db200fe6d686c0d613acaf6af4e95d3bf69f7ed516a597b646,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x041294d2cc484d228f5784fe7919fd2bb925351240a04b711514c9c80b65af1d,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x154ac98e01708c611c4fa715991f004898f57939d126e392042971dd90e81fc6,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x0b339d8acca7d4f83eedd84093aef51050b3684c88f8b0b04524563bc6ea4da4,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x0955e49e6610c94254a4f84cfbab344598f0e71eaff4a7dd81ed95b50839c82e,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x06746a6156eba54426b9e22206f15abca9a6f41e6f535c6f3525401ea0654626,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x0f18f5a0ecd1423c496f3820c549c27838e5790e2bd0a196ac917c7ff32077fb,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x04f6eeca1751f7308ac59eff5beb261e4bb563583ede7bc92a738223d6f76e13,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x2b56973364c4c4f5c1a3ec4da3cdce038811eb116fb3e45bc1768d26fc0b3758,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x123769dd49d5b054dcd76b89804b1bcb8e1392b385716a5d83feb65d437f29ef,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x2147b424fc48c80a88ee52b91169aacea989f6446471150994257b2fb01c63e9,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x0fdc1f58548b85701a6c5505ea332a29647e6f34ad4243c2ea54ad897cebe54d,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x12373a8251fea004df68abcf0f7786d4bceff28c5dbbe0c3944f685cc0a0b1f2,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x21e4f4ea5f35f85bad7ea52ff742c9e8a642756b6af44203dd8a1f35c1a90035,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x16243916d69d2ca3dfb4722224d4c462b57366492f45e90d8a81934f1bc3b147,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1efbe46dd7a578b4f66f9adbc88b4378abc21566e1a0453ca13a4159cac04ac2,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x07ea5e8537cf5dd08886020e23a7f387d468d5525be66f853b672cc96a88969a,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x05a8c4f9968b8aa3b7b478a30f9a5b63650f19a75e7ce11ca9fe16c0b76c00bc,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x20f057712cc21654fbfe59bd345e8dac3f7818c701b9c7882d9d57b72a32e83f,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x04a12ededa9dfd689672f8c67fee31636dcd8e88d01d49019bd90b33eb33db69,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x27e88d8c15f37dcee44f1e5425a51decbd136ce5091a6767e49ec9544ccd101a,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x2feed17b84285ed9b8a5c8c5e95a41f66e096619a7703223176c41ee433de4d1,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x1ed7cc76edf45c7c404241420f729cf394e5942911312a0d6972b8bd53aff2b8,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x15742e99b9bfa323157ff8c586f5660eac6783476144cdcadf2874be45466b1a,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x1aac285387f65e82c895fc6887ddf40577107454c6ec0317284f033f27d0c785,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x25851c3c845d4790f9ddadbdb6057357832e2e7a49775f71ec75a96554d67c77,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x15a5821565cc2ec2ce78457db197edf353b7ebba2c5523370ddccc3d9f146a67,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x2411d57a4813b9980efa7e31a1db5966dcf64f36044277502f15485f28c71727,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x002e6f8d6520cd4713e335b8c0b6d2e647e9a98e12f4cd2558828b5ef6cb4c9b,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x2ff7bc8f4380cde997da00b616b0fcd1af8f0e91e2fe1ed7398834609e0315d2,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x00b9831b948525595ee02724471bcd182e9521f6b7bb68f1e93be4febb0d3cbe,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x0a2f53768b8ebf6a86913b0e57c04e011ca408648a4743a87d77adbf0c9c3512,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x00248156142fd0373a479f91ff239e960f599ff7e94be69b7f2a290305e1198d,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x171d5620b87bfb1328cf8c02ab3f0c9a397196aa6a542c2350eb512a2b2bcda9,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x170a4f55536f7dc970087c7c10d6fad760c952172dd54dd99d1045e4ec34a808,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x29aba33f799fe66c2ef3134aea04336ecc37e38c1cd211ba482eca17e2dbfae1,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x1e9bc179a4fdd758fdd1bb1945088d47e70d114a03f6a0e8b5ba650369e64973,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x1dd269799b660fad58f7f4892dfb0b5afeaad869a9c4b44f9c9e1c43bdaf8f09,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x22cdbc8b70117ad1401181d02e15459e7ccd426fe869c7c95d1dd2cb0f24af38,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x0ef042e454771c533a9f57a55c503fcefd3150f52ed94a7cd5ba93b9c7dacefd,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x11609e06ad6c8fe2f287f3036037e8851318e8b08a0359a03b304ffca62e8284,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x1166d9e554616dba9e753eea427c17b7fecd58c076dfe42708b08f5b783aa9af,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x2de52989431a859593413026354413db177fbf4cd2ac0b56f855a888357ee466,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x3006eb4ffc7a85819a6da492f3a8ac1df51aee5b17b8e89d74bf01cf5f71e9ad,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x2af41fbb61ba8a80fdcf6fff9e3f6f422993fe8f0a4639f962344c8225145086,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x119e684de476155fe5a6b41a8ebc85db8718ab27889e85e781b214bace4827c3,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x1835b786e2e8925e188bea59ae363537b51248c23828f047cff784b97b3fd800,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x28201a34c594dfa34d794996c6433a20d152bac2a7905c926c40e285ab32eeb6,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x083efd7a27d1751094e80fefaf78b000864c82eb571187724a761f88c22cc4e7,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x0b6f88a3577199526158e61ceea27be811c16df7774dd8519e079564f61fd13b,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x0ec868e6d15e51d9644f66e1d6471a94589511ca00d29e1014390e6ee4254f5b,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x2af33e3f866771271ac0c9b3ed2e1142ecd3e74b939cd40d00d937ab84c98591,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x0b520211f904b5e7d09b5d961c6ace7734568c547dd6858b364ce5e47951f178,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x0b2d722d0919a1aad8db58f10062a92ea0c56ac4270e822cca228620188a1d40,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x1f790d4d7f8cf094d980ceb37c2453e957b54a9991ca38bbe0061d1ed6e562d4,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x0171eb95dfbf7d1eaea97cd385f780150885c16235a2a6a8da92ceb01e504233,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x0c2d0e3b5fd57549329bf6885da66b9b790b40defd2c8650762305381b168873,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1162fb28689c27154e5a8228b4e72b377cbcafa589e283c35d3803054407a18d,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x2f1459b65dee441b64ad386a91e8310f282c5a92a89e19921623ef8249711bc0,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x1e6ff3216b688c3d996d74367d5cd4c1bc489d46754eb712c243f70d1b53cfbb,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x01ca8be73832b8d0681487d27d157802d741a6f36cdc2a0576881f9326478875,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x1f7735706ffe9fc586f976d5bdf223dc680286080b10cea00b9b5de315f9650e,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x2522b60f4ea3307640a0c2dce041fba921ac10a3d5f096ef4745ca838285f019,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x23f0bee001b1029d5255075ddc957f833418cad4f52b6c3f8ce16c235572575b,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x2bc1ae8b8ddbb81fcaac2d44555ed5685d142633e9df905f66d9401093082d59,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x0f9406b8296564a37304507b8dba3ed162371273a07b1fc98011fcd6ad72205f,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x2360a8eb0cc7defa67b72998de90714e17e75b174a52ee4acb126c8cd995f0a8,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x15871a5cddead976804c803cbaef255eb4815a5e96df8b006dcbbc2767f88948,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x193a56766998ee9e0a8652dd2f3b1da0362f4f54f72379544f957ccdeefb420f,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x2a394a43934f86982f9be56ff4fab1703b2e63c8ad334834e4309805e777ae0f,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x1859954cfeb8695f3e8b635dcb345192892cd11223443ba7b4166e8876c0d142,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x04e1181763050e58013444dbcb99f1902b11bc25d90bbdca408d3819f4fed32b,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x0fdb253dee83869d40c335ea64de8c5bb10eb82db08b5e8b1f5e5552bfd05f23,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x058cbe8a9a5027bdaa4efb623adead6275f08686f1c08984a9d7c5bae9b4f1c0,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x1382edce9971e186497eadb1aeb1f52b23b4b83bef023ab0d15228b4cceca59a,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x03464990f045c6ee0819ca51fd11b0be7f61b8eb99f14b77e1e6634601d9e8b5,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x23f7bfc8720dc296fff33b41f98ff83c6fcab4605db2eb5aaa5bc137aeb70a58,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x0a59a158e3eec2117e6e94e7f0e9decf18c3ffd5e1531a9219636158bbaf62f2,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x06ec54c80381c052b58bf23b312ffd3ce2c4eba065420af8f4c23ed0075fd07b,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x118872dc832e0eb5476b56648e867ec8b09340f7a7bcb1b4962f0ff9ed1f9d01,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x13d69fa127d834165ad5c7cba7ad59ed52e0b0f0e42d7fea95e1906b520921b1,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x169a177f63ea681270b1c6877a73d21bde143942fb71dc55fd8a49f19f10c77b,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x04ef51591c6ead97ef42f287adce40d93abeb032b922f66ffb7e9a5a7450544d,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x256e175a1dc079390ecd7ca703fb2e3b19ec61805d4f03ced5f45ee6dd0f69ec,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x30102d28636abd5fe5f2af412ff6004f75cc360d3205dd2da002813d3e2ceeb2,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x10998e42dfcd3bbf1c0714bc73eb1bf40443a3fa99bef4a31fd31be182fcc792,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x193edd8e9fcf3d7625fa7d24b598a1d89f3362eaf4d582efecad76f879e36860,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x18168afd34f2d915d0368ce80b7b3347d1c7a561ce611425f2664d7aa51f0b5d,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x29383c01ebd3b6ab0c017656ebe658b6a328ec77bc33626e29e2e95b33ea6111,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x10646d2f2603de39a1f4ae5e7771a64a702db6e86fb76ab600bf573f9010c711,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x0beb5e07d1b27145f575f1395a55bf132f90c25b40da7b3864d0242dcb1117fb,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x16d685252078c133dc0d3ecad62b5c8830f95bb2e54b59abdffbf018d96fa336,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x0a6abd1d833938f33c74154e0404b4b40a555bbbec21ddfafd672dd62047f01a,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1a679f5d36eb7b5c8ea12a4c2dedc8feb12dffeec450317270a6f19b34cf1860,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x0980fb233bd456c23974d50e0ebfde4726a423eada4e8f6ffbc7592e3f1b93d6,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x161b42232e61b84cbf1810af93a38fc0cece3d5628c9282003ebacb5c312c72b,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x0ada10a90c7f0520950f7d47a60d5e6a493f09787f1564e5d09203db47de1a0b,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x1a730d372310ba82320345a29ac4238ed3f07a8a2b4e121bb50ddb9af407f451,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x2c8120f268ef054f817064c369dda7ea908377feaba5c4dffbda10ef58e8c556,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1c7c8824f758753fa57c00789c684217b930e95313bcb73e6e7b8649a4968f70,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x2cd9ed31f5f8691c8e39e4077a74faa0f400ad8b491eb3f7b47b27fa3fd1cf77,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x23ff4f9d46813457cf60d92f57618399a5e022ac321ca550854ae23918a22eea,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x09945a5d147a4f66ceece6405dddd9d0af5a2c5103529407dff1ea58f180426d,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x188d9c528025d4c2b67660c6b771b90f7c7da6eaa29d3f268a6dd223ec6fc630,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x3050e37996596b7f81f68311431d8734dba7d926d3633595e0c0d8ddf4f0f47f,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x15af1169396830a91600ca8102c35c426ceae5461e3f95d89d829518d30afd78,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x1da6d09885432ea9a06d9f37f873d985dae933e351466b2904284da3320d8acc,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 :=
+                add(
+                    0x2796ea90d269af29f5f8acf33921124e4e4fad3dbe658945e546ee411ddaa9cb,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x202d7dd1da0f6b4b0325c8b3307742f01e15612ec8e9304a7cb0319e01d32d60,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x096d6790d05bb759156a952ba263d672a2d7f9c788f4c831a29dace4c0f8be5f,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 :=
+                add(
+                    0x054efa1f65b0fce283808965275d877b438da23ce5b13e1963798cb1447d25a4,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x1b162f83d917e93edb3308c29802deb9d8aa690113b2e14864ccf6e18e4165f1,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x21e5241e12564dd6fd9f1cdd2a0de39eedfefc1466cc568ec5ceb745a0506edc,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 := mulmod(scratch1, scratch1, F)
+            scratch1 := mulmod(mulmod(state0, state0, F), scratch1, F)
+            state0 := mulmod(scratch2, scratch2, F)
+            scratch2 := mulmod(mulmod(state0, state0, F), scratch2, F)
+            state0 :=
+                add(
+                    0x1cfb5662e8cf5ac9226a80ee17b36abecb73ab5f87e161927b4349e10e4bdf08,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x0f21177e302a771bbae6d8d1ecb373b62c99af346220ac0129c53f666eb24100,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x1671522374606992affb0dd7f71b12bec4236aede6290546bcef7e1f515c2320,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 := mulmod(state1, state1, F)
+            state1 := mulmod(mulmod(scratch0, scratch0, F), state1, F)
+            scratch0 := mulmod(state2, state2, F)
+            state2 := mulmod(mulmod(scratch0, scratch0, F), state2, F)
+            scratch0 :=
+                add(
+                    0x0fa3ec5b9488259c2eb4cf24501bfad9be2ec9e42c5cc8ccd419d2a692cad870,
+                    add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F))
+                )
+            scratch1 :=
+                add(
+                    0x193c0e04e0bd298357cb266c1506080ed36edce85c648cc085e8c57b1ab54bba,
+                    add(add(mulmod(state0, M01, F), mulmod(state1, M11, F)), mulmod(state2, M21, F))
+                )
+            scratch2 :=
+                add(
+                    0x102adf8ef74735a27e9128306dcbc3c99f6f7291cd406578ce14ea2adaba68f8,
+                    add(add(mulmod(state0, M02, F), mulmod(state1, M12, F)), mulmod(state2, M22, F))
+                )
+            state0 := mulmod(scratch0, scratch0, F)
+            scratch0 := mulmod(mulmod(state0, state0, F), scratch0, F)
+            state0 := mulmod(scratch1, scratch1, F)
+            scratch1 := mulmod(mulmod(state0, state0, F), scratch1, F)
+            state0 := mulmod(scratch2, scratch2, F)
+            scratch2 := mulmod(mulmod(state0, state0, F), scratch2, F)
+            state0 :=
+                add(
+                    0x0fe0af7858e49859e2a54d6f1ad945b1316aa24bfbdd23ae40a6d0cb70c3eab1,
+                    add(add(mulmod(scratch0, M00, F), mulmod(scratch1, M10, F)), mulmod(scratch2, M20, F))
+                )
+            state1 :=
+                add(
+                    0x216f6717bbc7dedb08536a2220843f4e2da5f1daa9ebdefde8a5ea7344798d22,
+                    add(add(mulmod(scratch0, M01, F), mulmod(scratch1, M11, F)), mulmod(scratch2, M21, F))
+                )
+            state2 :=
+                add(
+                    0x1da55cc900f0d21f4a3e694391918a1b3c23b2ac773c6b3ef88e2e4228325161,
+                    add(add(mulmod(scratch0, M02, F), mulmod(scratch1, M12, F)), mulmod(scratch2, M22, F))
+                )
+            scratch0 := mulmod(state0, state0, F)
+            state0 := mulmod(mulmod(scratch0, scratch0, F), state0, F)
+            scratch0 := mulmod(state1, state1, F)
+            state1 := mulmod(mulmod(scratch0, scratch0, F), state1, F)
+            scratch0 := mulmod(state2, state2, F)
+            state2 := mulmod(mulmod(scratch0, scratch0, F), state2, F)
+
+            mstore(0x0, mod(add(add(mulmod(state0, M00, F), mulmod(state1, M10, F)), mulmod(state2, M20, F)), F))
+
+            return(0, 0x20)
+        }
+    }
+}
+
 interface IPoseidonHasher {
-    /// @notice Hashes the input using the Poseidon hash function, n = 2, second input is the constant 0
-    /// @param input The input to hash
-    function hash(uint256 input) external pure returns (uint256 result);
+    /// @notice Hashes the input using the Poseidon hash function, n = 2
+    /// @param inputs The input to hash
+    function hash(uint256[2] memory inputs) external pure returns (uint256 result);
 }
 
 contract PoseidonHasher is IPoseidonHasher {
     uint256 public constant Q = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
-    uint256 constant C0 = 4417881134626180770308697923359573201005643519861877412381846989312604493735;
-    uint256 constant C1 = 5433650512959517612316327474713065966758808864213826738576266661723522780033;
-    uint256 constant C2 = 13641176377184356099764086973022553863760045607496549923679278773208775739952;
-    uint256 constant C3 = 17949713444224994136330421782109149544629237834775211751417461773584374506783;
-    uint256 constant C4 = 13765628375339178273710281891027109699578766420463125835325926111705201856003;
-    uint256 constant C5 = 19179513468172002314585757290678967643352171735526887944518845346318719730387;
-    uint256 constant C6 = 5157412437176756884543472904098424903141745259452875378101256928559722612176;
-    uint256 constant C7 = 535160875740282236955320458485730000677124519901643397458212725410971557409;
-    uint256 constant C8 = 1050793453380762984940163090920066886770841063557081906093018330633089036729;
-    uint256 constant C9 = 10665495010329663932664894101216428400933984666065399374198502106997623173873;
-    uint256 constant C10 = 19965634623406616956648724894636666805991993496469370618546874926025059150737;
-    uint256 constant C11 = 13007250030070838431593222885902415182312449212965120303174723305710127422213;
-    uint256 constant C12 = 16877538715074991604507979123743768693428157847423939051086744213162455276374;
-    uint256 constant C13 = 18211747749504876135588847560312685184956239426147543810126553367063157141465;
-    uint256 constant C14 = 18151553319826126919739798892854572062191241985315767086020821632812331245635;
-    uint256 constant C15 = 19957033149976712666746140949846950406660099037474791840946955175819555930825;
-    uint256 constant C16 = 3469514863538261843186854830917934449567467100548474599735384052339577040841;
-    uint256 constant C17 = 989698510043911779243192466312362856042600749099921773896924315611668507708;
-    uint256 constant C18 = 12568377015646290945235387813564567111330046038050864455358059568128000172201;
-    uint256 constant C19 = 20856104135605479600325529349246932565148587186338606236677138505306779314172;
-    uint256 constant C20 = 8206918720503535523121349917159924938835810381723474192155637697065780938424;
-    uint256 constant C21 = 1309058477013932989380617265069188723120054926187607548493110334522527703566;
-    uint256 constant C22 = 14076116939332667074621703729512195584105250395163383769419390236426287710606;
-    uint256 constant C23 = 10153498892749751942204288991871286290442690932856658983589258153608012428674;
-    uint256 constant C24 = 18202499207234128286137597834010475797175973146805180988367589376893530181575;
-    uint256 constant C25 = 12739388830157083522877690211447248168864006284243907142044329113461613743052;
-    uint256 constant C26 = 15123358710467780770838026754240340042441262572309759635224051333176022613949;
-    uint256 constant C27 = 19925004701844594370904593774447343836015483888496504201331110250494635362184;
-    uint256 constant C28 = 10352416606816998476681131583320899030072315953910679608943150613208329645891;
-    uint256 constant C29 = 10567371822366244361703342347428230537114808440249611395507235283708966113221;
-    uint256 constant C30 = 5635498582763880627392290206431559361272660937399944184533035305989295959602;
-    uint256 constant C31 = 11866432933224219174041051738704352719163271639958083608224676028593315904909;
-    uint256 constant C32 = 5795020705294401441272215064554385591292330721703923167136157291459784140431;
-    uint256 constant C33 = 9482202378699252817564375087302794636287866584767523335624368774856230692758;
-    uint256 constant C34 = 4245237636894546151746468406560945873445548423466753843402086544922216329298;
-    uint256 constant C35 = 12000500941313982757584712677991730019124834399479314697467598397927435905133;
-    uint256 constant C36 = 7596790274058425558167520209857956363736666939016807569082239187494363541787;
-    uint256 constant C37 = 2484867918246116343205467273440098378820186751202461278013576281097918148877;
-    uint256 constant C38 = 18312645949449997391810445935615409295369169383463185688973803378104013950190;
-    uint256 constant C39 = 15320686572748723004980855263301182130424010735782762814513954166519592552733;
-    uint256 constant C40 = 12618438900597948888520621062416758747872180395546164387827245287017031303859;
-    uint256 constant C41 = 17438141672027706116733201008397064011774368832458707512367404736905021019585;
-    uint256 constant C42 = 6374197807230665998865688675365359100400438034755781666913068586172586548950;
-    uint256 constant C43 = 2189398913433273865510950346186699930188746169476472274335177556702504595264;
-    uint256 constant C44 = 6268495580028970231803791523870131137294646402347399003576649137450213034606;
-    uint256 constant C45 = 17896250365994900261202920044129628104272791547990619503076839618914047059275;
-    uint256 constant C46 = 13692156312448722528008862371944543449350293305158722920787736248435893008873;
-    uint256 constant C47 = 15234446864368744483209945022439268713300180233589581910497691316744177619376;
-    uint256 constant C48 = 1572426502623310766593681563281600503979671244997798691029595521622402217227;
-    uint256 constant C49 = 80103447810215150918585162168214870083573048458555897999822831203653996617;
-    uint256 constant C50 = 8228820324013669567851850635126713973797711779951230446503353812192849106342;
-    uint256 constant C51 = 5375851433746509614045812476958526065449377558695752132494533666370449415873;
-    uint256 constant C52 = 12115998939203497346386774317892338270561208357481805380546938146796257365018;
-    uint256 constant C53 = 9764067909645821279940531410531154041386008396840887338272986634350423466622;
-    uint256 constant C54 = 8538708244538850542384936174629541085495830544298260335345008245230827876882;
-    uint256 constant C55 = 7140127896620013355910287215441004676619168261422440177712039790284719613114;
-    uint256 constant C56 = 14297402962228458726038826185823085337698917275385741292940049024977027409762;
-    uint256 constant C57 = 6667115556431351074165934212337261254608231545257434281887966406956835140819;
-    uint256 constant C58 = 20226761165244293291042617464655196752671169026542832236139342122602741090001;
-    uint256 constant C59 = 12038289506489256655759141386763477208196694421666339040483042079632134429119;
-    uint256 constant C60 = 19027757334170818571203982241812412991528769934917288000224335655934473717551;
-    uint256 constant C61 = 16272152964456553579565580463468069884359929612321610357528838696790370074720;
-    uint256 constant C62 = 2500392889689246014710135696485946334448570271481948765283016105301740284071;
-    uint256 constant C63 = 8595254970528530312401637448610398388203855633951264114100575485022581946023;
-    uint256 constant C64 = 11635945688914011450976408058407206367914559009113158286982919675551688078198;
-    uint256 constant C65 = 614739068603482619581328040478536306925147663946742687395148680260956671871;
-    uint256 constant C66 = 18692271780377861570175282183255720350972693125537599213951106550953176268753;
-    uint256 constant C67 = 4987059230784976306647166378298632695585915319042844495357753339378260807164;
-    uint256 constant C68 = 21851403978498723616722415377430107676258664746210815234490134600998983955497;
-    uint256 constant C69 = 9830635451186415300891533983087800047564037813328875992115573428596207326204;
-    uint256 constant C70 = 4842706106434537116860242620706030229206345167233200482994958847436425185478;
-    uint256 constant C71 = 6422235064906823218421386871122109085799298052314922856340127798647926126490;
-    uint256 constant C72 = 4564364104986856861943331689105797031330091877115997069096365671501473357846;
-    uint256 constant C73 = 1944043894089780613038197112872830569538541856657037469098448708685350671343;
-    uint256 constant C74 = 21179865974855950600518216085229498748425990426231530451599322283119880194955;
-    uint256 constant C75 = 14296697761894107574369608843560006996183955751502547883167824879840894933162;
-    uint256 constant C76 = 12274619649702218570450581712439138337725246879938860735460378251639845671898;
-    uint256 constant C77 = 16371396450276899401411886674029075408418848209575273031725505038938314070356;
-    uint256 constant C78 = 3702561221750983937578095019779188631407216522704543451228773892695044653565;
-    uint256 constant C79 = 19721616877735564664624984774636557499099875603996426215495516594530838681980;
-    uint256 constant C80 = 6383350109027696789969911008057747025018308755462287526819231672217685282429;
-    uint256 constant C81 = 20860583956177367265984596617324237471765572961978977333122281041544719622905;
-    uint256 constant C82 = 5766390934595026947545001478457407504285452477687752470140790011329357286275;
-    uint256 constant C83 = 4043175758319898049344746138515323336207420888499903387536875603879441092484;
-    uint256 constant C84 = 15579382179133608217098622223834161692266188678101563820988612253342538956534;
-    uint256 constant C85 = 1864640783252634743892105383926602930909039567065240010338908865509831749824;
-    uint256 constant C86 = 15943719865023133586707144161652035291705809358178262514871056013754142625673;
-    uint256 constant C87 = 2326415993032390211558498780803238091925402878871059708106213703504162832999;
-    uint256 constant C88 = 19995326402773833553207196590622808505547443523750970375738981396588337910289;
-    uint256 constant C89 = 5143583711361588952673350526320181330406047695593201009385718506918735286622;
-    uint256 constant C90 = 15436006486881920976813738625999473183944244531070780793506388892313517319583;
-    uint256 constant C91 = 16660446760173633166698660166238066533278664023818938868110282615200613695857;
-    uint256 constant C92 = 4966065365695755376133119391352131079892396024584848298231004326013366253934;
-    uint256 constant C93 = 20683781957411705574951987677641476019618457561419278856689645563561076926702;
-    uint256 constant C94 = 17280836839165902792086432296371645107551519324565649849400948918605456875699;
-    uint256 constant C95 = 17045635513701208892073056357048619435743564064921155892004135325530808465371;
-    uint256 constant C96 = 17055032967194400710390142791334572297458033582458169295920670679093585707295;
-    uint256 constant C97 = 15727174639569115300068198908071514334002742825679221638729902577962862163505;
-    uint256 constant C98 = 1001755657610446661315902885492677747789366510875120894840818704741370398633;
-    uint256 constant C99 = 18638547332826171619311285502376343504539399518545103511265465604926625041234;
-    uint256 constant C100 = 6751954224763196429755298529194402870632445298969935050224267844020826420799;
-    uint256 constant C101 = 3526747115904224771452549517614107688674036840088422555827581348280834879405;
-    uint256 constant C102 = 15705897908180497062880001271426561999724005008972544196300715293701537574122;
-    uint256 constant C103 = 574386695213920937259007343820417029802510752426579750428758189312416867750;
-    uint256 constant C104 = 15973040855000600860816974646787367136127946402908768408978806375685439868553;
-    uint256 constant C105 = 20934130413948796333037139460875996342810005558806621330680156931816867321122;
-    uint256 constant C106 = 6918585327145564636398173845411579411526758237572034236476079610890705810764;
-    uint256 constant C107 = 14158163500813182062258176233162498241310167509137716527054939926126453647182;
-    uint256 constant C108 = 4164602626597695668474100217150111342272610479949122406544277384862187287433;
-    uint256 constant C109 = 12146526846507496913615390662823936206892812880963914267275606265272996025304;
-    uint256 constant C110 = 10153527926900017763244212043512822363696541810586522108597162891799345289938;
-    uint256 constant C111 = 13564663485965299104296214940873270349072051793008946663855767889066202733588;
-    uint256 constant C112 = 5612449256997576125867742696783020582952387615430650198777254717398552960096;
-    uint256 constant C113 = 12151885480032032868507892738683067544172874895736290365318623681886999930120;
-    uint256 constant C114 = 380452237704664384810613424095477896605414037288009963200982915188629772177;
-    uint256 constant C115 = 9067557551252570188533509616805287919563636482030947363841198066124642069518;
-    uint256 constant C116 = 21280306817619711661335268484199763923870315733198162896599997188206277056900;
-    uint256 constant C117 = 5567165819557297006750252582140767993422097822227408837378089569369734876257;
-    uint256 constant C118 = 10411936321072105429908396649383171465939606386380071222095155850987201580137;
-    uint256 constant C119 = 21338390051413922944780864872652000187403217966653363270851298678606449622266;
-    uint256 constant C120 = 12156296560457833712186127325312904760045212412680904475497938949653569234473;
-    uint256 constant C121 = 4271647814574748734312113971565139132510281260328947438246615707172526380757;
-    uint256 constant C122 = 9061738206062369647211128232833114177054715885442782773131292534862178874950;
-    uint256 constant C123 = 10134551893627587797380445583959894183158393780166496661696555422178052339133;
-    uint256 constant C124 = 8932270237664043612366044102088319242789325050842783721780970129656616386103;
-    uint256 constant C125 = 3339412934966886386194449782756711637636784424032779155216609410591712750636;
-    uint256 constant C126 = 9704903972004596791086522314847373103670545861209569267884026709445485704400;
-    uint256 constant C127 = 17467570179597572575614276429760169990940929887711661192333523245667228809456;
-    uint256 constant M00 = 2910766817845651019878574839501801340070030115151021261302834310722729507541;
-    uint256 constant M01 = 19727366863391167538122140361473584127147630672623100827934084310230022599144;
-    uint256 constant M10 = 5776684794125549462448597414050232243778680302179439492664047328281728356345;
-    uint256 constant M11 = 8348174920934122550483593999453880006756108121341067172388445916328941978568;
 
-    function hash(uint256 input) external pure override returns (uint256 result) {
-        return _hash(input);
-    }
-
-    function _hash(uint256 input) internal pure returns (uint256 result) {
-        assembly {
-            // Poseidon parameters should be t = 2, RF = 8, RP = 56
-
-            // We load the characteristic
-            let q := Q
-
-            // In zerokit implementation, if we pass inp = [a0,a1,..,an] to Poseidon what is effectively hashed is [0,a0,a1,..,an]
-            // Note that a sequence of MIX-ARK involves 3 Bn254 field additions before the mulmod happens. Worst case we have a value corresponding to 2*(p-1) which is less than 2^256 and hence doesn't overflow
-            //ROUND 0 - FULL
-            let s0 := C0
-            let s1 := add(input, C1)
-            // SBOX
-            let t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 1 - FULL
-            s0 := add(s0, C2)
-            s1 := add(s1, C3)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 2 - FULL
-            s0 := add(s0, C4)
-            s1 := add(s1, C5)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 3 - FULL
-            s0 := add(s0, C6)
-            s1 := add(s1, C7)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 4 - PARTIAL
-            s0 := add(s0, C8)
-            s1 := add(s1, C9)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 5 - PARTIAL
-            s0 := add(s0, C10)
-            s1 := add(s1, C11)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 6 - PARTIAL
-            s0 := add(s0, C12)
-            s1 := add(s1, C13)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 7 - PARTIAL
-            s0 := add(s0, C14)
-            s1 := add(s1, C15)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 8 - PARTIAL
-            s0 := add(s0, C16)
-            s1 := add(s1, C17)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 9 - PARTIAL
-            s0 := add(s0, C18)
-            s1 := add(s1, C19)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 10 - PARTIAL
-            s0 := add(s0, C20)
-            s1 := add(s1, C21)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 11 - PARTIAL
-            s0 := add(s0, C22)
-            s1 := add(s1, C23)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 12 - PARTIAL
-            s0 := add(s0, C24)
-            s1 := add(s1, C25)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 13 - PARTIAL
-            s0 := add(s0, C26)
-            s1 := add(s1, C27)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 14 - PARTIAL
-            s0 := add(s0, C28)
-            s1 := add(s1, C29)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 15 - PARTIAL
-            s0 := add(s0, C30)
-            s1 := add(s1, C31)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 16 - PARTIAL
-            s0 := add(s0, C32)
-            s1 := add(s1, C33)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 17 - PARTIAL
-            s0 := add(s0, C34)
-            s1 := add(s1, C35)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 18 - PARTIAL
-            s0 := add(s0, C36)
-            s1 := add(s1, C37)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 19 - PARTIAL
-            s0 := add(s0, C38)
-            s1 := add(s1, C39)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 20 - PARTIAL
-            s0 := add(s0, C40)
-            s1 := add(s1, C41)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 21 - PARTIAL
-            s0 := add(s0, C42)
-            s1 := add(s1, C43)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 22 - PARTIAL
-            s0 := add(s0, C44)
-            s1 := add(s1, C45)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 23 - PARTIAL
-            s0 := add(s0, C46)
-            s1 := add(s1, C47)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 24 - PARTIAL
-            s0 := add(s0, C48)
-            s1 := add(s1, C49)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 25 - PARTIAL
-            s0 := add(s0, C50)
-            s1 := add(s1, C51)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 26 - PARTIAL
-            s0 := add(s0, C52)
-            s1 := add(s1, C53)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 27 - PARTIAL
-            s0 := add(s0, C54)
-            s1 := add(s1, C55)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 28 - PARTIAL
-            s0 := add(s0, C56)
-            s1 := add(s1, C57)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 29 - PARTIAL
-            s0 := add(s0, C58)
-            s1 := add(s1, C59)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 30 - PARTIAL
-            s0 := add(s0, C60)
-            s1 := add(s1, C61)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 31 - PARTIAL
-            s0 := add(s0, C62)
-            s1 := add(s1, C63)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 32 - PARTIAL
-            s0 := add(s0, C64)
-            s1 := add(s1, C65)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 33 - PARTIAL
-            s0 := add(s0, C66)
-            s1 := add(s1, C67)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 34 - PARTIAL
-            s0 := add(s0, C68)
-            s1 := add(s1, C69)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 35 - PARTIAL
-            s0 := add(s0, C70)
-            s1 := add(s1, C71)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 36 - PARTIAL
-            s0 := add(s0, C72)
-            s1 := add(s1, C73)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 37 - PARTIAL
-            s0 := add(s0, C74)
-            s1 := add(s1, C75)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 38 - PARTIAL
-            s0 := add(s0, C76)
-            s1 := add(s1, C77)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 39 - PARTIAL
-            s0 := add(s0, C78)
-            s1 := add(s1, C79)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 40 - PARTIAL
-            s0 := add(s0, C80)
-            s1 := add(s1, C81)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 41 - PARTIAL
-            s0 := add(s0, C82)
-            s1 := add(s1, C83)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 42 - PARTIAL
-            s0 := add(s0, C84)
-            s1 := add(s1, C85)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 43 - PARTIAL
-            s0 := add(s0, C86)
-            s1 := add(s1, C87)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 44 - PARTIAL
-            s0 := add(s0, C88)
-            s1 := add(s1, C89)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 45 - PARTIAL
-            s0 := add(s0, C90)
-            s1 := add(s1, C91)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 46 - PARTIAL
-            s0 := add(s0, C92)
-            s1 := add(s1, C93)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 47 - PARTIAL
-            s0 := add(s0, C94)
-            s1 := add(s1, C95)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 48 - PARTIAL
-            s0 := add(s0, C96)
-            s1 := add(s1, C97)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 49 - PARTIAL
-            s0 := add(s0, C98)
-            s1 := add(s1, C99)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 50 - PARTIAL
-            s0 := add(s0, C100)
-            s1 := add(s1, C101)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 51 - PARTIAL
-            s0 := add(s0, C102)
-            s1 := add(s1, C103)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 52 - PARTIAL
-            s0 := add(s0, C104)
-            s1 := add(s1, C105)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 53 - PARTIAL
-            s0 := add(s0, C106)
-            s1 := add(s1, C107)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 54 - PARTIAL
-            s0 := add(s0, C108)
-            s1 := add(s1, C109)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 55 - PARTIAL
-            s0 := add(s0, C110)
-            s1 := add(s1, C111)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 56 - PARTIAL
-            s0 := add(s0, C112)
-            s1 := add(s1, C113)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 57 - PARTIAL
-            s0 := add(s0, C114)
-            s1 := add(s1, C115)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 58 - PARTIAL
-            s0 := add(s0, C116)
-            s1 := add(s1, C117)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 59 - PARTIAL
-            s0 := add(s0, C118)
-            s1 := add(s1, C119)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 60 - FULL
-            s0 := add(s0, C120)
-            s1 := add(s1, C121)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 61 - FULL
-            s0 := add(s0, C122)
-            s1 := add(s1, C123)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 62 - FULL
-            s0 := add(s0, C124)
-            s1 := add(s1, C125)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            t := add(mulmod(s0, M00, q), mulmod(s1, M01, q))
-            s1 := add(mulmod(s0, M10, q), mulmod(s1, M11, q))
-            s0 := t
-
-            //ROUND 63 - FULL
-            s0 := add(s0, C126)
-            s1 := add(s1, C127)
-            // SBOX
-            t := mulmod(s0, s0, q)
-            s0 := mulmod(mulmod(t, t, q), s0, q)
-            t := mulmod(s1, s1, q)
-            s1 := mulmod(mulmod(t, t, q), s1, q)
-            // MIX
-            s0 := mod(add(mulmod(s0, M00, q), mulmod(s1, M01, q)), q)
-
-            result := s0
-        }
+    function hash(uint256[2] memory inputs) external pure override returns (uint256 result) {
+        return PoseidonT3.hash(inputs);
     }
 }
