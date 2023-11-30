@@ -11,7 +11,7 @@ import "forge-std/console.sol";
 contract RlnTest is Test {
     using stdStorage for StdStorage;
 
-    Rln public rln;
+    RLN public rln;
     PoseidonHasher public poseidon;
     TrueVerifier public trueVerifier;
     FalseVerifier public falseVerifier;
@@ -26,7 +26,7 @@ contract RlnTest is Test {
         poseidon = new PoseidonHasher();
         trueVerifier = new TrueVerifier();
         falseVerifier = new FalseVerifier();
-        rln = new Rln(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon), address(trueVerifier));
+        rln = new RLN(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon), address(trueVerifier));
     }
 
     /// @dev Ensure that you can hash a value.
@@ -69,7 +69,7 @@ contract RlnTest is Test {
     }
 
     function test__InvalidRegistration__FullSet() public {
-        Rln tempRln = new Rln(
+        RLN tempRln = new RLN(
             MEMBERSHIP_DEPOSIT,
             2,
             address(rln.poseidonHasher()),
@@ -154,7 +154,7 @@ contract RlnTest is Test {
     function test__InvalidSlash__InvalidProof() public {
         uint256 idCommitment = 19014214495641488759237505126948346942972912379615652741039992445865937985820;
 
-        Rln tempRln = new Rln(
+        RLN tempRln = new RLN(
             MEMBERSHIP_DEPOSIT,
             2,
             address(rln.poseidonHasher()),
