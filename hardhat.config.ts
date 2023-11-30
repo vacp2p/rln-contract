@@ -12,10 +12,20 @@ import "hardhat-gas-reporter";
 import "solidity-docgen";
 
 dotenv.config();
-const { SEPOLIA_URL, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
+const {
+  SEPOLIA_URL,
+  PRIVATE_KEY,
+  ETHERSCAN_API_KEY,
+  POLYGON_ZKEVM_TESTNET_URL,
+} = process.env;
 
 const getNetworkConfig = (): NetworksUserConfig | undefined => {
-  if (SEPOLIA_URL && PRIVATE_KEY) {
+  if (
+    SEPOLIA_URL &&
+    PRIVATE_KEY &&
+    ETHERSCAN_API_KEY &&
+    POLYGON_ZKEVM_TESTNET_URL
+  ) {
     return {
       sepolia: {
         url: SEPOLIA_URL,
@@ -28,6 +38,13 @@ const getNetworkConfig = (): NetworksUserConfig | undefined => {
             apiKey: ETHERSCAN_API_KEY,
             apiUrl: "https://api-sepolia.etherscan.io",
           },
+        },
+      },
+      polygonZkevmTestnet: {
+        url: POLYGON_ZKEVM_TESTNET_URL,
+        accounts: [PRIVATE_KEY],
+        forking: {
+          url: POLYGON_ZKEVM_TESTNET_URL,
         },
       },
       localhost_integration: {

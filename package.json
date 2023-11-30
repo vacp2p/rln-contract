@@ -12,6 +12,7 @@
     "test:foundry": "forge test",
     "deploy": "hardhat deploy --export-all deployments/allDeployments.json --network",
     "deploy:sepolia": "yarn deploy sepolia",
+    "deploy:polygon_zkevm_testnet": "yarn deploy polygonZkevmTestnet",
     "deploy:localhost": "yarn deploy localhost",
     "verify:sepolia": "hardhat --network sepolia etherscan-verify",
     "coverage": "forge coverage --report lcov",
