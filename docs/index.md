@@ -389,21 +389,6 @@ function withdraw() external virtual
 
 Allows a user to withdraw funds allocated to them upon slashing a member
 
-### hash
-
-```solidity
-function hash(uint256[2] inputs) internal view returns (uint256)
-```
-
-Hashes a value using the Poseidon hasher
-NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2
-
-#### Parameters
-
-| Name   | Type       | Description        |
-| ------ | ---------- | ------------------ |
-| inputs | uint256[2] | The values to hash |
-
 ### isValidCommitment
 
 ```solidity
@@ -418,10 +403,10 @@ function _verifyProof(uint256 idCommitment, address receiver, uint256[8] proof) 
 
 _Groth16 proof verification_
 
-### computeRoot
+### root
 
 ```solidity
-function computeRoot() external view returns (uint256)
+function root() external view returns (uint256)
 ```
 
 ## Pairing

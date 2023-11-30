@@ -198,13 +198,6 @@ abstract contract RlnBase {
         payable(msg.sender).transfer(amount);
     }
 
-    /// Hashes a value using the Poseidon hasher
-    /// NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2
-    /// @param inputs The values to hash
-    function hash(uint256[2] memory inputs) internal view returns (uint256) {
-        return poseidonHasher.hash(inputs);
-    }
-
     function isValidCommitment(uint256 idCommitment) public view returns (bool) {
         return idCommitment != 0 && idCommitment < poseidonHasher.Q();
     }
@@ -224,7 +217,7 @@ abstract contract RlnBase {
         );
     }
 
-    function computeRoot() external view returns (uint256) {
+    function root() external view returns (uint256) {
         return imtData.root;
     }
 }
