@@ -4,3 +4,5 @@ eth-gas-reporter/=node_modules/eth-gas-reporter/
 forge-std/=lib/forge-std/src/
 hardhat-deploy/=node_modules/hardhat-deploy/
 hardhat/=node_modules/hardhat/
+@zk-kit/imt.sol/=node_modules/@zk-kit/imt.sol/
+poseidon-solidity/=node_modules/poseidon-solidity/

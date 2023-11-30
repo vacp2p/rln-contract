@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 
 import {PoseidonHasher} from "./PoseidonHasher.sol";
 import {IVerifier} from "./IVerifier.sol";
+import {BinaryIMT, BinaryIMTData} from "@zk-kit/imt.sol/BinaryIMT.sol";
 
 import "forge-std/console.sol";
 
@@ -63,10 +64,6 @@ abstract contract RlnBase {
     /// maps from idCommitment to their index in the set
     mapping(uint256 => uint256) public members;
 
-    /// @notice the index to membership status mapping
-    /// maps from index to idCommitment
-    mapping(uint256 => uint256) public indexToIdCommitment;
-
     /// @notice The membership status of each member
     mapping(uint256 => bool) public memberExists;
 
@@ -81,6 +78,9 @@ abstract contract RlnBase {
 
     /// @notice the deployed block number
     uint32 public immutable deployedBlockNumber;
+
+    /// @notice the Incremental Merkle Tree
+    BinaryIMTData public imtData;
 
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
@@ -104,6 +104,7 @@ abstract contract RlnBase {
         poseidonHasher = PoseidonHasher(_poseidonHasher);
         verifier = IVerifier(_verifier);
         deployedBlockNumber = uint32(block.number);
+        BinaryIMT.initWithDefaultZeroes(imtData, 20);
     }
 
     /// Allows a user to register as a member
@@ -124,8 +125,8 @@ abstract contract RlnBase {
         if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
         members[idCommitment] = idCommitmentIndex;
-        indexToIdCommitment[idCommitmentIndex] = idCommitment;
         memberExists[idCommitment] = true;
+        BinaryIMT.insert(imtData, idCommitment);
         stakedAmounts[idCommitment] = stake;
 
         emit MemberRegistered(idCommitment, idCommitmentIndex);
@@ -170,9 +171,9 @@ abstract contract RlnBase {
         // delete member
         uint256 index = members[idCommitment];
         members[idCommitment] = 0;
-        indexToIdCommitment[index] = 0;
         memberExists[idCommitment] = false;
         stakedAmounts[idCommitment] = 0;
+        // TODO: remove from IMT
 
         // refund deposit
         withdrawalBalance[receiver] += amountToTransfer;
@@ -225,81 +226,7 @@ abstract contract RlnBase {
         );
     }
 
-    uint256 public constant Z_0 = 0;
-    uint256 public constant Z_1 = 14744269619966411208579211824598458697587494354926760081771325075741142829156;
-    uint256 public constant Z_2 = 7423237065226347324353380772367382631490014989348495481811164164159255474657;
-    uint256 public constant Z_3 = 11286972368698509976183087595462810875513684078608517520839298933882497716792;
-    uint256 public constant Z_4 = 3607627140608796879659380071776844901612302623152076817094415224584923813162;
-    uint256 public constant Z_5 = 19712377064642672829441595136074946683621277828620209496774504837737984048981;
-    uint256 public constant Z_6 = 20775607673010627194014556968476266066927294572720319469184847051418138353016;
-    uint256 public constant Z_7 = 3396914609616007258851405644437304192397291162432396347162513310381425243293;
-    uint256 public constant Z_8 = 21551820661461729022865262380882070649935529853313286572328683688269863701601;
-    uint256 public constant Z_9 = 6573136701248752079028194407151022595060682063033565181951145966236778420039;
-    uint256 public constant Z_10 = 12413880268183407374852357075976609371175688755676981206018884971008854919922;
-    uint256 public constant Z_11 = 14271763308400718165336499097156975241954733520325982997864342600795471836726;
-    uint256 public constant Z_12 = 20066985985293572387227381049700832219069292839614107140851619262827735677018;
-    uint256 public constant Z_13 = 9394776414966240069580838672673694685292165040808226440647796406499139370960;
-    uint256 public constant Z_14 = 11331146992410411304059858900317123658895005918277453009197229807340014528524;
-    uint256 public constant Z_15 = 15819538789928229930262697811477882737253464456578333862691129291651619515538;
-    uint256 public constant Z_16 = 19217088683336594659449020493828377907203207941212636669271704950158751593251;
-    uint256 public constant Z_17 = 21035245323335827719745544373081896983162834604456827698288649288827293579666;
-    uint256 public constant Z_18 = 6939770416153240137322503476966641397417391950902474480970945462551409848591;
-    uint256 public constant Z_19 = 10941962436777715901943463195175331263348098796018438960955633645115732864202;
-
-    function defaultZero(uint8 index) public pure returns (uint256) {
-        if (index == 0) return Z_0;
-        if (index == 1) return Z_1;
-        if (index == 2) return Z_2;
-        if (index == 3) return Z_3;
-        if (index == 4) return Z_4;
-        if (index == 5) return Z_5;
-        if (index == 6) return Z_6;
-        if (index == 7) return Z_7;
-        if (index == 8) return Z_8;
-        if (index == 9) return Z_9;
-        if (index == 10) return Z_10;
-        if (index == 11) return Z_11;
-        if (index == 12) return Z_12;
-        if (index == 13) return Z_13;
-        if (index == 14) return Z_14;
-        if (index == 15) return Z_15;
-        if (index == 16) return Z_16;
-        if (index == 17) return Z_17;
-        if (index == 18) return Z_18;
-        if (index == 19) return Z_19;
-        revert("defaultZero bad index");
-    }
-
     function computeRoot() external view returns (uint256) {
-        if (idCommitmentIndex == 0) return defaultZero(0);
-        uint256 index = idCommitmentIndex - 1;
-
-        uint256[] memory levels = new uint256[](DEPTH + 1);
-
-        if (index & 1 == 0) {
-            levels[0] = indexToIdCommitment[index];
-        } else {
-            levels[0] = defaultZero(0);
-        }
-
-        for (uint8 i = 0; i < DEPTH;) {
-            if (index & 1 == 0) {
-                levels[i + 1] = hash([levels[i], defaultZero(i)]);
-            } else {
-                uint256 levelCount = (idCommitmentIndex) >> (i + 1);
-                if (levelCount > index >> 1) {
-                    uint256 parent = indexToIdCommitment[index + 1];
-                    levels[i + 1] = parent;
-                } else {
-                    uint256 sibling = indexToIdCommitment[index - 1];
-                    levels[i + 1] = hash([sibling, levels[i]]);
-                }
-            }
-            unchecked {
-                index >>= 1;
-                i++;
-            }
-        }
-        return levels[DEPTH];
+        return imtData.root;
     }
 }

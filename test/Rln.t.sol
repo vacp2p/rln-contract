@@ -41,9 +41,8 @@ contract RlnTest is Test {
         vm.assume(rln.isValidCommitment(idCommitment));
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
-        assertEq(rln.memberExists(idCommitment), true);
-        assertEq(rln.members(idCommitment), 0);
-        assertEq(rln.indexToIdCommitment(0), idCommitment);
+        // assertEq(rln.memberExists(idCommitment), true);
+        // assertEq(rln.members(idCommitment), 0);
     }
 
     function test__InvalidRegistration__DuplicateCommitment(uint256 idCommitment) public {
@@ -52,7 +51,6 @@ contract RlnTest is Test {
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         assertEq(rln.memberExists(idCommitment), true);
         assertEq(rln.members(idCommitment), 0);
-        assertEq(rln.indexToIdCommitment(0), idCommitment);
         vm.expectRevert(DuplicateIdCommitment.selector);
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
     }
@@ -104,7 +102,6 @@ contract RlnTest is Test {
         rln.withdraw();
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), 0);
-        assertEq(rln.indexToIdCommitment(0), 0);
         assertEq(rln.withdrawalBalance(to), 0);
         assertEq(to.balance, balanceBefore + MEMBERSHIP_DEPOSIT);
     }
@@ -146,7 +143,6 @@ contract RlnTest is Test {
         rln.slash(idCommitment, to, zeroedProof);
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), 0);
-        assertEq(rln.indexToIdCommitment(0), 0);
 
         // manually set members[idCommitment] to true using vm
         stdstore.target(address(rln)).sig("memberExists(uint256)").with_key(idCommitment).depth(0).checked_write(true);
@@ -183,7 +179,6 @@ contract RlnTest is Test {
         rln.slash(idCommitment, payable(address(this)), zeroedProof);
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), 0);
-        assertEq(rln.indexToIdCommitment(0), 0);
 
         vm.deal(address(rln), 0);
         vm.expectRevert(InsufficientContractBalance.selector);
@@ -203,7 +198,6 @@ contract RlnTest is Test {
         assertEq(rln.stakedAmounts(idCommitment), 0);
         assertEq(rln.members(idCommitment), 0);
         assertEq(rln.memberExists(idCommitment), false);
-        assertEq(rln.indexToIdCommitment(0), 0);
 
         vm.prank(to);
         rln.withdraw();
@@ -216,5 +210,9 @@ contract RlnTest is Test {
         rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment);
         assertEq(rln.stakedAmounts(idCommitment), MEMBERSHIP_DEPOSIT);
         assertEq(rln.computeRoot(), 7919895337495550471953660523154055129542864206434083474237224229170626792564);
+
+        rln.register{value: MEMBERSHIP_DEPOSIT}(idCommitment + 1);
+        assertEq(rln.stakedAmounts(idCommitment + 1), MEMBERSHIP_DEPOSIT);
+        assertEq(rln.computeRoot(), 4478280093730386416628343710916187522643918890809710321703190604649709696518);
     }
 }
