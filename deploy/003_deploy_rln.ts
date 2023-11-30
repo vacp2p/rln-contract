@@ -11,12 +11,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     .address;
   const rlnVerifierAddress = (await deployments.get("Verifier")).address;
 
-  await deploy("Rln", {
+  const deployRes = await deploy("BinaryIMT", {
+    from: deployer,
+    log: true,
+    libraries: {
+      PoseidonT3: (await deployments.get("PoseidonT3")).address,
+    },
+  });
+
+  await deploy("RLN", {
     from: deployer,
     log: true,
     args: [1000000000000000, 20, poseidonHasherAddress, rlnVerifierAddress],
+    libraries: {
+      BinaryIMT: deployRes.address,
+    },
   });
 };
+
 export default func;
 func.tags = ["Rln"];
-func.dependencies = ["PoseidonHasher", "RlnVerifier"];
+func.dependencies = ["PoseidonHasher", "RlnVerifier", "BinaryIMT"];

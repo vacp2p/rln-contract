@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import "./RlnBase.sol";
 
-contract Rln is RlnBase {
+contract RLN is RlnBase {
     constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier)
         RlnBase(membershipDeposit, depth, _poseidonHasher, _verifier)
     {}

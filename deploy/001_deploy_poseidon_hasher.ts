@@ -7,9 +7,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const [deployer] = await getUnnamedAccounts();
 
+  const deployRes = await deploy("PoseidonT3", {
+    from: deployer,
+    log: true,
+  });
+
   await deploy("PoseidonHasher", {
     from: deployer,
     log: true,
+    libraries: {
+      PoseidonT3: deployRes.address,
+    },
   });
 };
 export default func;

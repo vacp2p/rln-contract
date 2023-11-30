@@ -10,12 +10,13 @@ describe("PoseidonHasher", () => {
     const poseidonHasher = await ethers.getContract("PoseidonHasher");
 
     // We test hashing for a random number
-    const hash = await poseidonHasher.hash(
-      "19014214495641488759237505126948346942972912379615652741039992445865937985820"
-    );
+    const hash = await poseidonHasher.hash([
+      "19014214495641488759237505126948346942972912379615652741039992445865937985820",
+      "0",
+    ]);
 
-    expect(hash._hex).to.eql(
-      "0x0c3ac305f6a4fe9bfeb3eba978bc876e2a99208b8b56c80160cfb54ba8f02368"
+    expect(hash.toHexString()).to.eql(
+      "0x1d1ac5f6cf23b059eb43c657ce622b614b5960ea4b23f92d428d3e42982a4e13"
     );
   });
 });

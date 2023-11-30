@@ -7,7 +7,7 @@ describe("Rln", () => {
   });
 
   it("should register new memberships", async () => {
-    const rln = await ethers.getContract("Rln", ethers.provider.getSigner(0));
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
 
@@ -30,7 +30,7 @@ describe("Rln", () => {
   });
 
   it("should slash membership", async () => {
-    const rln = await ethers.getContract("Rln", ethers.provider.getSigner(0));
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
 
@@ -55,7 +55,7 @@ describe("Rln", () => {
   });
 
   it("should not allow multiple registrations with same pubkey", async () => {
-    const rln = await ethers.getContract("Rln", ethers.provider.getSigner(0));
+    const rln = await ethers.getContract("RLN", ethers.provider.getSigner(0));
 
     const price = await rln.MEMBERSHIP_DEPOSIT();
 

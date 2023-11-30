@@ -6,8 +6,6 @@ import {PoseidonHasher} from "./PoseidonHasher.sol";
 import {IVerifier} from "./IVerifier.sol";
 import {BinaryIMT, BinaryIMTData} from "@zk-kit/imt.sol/BinaryIMT.sol";
 
-import "forge-std/console.sol";
-
 /// The tree is full
 error FullTree();
 
