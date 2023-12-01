@@ -40,6 +40,9 @@ error InsufficientContractBalance();
 /// Invalid proof
 error InvalidProof();
 
+/// Invalid pagination query
+error InvalidPaginationQuery(uint256 startIndex, uint256 endIndex);
+
 abstract contract RlnBase {
     /// @notice The Field
     uint256 public constant Q = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
@@ -63,6 +66,9 @@ abstract contract RlnBase {
     /// @notice The membership status of each member
     /// maps from idCommitment to their index in the set
     mapping(uint256 => uint256) public members;
+
+    /// @notice the index to commitment mapping
+    mapping(uint256 => uint256) public indexToCommitment;
 
     /// @notice The membership status of each member
     mapping(uint256 => bool) public memberExists;
@@ -121,6 +127,7 @@ abstract contract RlnBase {
         if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
         members[idCommitment] = idCommitmentIndex;
+        indexToCommitment[idCommitmentIndex] = idCommitment;
         memberExists[idCommitment] = true;
         BinaryIMT.insert(imtData, idCommitment);
         stakedAmounts[idCommitment] = stake;
@@ -167,6 +174,7 @@ abstract contract RlnBase {
         // delete member
         uint256 index = members[idCommitment];
         members[idCommitment] = 0;
+        indexToCommitment[index] = 0;
         memberExists[idCommitment] = false;
         stakedAmounts[idCommitment] = 0;
         // TODO: remove from IMT
@@ -217,5 +225,16 @@ abstract contract RlnBase {
 
     function root() external view returns (uint256) {
         return imtData.root;
+    }
+
+    function getCommitments(uint256 startIndex, uint256 endIndex) public view returns (uint256[] memory) {
+        if (startIndex >= endIndex) revert InvalidPaginationQuery(startIndex, endIndex);
+        if (endIndex > idCommitmentIndex) revert InvalidPaginationQuery(startIndex, endIndex);
+
+        uint256[] memory commitments = new uint256[](endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            commitments[i - startIndex] = indexToCommitment[i];
+        }
+        return commitments;
     }
 }

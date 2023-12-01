@@ -125,6 +125,14 @@ error InvalidProof()
 
 Invalid proof
 
+## InvalidPaginationQuery
+
+```solidity
+error InvalidPaginationQuery(uint256 startIndex, uint256 endIndex)
+```
+
+Invalid pagination query
+
 ## RlnBase
 
 ### Q
@@ -184,6 +192,14 @@ mapping(uint256 => uint256) members
 
 The membership status of each member
 maps from idCommitment to their index in the set
+
+### indexToCommitment
+
+```solidity
+mapping(uint256 => uint256) indexToCommitment
+```
+
+the index to commitment mapping
 
 ### memberExists
 
@@ -369,6 +385,12 @@ _Groth16 proof verification_
 
 ```solidity
 function root() external view returns (uint256)
+```
+
+### getCommitments
+
+```solidity
+function getCommitments(uint256 startIndex, uint256 endIndex) public view returns (uint256[])
 ```
 
 ## Pairing
