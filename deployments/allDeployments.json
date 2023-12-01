@@ -545,7 +545,7 @@
           ]
         },
         "RLN": {
-          "address": "0xC568eF58009b8e5B8824d9fbB271141782545538",
+          "address": "0xd2727D17a9a2152944Db54889e18ebD2495344BB",
           "abi": [
             {
               "inputs": [
@@ -613,6 +613,22 @@
                 }
               ],
               "name": "InvalidIdCommitment",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "startIndex",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endIndex",
+                  "type": "uint256"
+                }
+              ],
+              "name": "InvalidPaginationQuery",
               "type": "error"
             },
             {
@@ -757,6 +773,30 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "startIndex",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endIndex",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getCommitments",
+              "outputs": [
+                {
+                  "internalType": "uint256[]",
+                  "name": "",
+                  "type": "uint256[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "idCommitmentIndex",
               "outputs": [
@@ -792,6 +832,25 @@
                   "internalType": "bool",
                   "name": "useDefaultZeroes",
                   "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "indexToCommitment",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -1514,7 +1573,7 @@
           ]
         },
         "RLN": {
-          "address": "0xbE24C8d709754523D882D4b67C59e983107cf1E8",
+          "address": "0xd105cCcC7a78c178fFd8568EF1b4e739A01F6577",
           "abi": [
             {
               "inputs": [
@@ -1582,6 +1641,22 @@
                 }
               ],
               "name": "InvalidIdCommitment",
+              "type": "error"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "startIndex",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endIndex",
+                  "type": "uint256"
+                }
+              ],
+              "name": "InvalidPaginationQuery",
               "type": "error"
             },
             {
@@ -1726,6 +1801,30 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "startIndex",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endIndex",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getCommitments",
+              "outputs": [
+                {
+                  "internalType": "uint256[]",
+                  "name": "",
+                  "type": "uint256[]"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "idCommitmentIndex",
               "outputs": [
@@ -1761,6 +1860,25 @@
                   "internalType": "bool",
                   "name": "useDefaultZeroes",
                   "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "indexToCommitment",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
