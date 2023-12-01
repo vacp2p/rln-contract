@@ -7,28 +7,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const [deployer] = await getUnnamedAccounts();
 
-  const poseidonHasherAddress = (await deployments.get("PoseidonHasher"))
-    .address;
   const rlnVerifierAddress = (await deployments.get("Verifier")).address;
 
-  const deployRes = await deploy("BinaryIMT", {
-    from: deployer,
-    log: true,
-    libraries: {
-      PoseidonT3: (await deployments.get("PoseidonT3")).address,
-    },
-  });
+  const binaryIMTAddress = (await deployments.get("BinaryIMT")).address;
 
   await deploy("RLN", {
     from: deployer,
     log: true,
-    args: [1000000000000000, 20, poseidonHasherAddress, rlnVerifierAddress],
+    args: [1000000000000000, 20, rlnVerifierAddress],
     libraries: {
-      BinaryIMT: deployRes.address,
+      BinaryIMT: binaryIMTAddress,
     },
   });
 };
 
 export default func;
-func.tags = ["Rln"];
-func.dependencies = ["PoseidonHasher", "RlnVerifier", "BinaryIMT"];
+func.tags = ["RLN"];
+func.dependencies = ["PoseidonT3", "RlnVerifier", "BinaryIMT"];

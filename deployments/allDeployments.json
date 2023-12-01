@@ -545,7 +545,7 @@
           ]
         },
         "RLN": {
-          "address": "0x0EE706eAfC3cc76B28fc6607756234ada6a7c377",
+          "address": "0xC568eF58009b8e5B8824d9fbB271141782545538",
           "abi": [
             {
               "inputs": [
@@ -558,11 +558,6 @@
                   "internalType": "uint256",
                   "name": "depth",
                   "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_poseidonHasher",
-                  "type": "address"
                 },
                 {
                   "internalType": "address",
@@ -724,6 +719,19 @@
             },
             {
               "inputs": [],
+              "name": "Q",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "SET_SIZE",
               "outputs": [
                 {
@@ -805,7 +813,7 @@
                   "type": "bool"
                 }
               ],
-              "stateMutability": "view",
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -841,19 +849,6 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "poseidonHasher",
-              "outputs": [
-                {
-                  "internalType": "contract PoseidonHasher",
-                  "name": "",
-                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -1016,7 +1011,7 @@
       "chainId": "11155111",
       "contracts": {
         "BinaryIMT": {
-          "address": "0x9Eae140A17Fd002B2ffA3B5df76C13100CDF909d",
+          "address": "0xAecbB25437eDa6B01048C3461902F0A522457C1f",
           "abi": [
             {
               "inputs": [],
@@ -1494,45 +1489,8 @@
             }
           ]
         },
-        "PoseidonHasher": {
-          "address": "0x2092b99411d480b8Dd04BfD68EF1F0d545b0eB1D",
-          "abi": [
-            {
-              "inputs": [],
-              "name": "Q",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256[2]",
-                  "name": "inputs",
-                  "type": "uint256[2]"
-                }
-              ],
-              "name": "hash",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "result",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "pure",
-              "type": "function"
-            }
-          ]
-        },
         "PoseidonT3": {
-          "address": "0xbeeeAcde37Bce9011326137a49Bd5CA8153E9FCD",
+          "address": "0xB792fc68f37747828e0e6dB443229d1C927a05d1",
           "abi": [
             {
               "inputs": [
@@ -1556,7 +1514,7 @@
           ]
         },
         "RLN": {
-          "address": "0xb4eb8135C8ba7Af1295EB9C363DddA996cdB813E",
+          "address": "0xbE24C8d709754523D882D4b67C59e983107cf1E8",
           "abi": [
             {
               "inputs": [
@@ -1569,11 +1527,6 @@
                   "internalType": "uint256",
                   "name": "depth",
                   "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_poseidonHasher",
-                  "type": "address"
                 },
                 {
                   "internalType": "address",
@@ -1735,6 +1688,19 @@
             },
             {
               "inputs": [],
+              "name": "Q",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "SET_SIZE",
               "outputs": [
                 {
@@ -1816,7 +1782,7 @@
                   "type": "bool"
                 }
               ],
-              "stateMutability": "view",
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -1852,19 +1818,6 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "poseidonHasher",
-              "outputs": [
-                {
-                  "internalType": "contract PoseidonHasher",
-                  "name": "",
-                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -1980,7 +1933,7 @@
           ]
         },
         "Verifier": {
-          "address": "0xe36940B40aDe98F02a4829414F7e8d636CCf3663",
+          "address": "0x4F33f2B18bb30bdF81c18E9C7a46e46187609511",
           "abi": [
             {
               "inputs": [

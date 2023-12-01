@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import { ethers, deployments } from "hardhat";
 
-describe("PoseidonHasher", () => {
+describe("PoseidonT3", () => {
   beforeEach(async () => {
-    await deployments.fixture(["PoseidonHasher"]);
+    await deployments.fixture(["PoseidonT3"]);
   });
 
   it("should hash correctly", async function () {
-    const poseidonHasher = await ethers.getContract("PoseidonHasher");
+    const poseidonHasher = await ethers.getContract("PoseidonT3");
 
     // We test hashing for a random number
     const hash = await poseidonHasher.hash([

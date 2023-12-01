@@ -3,7 +3,7 @@ import { ethers, deployments } from "hardhat";
 
 describe("Rln", () => {
   beforeEach(async () => {
-    await deployments.fixture(["Rln"]);
+    await deployments.fixture(["RLN"]);
   });
 
   it("should register new memberships", async () => {

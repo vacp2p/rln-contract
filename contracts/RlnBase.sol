@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.15;
 
-import {PoseidonHasher} from "./PoseidonHasher.sol";
 import {IVerifier} from "./IVerifier.sol";
 import {BinaryIMT, BinaryIMTData} from "@zk-kit/imt.sol/BinaryIMT.sol";
 
@@ -42,6 +41,9 @@ error InsufficientContractBalance();
 error InvalidProof();
 
 abstract contract RlnBase {
+    /// @notice The Field
+    uint256 public constant Q = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
+
     /// @notice The deposit amount required to register as a member
     uint256 public immutable MEMBERSHIP_DEPOSIT;
 
@@ -68,9 +70,6 @@ abstract contract RlnBase {
     /// @notice The balance of each user that can be withdrawn
     mapping(address => uint256) public withdrawalBalance;
 
-    /// @notice The Poseidon hasher contract
-    PoseidonHasher public immutable poseidonHasher;
-
     /// @notice The groth16 verifier contract
     IVerifier public immutable verifier;
 
@@ -95,11 +94,10 @@ abstract contract RlnBase {
         _;
     }
 
-    constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) {
+    constructor(uint256 membershipDeposit, uint256 depth, address _verifier) {
         MEMBERSHIP_DEPOSIT = membershipDeposit;
         DEPTH = depth;
         SET_SIZE = 1 << depth;
-        poseidonHasher = PoseidonHasher(_poseidonHasher);
         verifier = IVerifier(_verifier);
         deployedBlockNumber = uint32(block.number);
         BinaryIMT.initWithDefaultZeroes(imtData, 20);
@@ -198,8 +196,8 @@ abstract contract RlnBase {
         payable(msg.sender).transfer(amount);
     }
 
-    function isValidCommitment(uint256 idCommitment) public view returns (bool) {
-        return idCommitment != 0 && idCommitment < poseidonHasher.Q();
+    function isValidCommitment(uint256 idCommitment) public pure returns (bool) {
+        return idCommitment != 0 && idCommitment < Q;
     }
 
     /// @dev Groth16 proof verification

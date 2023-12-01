@@ -8,50 +8,12 @@
 function verifyProof(uint256[2] a, uint256[2][2] b, uint256[2] c, uint256[2] input) external view returns (bool)
 ```
 
-## IPoseidonHasher
-
-### hash
-
-```solidity
-function hash(uint256[2] inputs) external pure returns (uint256 result)
-```
-
-Hashes the input using the Poseidon hash function, n = 2
-
-#### Parameters
-
-| Name   | Type       | Description       |
-| ------ | ---------- | ----------------- |
-| inputs | uint256[2] | The input to hash |
-
-## PoseidonHasher
-
-### Q
-
-```solidity
-uint256 Q
-```
-
-### hash
-
-```solidity
-function hash(uint256[2] inputs) external pure returns (uint256 result)
-```
-
-Hashes the input using the Poseidon hash function, n = 2
-
-#### Parameters
-
-| Name   | Type       | Description       |
-| ------ | ---------- | ----------------- |
-| inputs | uint256[2] | The input to hash |
-
 ## RLN
 
 ### constructor
 
 ```solidity
-constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) public
+constructor(uint256 membershipDeposit, uint256 depth, address _verifier) public
 ```
 
 ### \_validateRegistration
@@ -165,6 +127,14 @@ Invalid proof
 
 ## RlnBase
 
+### Q
+
+```solidity
+uint256 Q
+```
+
+The Field
+
 ### MEMBERSHIP_DEPOSIT
 
 ```solidity
@@ -231,14 +201,6 @@ mapping(address => uint256) withdrawalBalance
 
 The balance of each user that can be withdrawn
 
-### poseidonHasher
-
-```solidity
-contract PoseidonHasher poseidonHasher
-```
-
-The Poseidon hasher contract
-
 ### verifier
 
 ```solidity
@@ -302,7 +264,7 @@ modifier onlyValidIdCommitment(uint256 idCommitment)
 ### constructor
 
 ```solidity
-constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) internal
+constructor(uint256 membershipDeposit, uint256 depth, address _verifier) internal
 ```
 
 ### register
@@ -392,7 +354,7 @@ Allows a user to withdraw funds allocated to them upon slashing a member
 ### isValidCommitment
 
 ```solidity
-function isValidCommitment(uint256 idCommitment) public view returns (bool)
+function isValidCommitment(uint256 idCommitment) public pure returns (bool)
 ```
 
 ### \_verifyProof

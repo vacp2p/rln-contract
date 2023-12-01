@@ -7,10 +7,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const [deployer] = await getUnnamedAccounts();
 
-  await deploy("PoseidonT3", {
+  await deploy("BinaryIMT", {
     from: deployer,
     log: true,
+    libraries: {
+      PoseidonT3: (await deployments.get("PoseidonT3")).address,
+    },
   });
 };
+
 export default func;
-func.tags = ["PoseidonT3"];
+func.tags = ["BinaryIMT"];
+func.dependencies = ["PoseidonT3"];
