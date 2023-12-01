@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.15;
 
-import "../contracts/PoseidonHasher.sol";
 import "../contracts/RlnBase.sol";
 import "./Verifier.sol";
 import "forge-std/Test.sol";
@@ -15,9 +14,7 @@ contract RlnApp is RlnBase {
     uint256 private membershipDeposit = 1000000000000000;
     uint256 private depth = 20;
 
-    constructor(address _poseidonHasher, address _verifier)
-        RlnBase(membershipDeposit, depth, _poseidonHasher, _verifier)
-    {}
+    constructor(address _verifier) RlnBase(membershipDeposit, depth, _verifier) {}
 
     function _validateRegistration(uint256 idCommitment) internal pure override {
         if (idCommitment != allowedIdCommitment) revert FailedValidation();
@@ -34,7 +31,6 @@ contract RlnApp is RlnBase {
 
 contract RLNAppTest is Test {
     RlnApp public rlnApp;
-    PoseidonHasher public poseidon;
     TrueVerifier public trueVerifier;
 
     uint256 public constant MEMBERSHIP_DEPOSIT = 1000000000000000;
@@ -43,9 +39,8 @@ contract RLNAppTest is Test {
     uint256[8] public zeroedProof = [0, 0, 0, 0, 0, 0, 0, 0];
 
     function setUp() public {
-        poseidon = new PoseidonHasher();
         trueVerifier = new TrueVerifier();
-        rlnApp = new RlnApp(address(poseidon), address(trueVerifier));
+        rlnApp = new RlnApp(address(trueVerifier));
     }
 
     function test__Constants() public {

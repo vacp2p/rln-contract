@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.15;
 
-import "../contracts/PoseidonHasher.sol";
 import "../contracts/Rln.sol";
 import "./Verifier.sol";
 import "forge-std/Test.sol";
@@ -12,7 +11,6 @@ contract RlnTest is Test {
     using stdStorage for StdStorage;
 
     RLN public rln;
-    PoseidonHasher public poseidon;
     TrueVerifier public trueVerifier;
     FalseVerifier public falseVerifier;
 
@@ -23,10 +21,9 @@ contract RlnTest is Test {
 
     /// @dev Setup the testing environment.
     function setUp() public {
-        poseidon = new PoseidonHasher();
         trueVerifier = new TrueVerifier();
         falseVerifier = new FalseVerifier();
-        rln = new RLN(MEMBERSHIP_DEPOSIT, DEPTH, address(poseidon), address(trueVerifier));
+        rln = new RLN(MEMBERSHIP_DEPOSIT, DEPTH, address(trueVerifier));
     }
 
     /// @dev Ensure that you can hash a value.
@@ -72,7 +69,6 @@ contract RlnTest is Test {
         RLN tempRln = new RLN(
             MEMBERSHIP_DEPOSIT,
             2,
-            address(rln.poseidonHasher()),
             address(rln.verifier())
         );
         uint256 setSize = tempRln.SET_SIZE();
@@ -157,7 +153,6 @@ contract RlnTest is Test {
         RLN tempRln = new RLN(
             MEMBERSHIP_DEPOSIT,
             2,
-            address(rln.poseidonHasher()),
             address(falseVerifier)
         );
 
