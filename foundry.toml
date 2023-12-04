@@ -22,7 +22,8 @@
   verbosity = 4
 
 [etherscan]
-  sepolia = { key = "${API_KEY_ETHERSCAN}" }
+  sepolia = { key = "${SEPOLIA_ETHERSCAN_API_KEY}" }
+  polygon-zkevm-testnet = { key = "${POLYGONSCAN_ZKEVM_TESTNET_API_KEY}" }
 
 [fmt]
   bracket_spacing = true
@@ -36,4 +37,5 @@
 
 [rpc_endpoints]
   localhost = "http://localhost:8545"
-  sepolia = "https://eth-sepolia.g.alchemy.com/v2/${SEPOLIA_API_KEY}"
+  sepolia = "${SEPOLIA_RPC_URL}"
+  polygon-zkevm-testnet = "${POLYGON_ZKEVM_TESTNET_RPC_URL}"

@@ -21,8 +21,10 @@ contract DeploymentConfig is Script {
         deployer = _broadcaster;
         if (block.chainid == 31_337) {
             activeNetworkConfig = getOrCreateAnvilEthConfig();
-        } else if (block.chainid == 11155111) {
+        } else if (block.chainid == 11_155_111) {
             activeNetworkConfig = getOrCreateSepoliaEthConfig();
+        } else if (block.chainid == 1442) {
+            activeNetworkConfig = getOrCreatePolygonZkevmConfig();
         } else {
             revert DeploymentConfig_NoConfigForChain(block.chainid);
         }
@@ -33,6 +35,10 @@ contract DeploymentConfig is Script {
     }
 
     function getOrCreateSepoliaEthConfig() public view returns (NetworkConfig memory) {
+        return NetworkConfig({ deployer: deployer });
+    }
+
+    function getOrCreatePolygonZkevmConfig() public view returns (NetworkConfig memory) {
         return NetworkConfig({ deployer: deployer });
     }
 
