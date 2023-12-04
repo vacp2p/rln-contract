@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.15;
+pragma solidity >=0.8.19;
 
 import { Verifier } from "../src/RlnVerifier.sol";
 import { Rln } from "../src/Rln.sol";
@@ -9,8 +9,6 @@ import { DeploymentConfig } from "./DeploymentConfig.s.sol";
 contract Deploy is BaseScript {
     function run() public returns (Rln rln, DeploymentConfig deploymentConfig) {
         deploymentConfig = new DeploymentConfig(broadcaster);
-
-
 
         vm.startBroadcast(broadcaster);
         // step 1: deploy the verifier

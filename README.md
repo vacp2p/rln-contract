@@ -9,7 +9,6 @@
 
 A Foundry-based project for Rate Limiting Nullifiers.
 
-
 ## Getting Started
 
 ```sh
@@ -20,13 +19,13 @@ forge install # install Foundry's dependencies
 If this is your first time with Foundry, check out the
 [installation](https://github.com/foundry-rs/foundry#installation) instructions.
 
-
-## Usage 
+## Usage
 
 ### Compilation
 
 ```sh
 forge build
+```
 
 ### Format
 
@@ -58,14 +57,18 @@ Run the tests:
 forge test
 ```
 
-
 ### Deployment
 
 Ensure you setup the .env file with the correct values mentioned in the .env.example file.
 
 ```sh
-./script/deploy.sh rln
+./script/deploy.sh rln <network>
 ```
+
+Where `<network>` is one of -
+
+- `sepolia`
+- `polygon-zkevm`
 
 This will deploy the RLN contract, with its associated libraries to the specified network.
 If forge supports the network, it will also verify the contract on the block explorer.
