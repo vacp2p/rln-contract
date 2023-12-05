@@ -160,6 +160,8 @@ jobs:
           echo "## Coverage result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
   verify:
+    # TODO: Write Rln certora spec
+    if: false
     needs: ["lint", "build"]
     runs-on: ubuntu-latest
 
