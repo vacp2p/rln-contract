@@ -2,6 +2,7 @@
 broadcast
 cache
 lib
+deployments
 node_modules
 out
 
