@@ -1,9 +1,9 @@
 {
-  "name": "@vacp2p/foundry-template",
-  "description": "Foundry-based template for developing Solidity smart contracts used by Vac",
+  "name": "@vacp2p/rln-contracts",
+  "description": "Contracts for RLN's onchain registry set",
   "version": "1.0.0",
   "author": {
-    "name": "0x-r4bbit",
+    "name": "p1ge0nh8er",
     "url": "https://github.com/vacp2p"
   },
   "devDependencies": {
