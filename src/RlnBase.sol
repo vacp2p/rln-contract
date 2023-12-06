@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.15;
+pragma solidity ^0.8.19;
 
-import {PoseidonHasher} from "./PoseidonHasher.sol";
-import {IVerifier} from "./IVerifier.sol";
+import { IVerifier } from "./IVerifier.sol";
+import { BinaryIMT, BinaryIMTData } from "@zk-kit/imt.sol/BinaryIMT.sol";
 
 /// The tree is full
 error FullTree();
@@ -40,7 +40,14 @@ error InsufficientContractBalance();
 /// Invalid proof
 error InvalidProof();
 
+/// Invalid pagination query
+error InvalidPaginationQuery(uint256 startIndex, uint256 endIndex);
+
 abstract contract RlnBase {
+    /// @notice The Field
+    uint256 public constant Q =
+        21_888_242_871_839_275_222_246_405_745_257_275_088_548_364_400_416_034_343_698_204_186_575_808_495_617;
+
     /// @notice The deposit amount required to register as a member
     uint256 public immutable MEMBERSHIP_DEPOSIT;
 
@@ -61,19 +68,23 @@ abstract contract RlnBase {
     /// maps from idCommitment to their index in the set
     mapping(uint256 => uint256) public members;
 
+    /// @notice the index to commitment mapping
+    mapping(uint256 => uint256) public indexToCommitment;
+
+    /// @notice The membership status of each member
     mapping(uint256 => bool) public memberExists;
 
     /// @notice The balance of each user that can be withdrawn
     mapping(address => uint256) public withdrawalBalance;
-
-    /// @notice The Poseidon hasher contract
-    PoseidonHasher public immutable poseidonHasher;
 
     /// @notice The groth16 verifier contract
     IVerifier public immutable verifier;
 
     /// @notice the deployed block number
     uint32 public immutable deployedBlockNumber;
+
+    /// @notice the Incremental Merkle Tree
+    BinaryIMTData public imtData;
 
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
@@ -90,13 +101,13 @@ abstract contract RlnBase {
         _;
     }
 
-    constructor(uint256 membershipDeposit, uint256 depth, address _poseidonHasher, address _verifier) {
+    constructor(uint256 membershipDeposit, uint256 depth, address _verifier) {
         MEMBERSHIP_DEPOSIT = membershipDeposit;
         DEPTH = depth;
         SET_SIZE = 1 << depth;
-        poseidonHasher = PoseidonHasher(_poseidonHasher);
         verifier = IVerifier(_verifier);
         deployedBlockNumber = uint32(block.number);
+        BinaryIMT.initWithDefaultZeroes(imtData, 20);
     }
 
     /// Allows a user to register as a member
@@ -117,7 +128,9 @@ abstract contract RlnBase {
         if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
         members[idCommitment] = idCommitmentIndex;
+        indexToCommitment[idCommitmentIndex] = idCommitment;
         memberExists[idCommitment] = true;
+        BinaryIMT.insert(imtData, idCommitment);
         stakedAmounts[idCommitment] = stake;
 
         emit MemberRegistered(idCommitment, idCommitmentIndex);
@@ -129,7 +142,11 @@ abstract contract RlnBase {
 
     /// @dev Allows a user to slash a member
     /// @param idCommitment The idCommitment of the member
-    function slash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof)
+    function slash(
+        uint256 idCommitment,
+        address payable receiver,
+        uint256[8] calldata proof
+    )
         external
         virtual
         onlyValidIdCommitment(idCommitment)
@@ -162,8 +179,10 @@ abstract contract RlnBase {
         // delete member
         uint256 index = members[idCommitment];
         members[idCommitment] = 0;
+        indexToCommitment[index] = 0;
         memberExists[idCommitment] = false;
         stakedAmounts[idCommitment] = 0;
+        // TODO: remove from IMT
 
         // refund deposit
         withdrawalBalance[receiver] += amountToTransfer;
@@ -171,7 +190,11 @@ abstract contract RlnBase {
         emit MemberWithdrawn(idCommitment, index);
     }
 
-    function _validateSlash(uint256 idCommitment, address payable receiver, uint256[8] calldata proof)
+    function _validateSlash(
+        uint256 idCommitment,
+        address payable receiver,
+        uint256[8] calldata proof
+    )
         internal
         view
         virtual;
@@ -190,19 +213,16 @@ abstract contract RlnBase {
         payable(msg.sender).transfer(amount);
     }
 
-    /// Hashes a value using the Poseidon hasher
-    /// NOTE: The variant of Poseidon we use accepts only 1 input, assume n=2, and the second input is 0
-    /// @param input The value to hash
-    function hash(uint256 input) internal view returns (uint256) {
-        return poseidonHasher.hash(input);
-    }
-
-    function isValidCommitment(uint256 idCommitment) public view returns (bool) {
-        return idCommitment != 0 && idCommitment < poseidonHasher.Q();
+    function isValidCommitment(uint256 idCommitment) public pure returns (bool) {
+        return idCommitment != 0 && idCommitment < Q;
     }
 
     /// @dev Groth16 proof verification
-    function _verifyProof(uint256 idCommitment, address receiver, uint256[8] calldata proof)
+    function _verifyProof(
+        uint256 idCommitment,
+        address receiver,
+        uint256[8] calldata proof
+    )
         internal
         view
         virtual
@@ -214,5 +234,20 @@ abstract contract RlnBase {
             [proof[6], proof[7]],
             [idCommitment, uint256(uint160(receiver))]
         );
+    }
+
+    function root() external view returns (uint256) {
+        return imtData.root;
+    }
+
+    function getCommitments(uint256 startIndex, uint256 endIndex) public view returns (uint256[] memory) {
+        if (startIndex >= endIndex) revert InvalidPaginationQuery(startIndex, endIndex);
+        if (endIndex > idCommitmentIndex) revert InvalidPaginationQuery(startIndex, endIndex);
+
+        uint256[] memory commitments = new uint256[](endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            commitments[i - startIndex] = indexToCommitment[i];
+        }
+        return commitments;
     }
 }

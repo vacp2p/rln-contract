@@ -1,60 +1,78 @@
-# Hardhat Project for rln-contract
+# rln-contract [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] [![License: MIT][license-badge]][license]
 
-## Requirements
+[gha]: https://github.com/vacp2p/foundry-template/actions
+[gha-badge]: https://github.com/vacp2p/foundry-template/actions/workflows/ci.yml/badge.svg
+[foundry]: https://getfoundry.sh/
+[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
+[license]: https://opensource.org/licenses/MIT
+[license-badge]: https://img.shields.io/badge/License-MIT-blue.svg
 
-The following will need to be installed in order to use this repo. Please follow the links and instructions.
+A Foundry-based project for Rate Limiting Nullifiers.
 
-- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-  - You'll know you've done it right if you can run `git --version`
-- [Foundry / Foundryup](https://github.com/gakonst/foundry)
-  - This will install `forge`, `cast`, and `anvil`
-  - You can test you've installed them right by running `forge --version` and get an output like: `forge 0.2.0 (92f8951 2022-08-06T00:09:32.96582Z)`
-  - To get the latest of each, just run `foundryup`
-- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+## Getting Started
 
-## Compilation
-
-```shell
-yarn compile
+```sh
+pnpm install # install Solhint, Prettier, and other Node.js deps
+forge install # install Foundry's dependencies
 ```
 
-## Testing with Hardhat
+If this is your first time with Foundry, check out the
+[installation](https://github.com/foundry-rs/foundry#installation) instructions.
 
-```shell
-yarn test:hardhat
+## Usage
+
+### Compilation
+
+```sh
+forge build
 ```
 
-## Testing with Foundry
+### Format
 
-```shell
-yarn test:foundry
+```sh
+forge fmt
 ```
 
-## Deploying
+### Clean
 
-### Locally
+Deletes the build artifacts and cache directories:
 
-- To deploy on a local node, first start the local node and then run the deploy script
-
-```shell
-yarn node
-yarn deploy:localhost
+```sh
+forge clean
 ```
 
-### Sepolia
+### Gas Usage
 
-- To deploy to an target network (like Sepolia), use the name as mentioned in the Hardhat config file.
+Get a gas report:
 
-```shell
-yarn deploy:sepolia
-# You may verify the contract using
-yarn verify:sepolia # Ensure you have set ETHERSCAN_API_KEY in your env
+```sh
+forge test --gas-report
 ```
 
-## References
+### Test
 
-For more information, see https://hardhat.org/hardhat-runner/docs/guides/project-setup
+Run the tests:
+
+```sh
+forge test
+```
+
+### Deployment
+
+Ensure you setup the .env file with the correct values mentioned in the .env.example file.
+
+```sh
+./script/deploy.sh rln <network>
+```
+
+Where `<network>` is one of -
+
+- `sepolia`
+- `polygon-zkevm`
+
+This will deploy the RLN contract, with its associated libraries to the specified network.
+If forge supports the network, it will also verify the contract on the block explorer.
 
 ## License
 
-Dual-licensed under MIT or Apache 2.0, refer to [LICENSE-MIT](LICENSE-MIT) or [LICENSE-APACHE](LICENSE-APACHE) for more information.
+This project is dual licensed under MIT and APACHE-2.0.
