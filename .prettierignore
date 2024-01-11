@@ -1,5 +1,19 @@
-node_modules
-artifacts
+# directories
+broadcast
 cache
-coverage*
-gasReporterOutput.json
+lib
+deployments
+node_modules
+out
+
+# files
+*.env
+*.log
+.DS_Store
+.pnp.*
+lcov.info
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+slither.config.json
