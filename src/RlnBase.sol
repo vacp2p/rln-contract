@@ -3,7 +3,6 @@
 pragma solidity ^0.8.19;
 
 import { IVerifier } from "./IVerifier.sol";
-import { PoseidonT3 } from "poseidon-solidity/PoseidonT3.sol";
 
 /// The tree is full
 error FullTree();
@@ -14,7 +13,7 @@ error FullTree();
 error InsufficientDeposit(uint256 required, uint256 provided);
 
 /// Member is already registered
-error DuplicateRateCommitment();
+error DuplicateIdCommitment();
 
 /// Failed validation on registration/slashing
 error FailedValidation();
@@ -52,7 +51,7 @@ abstract contract RlnBase {
         21_888_242_871_839_275_222_246_405_745_257_275_088_548_364_400_416_034_343_698_204_186_575_808_495_617;
 
     /// @notice The max message limit per epoch
-    uint256 public constant MAX_MESSAGE_LIMIT = 20;
+    uint256 public immutable MAX_MESSAGE_LIMIT;
 
     /// @notice The deposit amount required to register as a member
     uint256 public immutable MEMBERSHIP_DEPOSIT;
@@ -64,7 +63,7 @@ abstract contract RlnBase {
     uint256 public immutable SET_SIZE;
 
     /// @notice The index of the next member to be registered
-    uint256 public rateCommitmentIndex = 0;
+    uint256 public idCommitmentIndex = 0;
 
     /// @notice The amount of eth staked by each member
     /// maps from idCommitment to the amount staked
@@ -95,8 +94,9 @@ abstract contract RlnBase {
 
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
+    /// @param userMessageLimit the user message limit of the member
     /// @param index The index of the member in the set
-    event MemberRegistered(uint256 idCommitment, uint256 index);
+    event MemberRegistered(uint256 idCommitment, uint256 userMessageLimit, uint256 index);
 
     /// Emitted when a member is removed from the set
     /// @param idCommitment The idCommitment of the member
@@ -114,8 +114,9 @@ abstract contract RlnBase {
         _;
     }
 
-    constructor(uint256 membershipDeposit, uint256 depth, address _verifier) {
+    constructor(uint256 membershipDeposit, uint256 depth, uint256 maxMessageLimit, address _verifier) {
         MEMBERSHIP_DEPOSIT = membershipDeposit;
+        MAX_MESSAGE_LIMIT = maxMessageLimit;
         DEPTH = depth;
         SET_SIZE = 1 << depth;
         verifier = IVerifier(_verifier);
@@ -147,7 +148,7 @@ abstract contract RlnBase {
             revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
         }
         _validateRegistration(idCommitment);
-        _register(idCommitment, msg.value);
+        _register(idCommitment, userMessageLimit, msg.value);
     }
 
     /// Registers a member
@@ -155,18 +156,17 @@ abstract contract RlnBase {
     /// @param userMessageLimit The message limit of the member
     /// @param stake The amount of eth staked by the member
     function _register(uint256 idCommitment, uint256 userMessageLimit, uint256 stake) internal virtual {
-        uint256 rateCommitment = PoseidonT3.hash([idCommitment, userMessageLimit]);
-        if (memberExists[rateCommitment]) revert DuplicateRateCommitment();
-        if (rateCommitmentIndex >= SET_SIZE) revert FullTree();
+        if (memberExists[idCommitment]) revert DuplicateIdCommitment();
+        if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
-        members[rateCommitment] = rateCommitmentIndex;
-        indexToCommitment[rateCommitmentIndex] = rateCommitment;
-        memberExists[rateCommitment] = true;
-        stakedAmounts[rateCommitment] = stake;
+        members[idCommitment] = idCommitmentIndex;
+        indexToCommitment[idCommitmentIndex] = idCommitment;
+        memberExists[idCommitment] = true;
+        stakedAmounts[idCommitment] = stake;
         userMessageLimits[idCommitment] = userMessageLimit;
 
-        emit MemberRegistered(rateCommitment, rateCommitmentIndex);
-        rateCommitmentIndex += 1;
+        emit MemberRegistered(idCommitment, userMessageLimit, idCommitmentIndex);
+        idCommitmentIndex += 1;
     }
 
     /// @dev Inheriting contracts MUST override this function
@@ -197,25 +197,24 @@ abstract contract RlnBase {
         }
 
         uint256 userMessageLimit = userMessageLimits[idCommitment];
-        uint256 rateCommitment = PoseidonT3.hash([idCommitment, userMessageLimit]);
-        if (memberExists[rateCommitment] == false) revert MemberNotRegistered(rateCommitment);
+        if (memberExists[idCommitment] == false) revert MemberNotRegistered(idCommitment);
         // check if member is registered
-        if (stakedAmounts[rateCommitment] == 0) {
-            revert MemberHasNoStake(rateCommitment);
+        if (stakedAmounts[idCommitment] == 0) {
+            revert MemberHasNoStake(idCommitment);
         }
 
-        if (!_verifyProof(rateCommitment, receiver, proof)) {
+        if (!_verifyProof(idCommitment, receiver, proof)) {
             revert InvalidProof();
         }
 
-        uint256 amountToTransfer = stakedAmounts[rateCommitment];
+        uint256 amountToTransfer = stakedAmounts[idCommitment];
 
         // delete member
-        uint256 index = members[rateCommitment];
-        members[rateCommitment] = 0;
+        uint256 index = members[idCommitment];
+        members[idCommitment] = 0;
         indexToCommitment[index] = 0;
-        memberExists[rateCommitment] = false;
-        stakedAmounts[rateCommitment] = 0;
+        memberExists[idCommitment] = false;
+        stakedAmounts[idCommitment] = 0;
         userMessageLimits[idCommitment] = 0;
 
         // refund deposit
@@ -272,7 +271,7 @@ abstract contract RlnBase {
 
     function getCommitments(uint256 startIndex, uint256 endIndex) public view returns (uint256[] memory) {
         if (startIndex >= endIndex) revert InvalidPaginationQuery(startIndex, endIndex);
-        if (endIndex > rateCommitmentIndex) revert InvalidPaginationQuery(startIndex, endIndex);
+        if (endIndex > idCommitmentIndex) revert InvalidPaginationQuery(startIndex, endIndex);
 
         uint256[] memory commitments = new uint256[](endIndex - startIndex);
         for (uint256 i = startIndex; i < endIndex; i++) {

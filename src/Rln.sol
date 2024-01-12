@@ -7,9 +7,10 @@ contract Rln is RlnBase {
     constructor(
         uint256 membershipDeposit,
         uint256 depth,
+        uint256 maxMessageLimit,
         address _verifier
     )
-        RlnBase(membershipDeposit, depth, _verifier)
+        RlnBase(membershipDeposit, depth, maxMessageLimit, _verifier)
     { }
 
     function _validateRegistration(uint256 idCommitment) internal pure override { }
