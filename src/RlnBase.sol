@@ -21,6 +21,9 @@ error FailedValidation();
 /// Invalid idCommitment
 error InvalidIdCommitment(uint256 idCommitment);
 
+/// Invalid userMessageLimit
+error InvalidUserMessageLimit(uint256 messageLimit);
+
 /// Invalid receiver address, when the receiver is the contract itself or 0x0
 error InvalidReceiverAddress(address to);
 
@@ -47,6 +50,9 @@ abstract contract RlnBase {
     uint256 public constant Q =
         21_888_242_871_839_275_222_246_405_745_257_275_088_548_364_400_416_034_343_698_204_186_575_808_495_617;
 
+    /// @notice The max message limit per epoch
+    uint256 public immutable MAX_MESSAGE_LIMIT;
+
     /// @notice The deposit amount required to register as a member
     uint256 public immutable MEMBERSHIP_DEPOSIT;
 
@@ -67,6 +73,10 @@ abstract contract RlnBase {
     /// maps from idCommitment to their index in the set
     mapping(uint256 => uint256) public members;
 
+    /// @notice the user message limit of each member
+    /// maps from idCommitment to their user message limit
+    mapping(uint256 => uint256) public userMessageLimits;
+
     /// @notice the index to commitment mapping
     mapping(uint256 => uint256) public indexToCommitment;
 
@@ -84,8 +94,9 @@ abstract contract RlnBase {
 
     /// Emitted when a new member is added to the set
     /// @param idCommitment The idCommitment of the member
+    /// @param userMessageLimit the user message limit of the member
     /// @param index The index of the member in the set
-    event MemberRegistered(uint256 idCommitment, uint256 index);
+    event MemberRegistered(uint256 idCommitment, uint256 userMessageLimit, uint256 index);
 
     /// Emitted when a member is removed from the set
     /// @param idCommitment The idCommitment of the member
@@ -97,28 +108,54 @@ abstract contract RlnBase {
         _;
     }
 
-    constructor(uint256 membershipDeposit, uint256 depth, address _verifier) {
+    modifier onlyValidUserMessageLimit(uint256 messageLimit) {
+        if (messageLimit > MAX_MESSAGE_LIMIT) revert InvalidUserMessageLimit(messageLimit);
+        if (messageLimit == 0) revert InvalidUserMessageLimit(messageLimit);
+        _;
+    }
+
+    constructor(uint256 membershipDeposit, uint256 depth, uint256 maxMessageLimit, address _verifier) {
         MEMBERSHIP_DEPOSIT = membershipDeposit;
+        MAX_MESSAGE_LIMIT = maxMessageLimit;
         DEPTH = depth;
         SET_SIZE = 1 << depth;
         verifier = IVerifier(_verifier);
         deployedBlockNumber = uint32(block.number);
     }
 
+    /// Returns the deposit amount required to register as a member
+    /// @param userMessageLimit The message limit of the member
+    /// TODO: update this function as per tokenomics design
+    function getDepositAmount(uint256 userMessageLimit) public view returns (uint256) {
+        return userMessageLimit * MEMBERSHIP_DEPOSIT;
+    }
+
     /// Allows a user to register as a member
     /// @param idCommitment The idCommitment of the member
-    function register(uint256 idCommitment) external payable virtual onlyValidIdCommitment(idCommitment) {
-        if (msg.value != MEMBERSHIP_DEPOSIT) {
+    /// @param userMessageLimit The message limit of the member
+    function register(
+        uint256 idCommitment,
+        uint256 userMessageLimit
+    )
+        external
+        payable
+        virtual
+        onlyValidIdCommitment(idCommitment)
+        onlyValidUserMessageLimit(userMessageLimit)
+    {
+        uint256 requiredDeposit = getDepositAmount(userMessageLimit);
+        if (msg.value != requiredDeposit) {
             revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
         }
         _validateRegistration(idCommitment);
-        _register(idCommitment, msg.value);
+        _register(idCommitment, userMessageLimit, msg.value);
     }
 
     /// Registers a member
     /// @param idCommitment The idCommitment of the member
+    /// @param userMessageLimit The message limit of the member
     /// @param stake The amount of eth staked by the member
-    function _register(uint256 idCommitment, uint256 stake) internal virtual {
+    function _register(uint256 idCommitment, uint256 userMessageLimit, uint256 stake) internal virtual {
         if (memberExists[idCommitment]) revert DuplicateIdCommitment();
         if (idCommitmentIndex >= SET_SIZE) revert FullTree();
 
@@ -126,8 +163,9 @@ abstract contract RlnBase {
         indexToCommitment[idCommitmentIndex] = idCommitment;
         memberExists[idCommitment] = true;
         stakedAmounts[idCommitment] = stake;
+        userMessageLimits[idCommitment] = userMessageLimit;
 
-        emit MemberRegistered(idCommitment, idCommitmentIndex);
+        emit MemberRegistered(idCommitment, userMessageLimit, idCommitmentIndex);
         idCommitmentIndex += 1;
     }
 
@@ -158,6 +196,7 @@ abstract contract RlnBase {
             revert InvalidReceiverAddress(receiver);
         }
 
+        uint256 userMessageLimit = userMessageLimits[idCommitment];
         if (memberExists[idCommitment] == false) revert MemberNotRegistered(idCommitment);
         // check if member is registered
         if (stakedAmounts[idCommitment] == 0) {
@@ -176,7 +215,7 @@ abstract contract RlnBase {
         indexToCommitment[index] = 0;
         memberExists[idCommitment] = false;
         stakedAmounts[idCommitment] = 0;
-        // TODO: remove from IMT
+        userMessageLimits[idCommitment] = 0;
 
         // refund deposit
         withdrawalBalance[receiver] += amountToTransfer;
