@@ -143,7 +143,7 @@ abstract contract RlnBase {
         onlyValidIdCommitment(idCommitment)
         onlyValidUserMessageLimit(userMessageLimit)
     {
-        uint256 requiredDeposit = userMessageLimit * MEMBERSHIP_DEPOSIT;
+        uint256 requiredDeposit = getDepositAmount(userMessageLimit);
         if (msg.value != requiredDeposit) {
             revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
         }
