@@ -13,7 +13,7 @@ contract Rln is RlnBase {
         RlnBase(membershipDeposit, depth, maxMessageLimit, _verifier)
     { }
 
-    function _validateRegistration(uint256 idCommitment) internal pure override { }
+    function _validateRegistration(uint256 idCommitment, uint256 userMessageLimit) internal pure override { }
 
     function _validateSlash(
         uint256 idCommitment,

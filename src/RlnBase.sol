@@ -147,7 +147,7 @@ abstract contract RlnBase {
         if (msg.value != requiredDeposit) {
             revert InsufficientDeposit(MEMBERSHIP_DEPOSIT, msg.value);
         }
-        _validateRegistration(idCommitment);
+        _validateRegistration(idCommitment, userMessageLimit);
         _register(idCommitment, userMessageLimit, msg.value);
     }
 
@@ -170,7 +170,7 @@ abstract contract RlnBase {
     }
 
     /// @dev Inheriting contracts MUST override this function
-    function _validateRegistration(uint256 idCommitment) internal view virtual;
+    function _validateRegistration(uint256 idCommitment, uint256 userMessageLimit) internal view virtual;
 
     /// @dev Allows a user to slash a member
     /// @param idCommitment The idCommitment of the member
