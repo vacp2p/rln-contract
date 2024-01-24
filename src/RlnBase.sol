@@ -196,7 +196,6 @@ abstract contract RlnBase {
             revert InvalidReceiverAddress(receiver);
         }
 
-        uint256 userMessageLimit = userMessageLimits[idCommitment];
         if (memberExists[idCommitment] == false) revert MemberNotRegistered(idCommitment);
         // check if member is registered
         if (stakedAmounts[idCommitment] == 0) {
