@@ -3,6 +3,9 @@
 pragma solidity ^0.8.19;
 
 import { IVerifier } from "./IVerifier.sol";
+import { BinaryIMTMemory, BinaryIMTMemoryData } from "./BinaryIMTMemory.sol";
+import { PoseidonT3 } from "poseidon-solidity/PoseidonT3.sol";
+import "forge-std/console2.sol";
 
 /// The tree is full
 error FullTree();
@@ -277,5 +280,16 @@ abstract contract RlnBase {
             commitments[i - startIndex] = indexToCommitment[i];
         }
         return commitments;
+    }
+
+    function root() public view returns (uint256) {
+        BinaryIMTMemoryData memory imtData;
+        uint256[] memory leaves = new uint256[](idCommitmentIndex);
+        for (uint256 i = 0; i < idCommitmentIndex; i++) {
+            uint256 idCommitment = indexToCommitment[i];
+            uint256 userMessageLimit = userMessageLimits[idCommitment];
+            leaves[i] = PoseidonT3.hash([idCommitment, userMessageLimit]);
+        }
+        return BinaryIMTMemory.calcRoot(imtData, DEPTH, leaves);
     }
 }
