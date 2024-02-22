@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.19;
 
 import { PoseidonT3 } from "poseidon-solidity/PoseidonT3.sol";
 
 // stripped down version of
+// solhint-disable-next-line max-line-length
 // https://github.com/privacy-scaling-explorations/zk-kit/blob/718a5c2fa0f6cd577cee3fd08373609ac985d3bb/packages/imt.sol/contracts/internal/InternalBinaryIMT.sol
 // that allows getting the root of the rln tree without expensive storage reads/writes
 struct BinaryIMTMemoryData {
@@ -61,6 +62,7 @@ library BinaryIMTMemory {
     uint256 public constant Z_20 =
         15_019_797_232_609_675_441_998_260_052_101_280_400_536_945_603_062_888_308_240_081_994_073_687_793_470;
 
+    // solhint-disable-next-line code-complexity
     function defaultZero(uint256 index) public pure returns (uint256) {
         if (index == 0) return Z_0;
         if (index == 1) return Z_1;
