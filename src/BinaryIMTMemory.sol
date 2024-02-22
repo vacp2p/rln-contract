@@ -109,9 +109,6 @@ library BinaryIMTMemory {
                 if (index & 1 == 0) {
                     lastSubtrees[i] = [hash, defaultZero(i)];
                 } else {
-                    if (i > 0) {
-                        lastSubtrees[i][0] = lastSubtrees[i][0];
-                    }
                     lastSubtrees[i][1] = hash;
                 }
                 hash = PoseidonT3.hash(lastSubtrees[i]);
